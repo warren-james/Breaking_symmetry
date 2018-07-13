@@ -1,0 +1,63 @@
+participant    Block     North size order
+NG1            1         LSL
+NG1            2         SLS
+
+NG2            1         SLS
+NG2            2         LSL
+
+NG3            1         LSL
+NG3            2         SLS
+
+CS1            1         SLS
+CS1            2         LSL
+
+CS2            1         LSL
+CS2            2         SLS
+
+CS3            1         SLS
+CS3            2         LSL
+
+JR1            1         LSL
+JR1            2         SLS
+
+JR2            1         SLS
+JR2            2         LSL
+
+JR3            1         SLS
+JR3            2         LSL
+
+AM1            1         LSL
+AM1            2         SLS
+ 
+AM2            1         SLS
+AM2            2         LSL
+
+AM3            1         LSL
+AM3            2         SLS
+
+FP1            1         SLS
+FP1            2         LSL
+
+FP2            1         LSL
+FP2            2         SLS
+
+FP3            1         SLS
+FP3            2         LSL
+
+BS1            1         LSL
+BS1            2         SLS
+
+BS2            1         SLS
+BS2            2         LSL
+
+BS3            1         LSL
+BS3            2         SLS
+
+SA1            1         SLS
+SA1            2         LSL
+
+SA2            1         LSL
+SA2            2         SLS
+
+SA3            1         SLS
+SA3            2         LSL

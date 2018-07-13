@@ -1,0 +1,1297 @@
+Participant,Trial no.,North/South,Colour,Position,Hit/Miss,R,Y,B
+ZW1,1,north,Blue,18,Hit ,4,7,9
+ZW1,2,north,red ,22,Hit ,4,7,9
+ZW1,3,north,red ,20,Hit ,4,7,9
+ZW1,4,south ,yellow,20,miss,4,7,9
+ZW1,5,south ,red ,20,Hit ,4,7,9
+ZW1,6,south ,blue,19,Hit ,4,7,9
+ZW1,7,south ,yellow,20,miss,4,7,9
+ZW1,8,north,yellow,20,Hit ,4,7,9
+ZW1,9,north,blue,22,miss,4,7,9
+ZW1,10,south ,blue,20,miss,4,7,9
+ZW1,11,south ,yellow,19,Hit ,4,7,9
+ZW1,12,south ,red ,20,Hit ,4,7,9
+ZW1,13,north,red ,20,Miss,4,7,9
+ZW1,14,north,red ,20,Hit ,4,7,9
+ZW1,15,north,blue,18,Miss,4,7,9
+ZW1,16,north,yellow,22,Miss,4,7,9
+ZW1,17,north,red ,20,Miss,4,7,9
+ZW1,18,south ,yellow,21,Hit ,4,7,9
+ZW1,19,north ,blue,20,Miss,4,7,9
+ZW1,20,south ,yellow,21,Hit ,4,7,9
+ZW1,21,south ,red ,20,Hit ,4,7,9
+ZW1,22,south ,red ,20,Hit ,4,7,9
+ZW1,23,north,yellow,20,Miss,4,7,9
+ZW1,24,south ,blue,20,Hit ,4,7,9
+ZW1,25,north,blue,20,Hit ,4,7,9
+ZW1,26,south ,red ,20,Hit ,4,7,9
+ZW1,27,south ,red ,20,Hit ,4,7,9
+ZW1,28,north,yellow,20,Hit ,4,7,9
+ZW1,29,south ,yellow,20,MIss,4,7,9
+ZW1,30,south ,blue,20,MIss,4,7,9
+ZW1,31,north,blue,20,Hit ,4,7,9
+ZW1,32,south ,red ,20,Hit ,4,7,9
+ZW1,33,south ,red ,20,Hit ,4,7,9
+ZW1,34,north,blue,20,Hit ,4,7,9
+ZW1,35,north,red ,20,Hit ,4,7,9
+ZW1,36,north,red ,20,Hit ,4,7,9
+ZW1,1,south ,red ,20,Hit ,8,10,12
+ZW1,2,south ,yellow,20,Hit ,8,10,12
+ZW1,3,north,yellow,20,Hit ,8,10,12
+ZW1,4,north,yellow,20,Hit ,8,10,12
+ZW1,5,north,blue,20,miss,8,10,12
+ZW1,6,south ,blue,20,miss,8,10,12
+ZW1,7,north,blue,20,Hit ,8,10,12
+ZW1,8,south ,blue,20,miss,8,10,12
+ZW1,9,north,yellow,20,Hit ,8,10,12
+ZW1,10,south ,blue,20,miss,8,10,12
+ZW1,11,south ,yellow,20,miss,8,10,12
+ZW1,12,south ,red ,20,Hit ,8,10,12
+ZW1,13,north,red ,20,Hit ,8,10,12
+ZW1,14,north,red ,20,miss,8,10,12
+ZW1,15,south ,yellow,20,miss,8,10,12
+ZW1,16,north,blue,20,Hit ,8,10,12
+ZW1,17,south ,red ,20,Hit ,8,10,12
+ZW1,18,north,red ,20,Hit ,8,10,12
+ZW1,19,north,blue,20,miss,8,10,12
+ZW1,20,south ,yellow,20,Hit ,8,10,12
+ZW1,21,north,blue,20,Hit ,8,10,12
+ZW1,22,north,red ,20,Hit ,8,10,12
+ZW1,23,north,yellow,20,miss,8,10,12
+ZW1,24,south ,red ,20,Hit ,8,10,12
+ZW1,25,north,blue,20,miss,8,10,12
+ZW1,26,south ,yellow,20,Hit ,8,10,12
+ZW1,27,south ,yellow,20,Hit ,8,10,12
+ZW1,28,south ,red ,20,Hit ,8,10,12
+ZW1,29,south ,blue,20,miss,8,10,12
+ZW1,30,north,red ,20,Hit ,8,10,12
+ZW1,31,south ,yellow,20,Hit ,8,10,12
+ZW1,32,north,red ,20,Hit ,8,10,12
+ZW1,33,north,blue,20,Hit ,8,10,12
+ZW1,34,north,red ,20,Hit ,8,10,12
+ZW1,35,south ,red ,20,miss,8,10,12
+ZW1,36,south ,yellow,20,Hit ,8,10,12
+ZW2,1,north ,yellow,19,miss,10,12,15
+ZW2,2,south,yellow,22,miss,10,12,15
+ZW2,3,north,blue,19,miss,10,12,15
+ZW2,4,north,red,17,miss,10,12,15
+ZW2,5,north,red,17,miss,10,12,15
+ZW2,6,south,red,18,hit,10,12,15
+ZW2,7,north,blue,17,miss,10,12,15
+ZW2,8,south,red,24,miss,10,12,15
+ZW2,9,south,yellow,18,miss,10,12,15
+ZW2,10,south,red,18,hit,10,12,15
+ZW2,11,south,red,18,miss,10,12,15
+ZW2,12,north,yellow,20,miss,10,12,15
+ZW2,13,north,yellow,20,miss,10,12,15
+ZW2,14,north,blue,26,miss,10,12,15
+ZW2,15,south,yellow,18,hit,10,12,15
+ZW2,16,north,red,18,miss,10,12,15
+ZW2,17,south,blue,22,miss,10,12,15
+ZW2,18,south,red,22,hit,10,12,15
+ZW2,19,south,blue,22,miss,10,12,15
+ZW2,20,north,blue,22,miss,10,12,15
+ZW2,21,north,yellow,18,hit,10,12,15
+ZW2,22,north,yellow,20,miss,10,12,15
+ZW2,23,south,yellow,20,miss,10,12,15
+ZW2,24,north,red,22,miss,10,12,15
+ZW2,25,north,yellow,20,hit,10,12,15
+ZW2,26,south,yellow,20,miss,10,12,15
+ZW2,27,south,red,20,hit,10,12,15
+ZW2,28,north,yellow,18,miss,10,12,15
+ZW2,29,north,yellow,18,hit,10,12,15
+ZW2,30,south,red,18,miss,10,12,15
+ZW2,31,south,yellow,24,hit,10,12,15
+ZW2,32,south,red,23,hit,10,12,15
+ZW2,33,south,yellow,20,miss,10,12,15
+ZW2,34,north,red,20,miss,10,12,15
+ZW2,35,north,red,20,miss,10,12,15
+ZW2,36,south,blue,20,miss,10,12,15
+ZW2,1,south,yellow,18,miss,5,9,11
+ZW2,2,north,yellow,18,miss,5,9,11
+ZW2,3,south,blue,20,miss,5,9,11
+ZW2,4,north ,blue,20,miss,5,9,11
+ZW2,5,north,blue,20,miss,5,9,11
+ZW2,6,north,red,20,miss,5,9,11
+ZW2,7,north,yellow,20,miss,5,9,11
+ZW2,8,north,blue,20,hit,5,9,11
+ZW2,9,south,red,18,miss,5,9,11
+ZW2,10,north,red,18,hit,5,9,11
+ZW2,11,south,yellow,18,miss,5,9,11
+ZW2,12,south,blue,20,miss,5,9,11
+ZW2,13,south,red,20,hit,5,9,11
+ZW2,14,south,yellow,16,miss,5,9,11
+ZW2,15,north,blue,16,hit,5,9,11
+ZW2,16,north,blue,20,miss,5,9,11
+ZW2,17,north,blue,22,miss,5,9,11
+ZW2,18,south,yellow,16,miss,5,9,11
+ZW2,19,north,red,16,hit,5,9,11
+ZW2,20,north,yellow,16,miss,5,9,11
+ZW2,21,south,blue,20,miss,5,9,11
+ZW2,22,north,yellow,20,miss,5,9,11
+ZW2,23,south,red,24,hit,5,9,11
+ZW2,24,north,red,24,miss,5,9,11
+ZW2,25,south,blue,24,hit,5,9,11
+ZW2,26,north,blue,24,miss,5,9,11
+ZW2,27,south,yellow,18,miss,5,9,11
+ZW2,28,south,red,18,hit,5,9,11
+ZW2,29,south,yellow,18,miss,5,9,11
+ZW2,30,south,blue,16,miss,5,9,11
+ZW2,31,north,red,16,hit,5,9,11
+ZW2,32,north,yellow,24,miss,5,9,11
+ZW2,33,north,blue,24,hit,5,9,11
+ZW2,34,south,yellow,24,hit,5,9,11
+ZW2,35,south,blue,24,miss,5,9,11
+ZW2,36,south,yellow,24,hit,5,9,11
+ZW3,1,north,red,24,hit,5,9,11
+ZW3,2,south,red,16,hit,5,9,11
+ZW3,3,north,yellow,28,hit,5,9,11
+ZW3,4,north,yellow,22,hit,5,9,11
+ZW3,5,north,red,16,hit,5,9,11
+ZW3,6,south,red,18,hit,5,9,11
+ZW3,7,south,red,16,hit,5,9,11
+ZW3,8,north,blue,26,miss,5,9,11
+ZW3,9,north,blue,28,miss,5,9,11
+ZW3,10,south,red,14,hit,5,9,11
+ZW3,11,north,blue,22,hit,5,9,11
+ZW3,12,south,yellow,22,hit,5,9,11
+ZW3,13,north,yellow,18,miss,5,9,11
+ZW3,14,south,yellow,24,hit,5,9,11
+ZW3,15,south,red,18,hit,5,9,11
+ZW3,16,north,blue,14,hit,5,9,11
+ZW3,17,north,red,22,hit,5,9,11
+ZW3,18,north,blue,32,miss,5,9,11
+ZW3,19,north,blue,20,hit,5,9,11
+ZW3,20,north,red,24,hit,5,9,11
+ZW3,21,south,yellow,16,hit,5,9,11
+ZW3,22,south,blue,22,hit,5,9,11
+ZW3,23,north,yellow,20,hit,5,9,11
+ZW3,24,north,blue,26,hit,5,9,11
+ZW3,25,south,yellow,24,hit,5,9,11
+ZW3,26,south,blue,20,hit,5,9,11
+ZW3,27,south,blue,18,hit,5,9,11
+ZW3,28,south,red,16,hit,5,9,11
+ZW3,29,south,red,14,miss,5,9,11
+ZW3,30,south,blue,28,hit,5,9,11
+ZW3,31,north,yellow,20,miss,5,9,11
+ZW3,32,south,yellow,24,hit,5,9,11
+ZW3,33,south,yellow,16,hit,5,9,11
+ZW3,34,north,yellow,24,miss,5,9,11
+ZW3,35,south,red,28,hit,5,9,11
+ZW3,36,north,blue,18,miss,5,9,11
+ZW3 ,1,south,blue,16,miss,10,12,15
+ZW3,2,north,red,22,hit,10,12,15
+ZW3,3,north,yellow,16,miss,10,12,15
+ZW3,4,north,red,20,hit,10,12,15
+ZW3,5,south,blue,26,hit,10,12,15
+ZW3,6,south,red,18,hit,10,12,15
+ZW3,7,south,yellow,20,miss,10,12,15
+ZW3,8,north,yellow,26,miss,10,12,15
+ZW3,9,north,yellow,28,miss,10,12,15
+ZW3,10,north,red,22,hit,10,12,15
+ZW3,11,north,blue,14,hit,10,12,15
+ZW3,12,north,yellow,24,miss,10,12,15
+ZW3,13,north,red,20,miss,10,12,15
+ZW3,14,south,yellow,28,hit,10,12,15
+ZW3,15,south,red,22,hit,10,12,15
+ZW3,16,south,blue,14,miss,10,12,15
+ZW3,17,south,red,18,miss,10,12,15
+ZW3,18,north,yellow,16,miss,10,12,15
+ZW3,19,south,blue,24,hit,10,12,15
+ZW3,20,south,yellow,20,hit,10,12,15
+ZW3,21,north,red,14,hit,10,12,15
+ZW3,22,south,red,26,hit,10,12,15
+ZW3,23,south,yellow,24,hit,10,12,15
+ZW3,24,south,yellow,16,miss,10,12,15
+ZW3,25,south,red,20,miss,10,12,15
+ZW3,26,south,yellow,22,hit,10,12,15
+ZW3,27,south,red,20,hit,10,12,15
+ZW3,28,north,blue,22,miss,10,12,15
+ZW3,29,north,blue,16,hit,10,12,15
+ZW3,30,north,yellow,14,hit,10,12,15
+ZW3,31,south,blue,20,miss,10,12,15
+ZW3,32,north,blue,28,miss,10,12,15
+ZW3,33,north,red,18,miss,10,12,15
+ZW3,34,south,blue,22,miss,10,12,15
+ZW3,35,north,blue,20,miss,10,12,15
+ZW3,36,north,yellow,28,miss,10,12,15
+CP1,1,N,R,20,HIT,5,9,11
+CP1,2,S,B,20,MISS,5,9,11
+CP1,3,S,Y,20,MISS,5,9,11
+CP1,4,N,Y,20,HIT,5,9,11
+CP1,5,N,B,20,MISS,5,9,11
+CP1,6,S,B,20,HIT,5,9,11
+CP1,7,S,R,20,MISS,5,9,11
+CP1,8,S,Y,20,HIT,5,9,11
+CP1,9,N,B,20,HIT,5,9,11
+CP1,10,N,Y,20,MISS,5,9,11
+CP1,11,S,R,20,MISS,5,9,11
+CP1,12,N,B,20,MISS,5,9,11
+CP1,13,S,Y,20,MISS,5,9,11
+CP1,14,N,Y,20,MISS,5,9,11
+CP1,15,N,B,20,HIT,5,9,11
+CP1,16,N,B,20,HIT,5,9,11
+CP1,17,S,B,20,MISS,5,9,11
+CP1,18,S,B,20,MIS,5,9,11
+CP1,19,N,R,20,HIT,5,9,11
+CP1,20,N,R,20,HIT,5,9,11
+CP1,21,N,R,20,HIT,5,9,11
+CP1,22,N,Y,20,HIT,5,9,11
+CP1,23,S,Y,20,HIT,5,9,11
+CP1,24,N,R,20,HIT,5,9,11
+CP1,25,N,Y,20,HIT,5,9,11
+CP1,26,N,B,20,HIT,5,9,11
+CP1,27,N,B,20,HIT,5,9,11
+CP1,28,S,Y,20,HIT,5,9,11
+CP1,29,N,Y,20,MISS,5,9,11
+CP1,30,S,Y,20,HIT,5,9,11
+CP1,31,S,Y,20,HIT,5,9,11
+CP1,32,S,R,20,MISS,5,9,11
+CP1,33,S,R,20,MISS,5,9,11
+CP1,34,S,B,20,HIT,5,9,11
+CP1,35,S,B,20,MISS,5,9,11
+CP1,36,N,B,20,MISS,5,9,11
+CP1,1,S,Y,20,MISS,10,12,14
+CP1,2,N,R,20,HIT,10,12,14
+CP1,3,S,Y,20,HIT,10,12,14
+CP1,4,S,Y,20,MIS,10,12,14
+CP1,5,N,B,20,MISS,10,12,14
+CP1,6,N,B,20,MISS,10,12,14
+CP1,7,N,B,20,MISS,10,12,14
+CP1,8,S,B,20,HIT,10,12,14
+CP1,9,S,B,20,MISS,10,12,14
+CP1,10,N,R,20,HIT,10,12,14
+CP1,11,N,R,20,MISS,10,12,14
+CP1,12,N,R,20,HIT,10,12,14
+CP1,13,S,Y,20,MISS,10,12,14
+CP1,14,N,R,20,MISS,10,12,14
+CP1,15,N,Y,20,MISS,10,12,14
+CP1,16,S,B,20,MISS,10,12,14
+CP1,17,S,R,20,MISS,10,12,14
+CP1,18,S,Y,20,HIT,10,12,14
+CP1,19,N,Y,20,MISS,10,12,14
+CP1,20,S,R,20,HIT,10,12,14
+CP1,21,S,R,20,HIT,10,12,14
+CP1,22,N,Y,20,MISS,10,12,14
+CP1,23,S,B,20,MISS,10,12,14
+CP1,24,N,Y,20,MISS,10,12,14
+CP1,25,N,B,20,MISS,10,12,14
+CP1,26,S,B,20,HIT,10,12,14
+CP1,27,S,B,20,MISS,10,12,14
+CP1,28,S,Y,20,HIT,10,12,14
+CP1,29,N,B,20,MISS,10,12,14
+CP1,30,N,Y,20,HIT,10,12,14
+CP1,31,N,Y,20,MISS,10,12,14
+CP1,32,N,Y,20,MISS,10,12,14
+CP1,33,S,R,20,HIT,10,12,14
+CP1,34,S,R,20,HIT,10,12,14
+CP1,35,N,B,20,MISS,10,12,14
+CP1,36,S,B,20,MISS,10,12,14
+CP2,1,N,R,20,HIT,5,9,11
+CP2,2,S,B,20,HIT,5,9,11
+CP2,3,N,B,20,HIT,5,9,11
+CP2,4,S,B,20,MISS,5,9,11
+CP2,5,N,Y,20,HIT,5,9,11
+CP2,6,N,B,20,HIT,5,9,11
+CP2,7,N,Y,20,MISS,5,9,11
+CP2,8,S,R,20,HIT,5,9,11
+CP2,9,S,Y,20,MISS,5,9,11
+CP2,10,N,B,20,HIT,5,9,11
+CP2,11,N,Y,20,HIT,5,9,11
+CP2,12,S,R,20,HIT,5,9,11
+CP2,13,N,B,20,MISS,5,9,11
+CP2,14,S,R,20,HIT,5,9,11
+CP2,15,N,Y,20,HIT,5,9,11
+CP2,16,S,B,20,MISS,5,9,11
+CP2,17,S,B,20,HIT,5,9,11
+CP2,18,N,R,20,HIT,5,9,11
+CP2,19,N,R,20,HIT,5,9,11
+CP2,20,S,Y,20,MISS,5,9,11
+CP2,21,S,B,20,HIT,5,9,11
+CP2,22,N,Y,20,MISS,5,9,11
+CP2,23,N,Y,20,HIT,5,9,11
+CP2,24,S,R,20,MISS,5,9,11
+CP2,25,S,R,20,MISS,5,9,11
+CP2,26,N,Y,20,HIT,5,9,11
+CP2,27,S,Y,20,MISS,5,9,11
+CP2,28,S,R,20,HIT,5,9,11
+CP2,29,S,R,20,MISS,5,9,11
+CP2,30,N,R,20,HIT,5,9,11
+CP2,31,N,Y,20,HIT,5,9,11
+CP2,32,S,B,20,HIT,5,9,11
+CP2,33,N,B,20,MISS,5,9,11
+CP2,34,S,Y,20,HIT,5,9,11
+CP2,35,N,R,20,MISS,5,9,11
+CP2,36,S,R,20,HIT,5,9,11
+CP2,1,S,Y,20,HIT,10,12,15
+CP2,2,S,B,20,MISS,10,12,15
+CP2,3,N,B,20,MISS,10,12,15
+CP2,4,N,Y,20,HIT,10,12,15
+CP2,5,S,R,20,HIT,10,12,15
+CP2,6,N,R,20,MISS,10,12,15
+CP2,7,N,Y,20,MISS,10,12,15
+CP2,8,N,B,20,HIT,10,12,15
+CP2,9,S,B,20,MISS,10,12,15
+CP2,10,S,Y,20,MISS,10,12,15
+CP2,11,N,R,20,HIT,10,12,15
+CP2,12,N,R,20,HIT,10,12,15
+CP2,13,S,R,20,MISS,10,12,15
+CP2,14,S,B,20,HIT,10,12,15
+CP2,15,S,Y,20,MISS,10,12,15
+CP2,16,N,Y,20,MISS,10,12,15
+CP2,17,S,B,20,MISS,10,12,15
+CP2,18,S,B,20,MISS,10,12,15
+CP2,19,S,R,20,HIT,10,12,15
+CP2,20,S,Y,20,HIT,10,12,15
+CP2,21,N,B,20,MISS,10,12,15
+CP2,22,N,Y,20,MISS,10,12,15
+CP2,23,N,B,20,MISS,10,12,15
+CP2,24,S,R,20,HIT,10,12,15
+CP2,25,S,R,20,MISS,10,12,15
+CP2,26,N,R,20,MISS,10,12,15
+CP2,27,N,B,20,MISS,10,12,15
+CP2,28,S,Y,20,MISS,10,12,15
+CP2,29,N,Y,20,HIT,10,12,15
+CP2,30,N,Y,20,MISS,10,12,15
+CP2,31,S,B,20,HIT,10,12,15
+CP2,32,N,R,20,MISS,10,12,15
+CP2,33,N,Y,20,HIT,10,12,15
+CP2,34,N,R,20,MISS,10,12,15
+CP2,35,S,B,20,MISS,10,12,15
+CP2,36,S,B,20,MISS,10,12,15
+CP3,1,S,Y,20,HIT,5,9,11
+CP3,2,N,Y,20,MISS,5,9,11
+CP3,3,S,B,20,HIT,5,9,11
+CP3,4,N,R,19,MISS,5,9,11
+CP3,5,N,Y,20,HIT,5,9,11
+CP3,6,S,R,20,HIT,5,9,11
+CP3,7,N,B,20,MISS,5,9,11
+CP3,8,N,B,19,HIT,5,9,11
+CP3,9,N,B,20,HIT,5,9,11
+CP3,10,N,R,19,HIT,5,9,11
+CP3,11,N,B,19,HIT,5,9,11
+CP3,12,S,R,19,MISS,5,9,11
+CP3,13,N,B,19,MISS,5,9,11
+CP3,14,N,Y,19,MISS,5,9,11
+CP3,15,S,B,19,MISS,5,9,11
+CP3,16,S,R,20,MISS,5,9,11
+CP3,17,N,B,20,HIT,5,9,11
+CP3,18,S,Y,19,MISS,5,9,11
+CP3,19,S,Y,19,MISS,5,9,11
+CP3,20,N,B,20,HIT,5,9,11
+CP3,21,S,Y,19,MISS,5,9,11
+CP3,22,N,R,19,HIT,5,9,11
+CP3,23,S,R,19,MISS,5,9,11
+CP3,24,S,Y,20,HIT,5,9,11
+CP3,25,N,R,20,HIT,5,9,11
+CP3,26,S,Y,20,HIT,5,9,11
+CP3,27,S,Y,20,MISS,5,9,11
+CP3,28,S,B,20,MISS,5,9,11
+CP3,29,S,Y,20,MISS,5,9,11
+CP3,30,N,B,20,MISS,5,9,11
+CP3,31,S,B,20,HIT,5,9,11
+CP3,32,N,R,20,MISS,5,9,11
+CP3,33,N,R,20,MISS,5,9,11
+CP3,34,N,Y,20,HIT,5,9,11
+CP3,35,S,Y,20,MISS,5,9,11
+CP3,36,S,Y,20,MISS,5,9,11
+CP3,1,S,B,20,MISS,10,12,14
+CP3,2,S,Y,20,MISS,10,12,14
+CP3,3,S,B,20,MISS,10,12,14
+CP3,4,S,Y,20,MISS,10,12,14
+CP3,5,N,Y,20,MISS,10,12,14
+CP3,6,N,B,20,HIT,10,12,14
+CP3,7,N,R,20,MISS,10,12,14
+CP3,8,S,R,20,HIT,10,12,14
+CP3,9,S,R,20,MISS,10,12,14
+CP3,10,S,R,20,MISS,10,12,14
+CP3,11,S,B,20,MISS,10,12,14
+CP3,12,S,B,20,MISS,10,12,14
+CP3,13,N,Y,20,MISS,10,12,14
+CP3,14,N,Y,20,MISS,10,12,14
+CP3,15,S,B,20,MISS,10,12,14
+CP3,16,N,B,20,MISS,10,12,14
+CP3,17,N,B,20,MISS,10,12,14
+CP3,18,N,B,20,MISS,10,12,14
+CP3,19,S,Y,20,MISS,10,12,14
+CP3,20,S,Y,20,MISS,10,12,14
+CP3,21,N,B,20,MISS,10,12,14
+CP3,22,S,R,20,MISS,10,12,14
+CP3,23,N,Y,20,MISS,10,12,14
+CP3,24,S,B,20,MISS,10,12,14
+CP3,25,N,R,20,MISS,10,12,14
+CP3,26,S,Y,20,MISS,10,12,14
+CP3,27,N,Y,20,MISS,10,12,14
+CP3,28,S,Y,20,MISS,10,12,14
+CP3,29,N,B,20,MISS,10,12,14
+CP3,30,N,B,20,MISS,10,12,14
+CP3,31,N,Y,20,MISS,10,12,14
+CP3,32,N,R,20,MISS,10,12,14
+CP3,33,N,R,20,MISS,10,12,14
+CP3,34,S,Y,20,MISS,10,12,14
+CP3,35,S,B,20,MISS,10,12,14
+CP3,36,N,B,20,MISS,10,12,14
+EMC3,1,north ,yellow,20,miss,5,9,11
+EMC3,2,south ,blue,20,miss,5,9,11
+EMC3,3,north ,blue,20,hit ,5,9,11
+EMC3,4,south ,yellow,20,hit ,5,9,11
+EMC3,5,north ,yellow,20,miss,5,9,11
+EMC3,6,south ,blue,20,miss,5,9,11
+EMC3,7,north ,yellow,20,miss,5,9,11
+EMC3,8,south ,red,20,hit ,5,9,11
+EMC3,9,south ,blue,20,miss,5,9,11
+EMC3,10,south ,red,20,miss,5,9,11
+EMC3,11,south ,red,20,hit ,5,9,11
+EMC3,12,north ,red,20,miss,5,9,11
+EMC3,13,north ,yellow,20,hit ,5,9,11
+EMC3,14,south ,red,20,hit ,5,9,11
+EMC3,15,north ,yellow,20,hit,5,9,11
+EMC3,16,north ,blue,20,miss,5,9,11
+EMC3,17,south ,blue,20,miss,5,9,11
+EMC3,18,south ,yellow,20,hit,5,9,11
+EMC3,19,north ,red,20,hit,5,9,11
+EMC3,20,south ,blue,20,miss,5,9,11
+EMC3,21,north ,yellow,20,miss,5,9,11
+EMC3,22,south ,blue,20,miss,5,9,11
+EMC3,23,south ,red,20,hit,5,9,11
+EMC3,24,north ,red,20,hit,5,9,11
+EMC3,25,north ,red,24,hit,5,9,11
+EMC3,26,north ,blue,24,hit,5,9,11
+EMC3,27,south ,yellow,24,miss,5,9,11
+EMC3,28,south ,yellow,24,miss,5,9,11
+EMC3,29,south ,yellow,24,miss,5,9,11
+EMC3,30,north ,red,24,hit ,5,9,11
+EMC3,31,north ,yellow,24,hit ,5,9,11
+EMC3,32,south ,blue,24,miss,5,9,11
+EMC3,33,south ,red,24,miss,5,9,11
+EMC3,34,north ,red,24,hit ,5,9,11
+EMC3,35,north ,blue,24,miss,5,9,11
+EMC3,36,north ,blue,24,miss,5,9,11
+EMC3,1,north ,blue,20,hit,10,12,15
+EMC3,2,south ,yellow,18,miss,10,12,15
+EMC3,3,north ,red,18,miss,10,12,15
+EMC3,4,north ,blue,20,miss,10,12,15
+EMC3,5,north ,blue,30,hit,10,12,15
+EMC3,6,north ,yellow,14,hit,10,12,15
+EMC3,7,south ,yellow,20,miss,10,12,15
+EMC3,8,south ,blue,20,miss,10,12,15
+EMC3,9,south ,red,26,miss,10,12,15
+EMC3,10,north ,blue,18,miss,10,12,15
+EMC3,11,south ,yellow,20,miss,10,12,15
+EMC3,12,south ,red,24,hit,10,12,15
+EMC3,13,north ,blue,18,miss,10,12,15
+EMC3,14,south ,blue,16,hit,10,12,15
+EMC3,15,south ,red,20,miss,10,12,15
+EMC3,16,south ,red,34,miss,10,12,15
+EMC3,17,north ,blue,22,miss,10,12,15
+EMC3,18,south ,yellow,16,miss,10,12,15
+EMC3,19,south ,red,28,miss,10,12,15
+EMC3,20,south ,blue,20,miss,10,12,15
+EMC3,21,north ,red,12,miss,10,12,15
+EMC3,22,north ,yellow,12,miss,10,12,15
+EMC3,23,north ,yellow,20,miss,10,12,15
+EMC3,24,south ,blue,22,miss,10,12,15
+EMC3,25,south ,red,26,miss,10,12,15
+EMC3,26,south ,blue,24,miss,10,12,15
+EMC3,27,north ,blue,10,miss,10,12,15
+EMC3,28,north ,yellow,10,miss,10,12,15
+EMC3,29,south ,red,10,hit,10,12,15
+EMC3,30,north ,yellow,22,miss,10,12,15
+EMC3,31,north ,blue,20,miss,10,12,15
+EMC3,32,north ,blue,18,miss,10,12,15
+EMC3,33,north ,red,20,miss,10,12,15
+EMC3,34,south ,yellow,24,hit,10,12,15
+EMC3,35,north ,blue,26,hit,10,12,15
+EMC3,36,south ,blue,14,hit,10,12,15
+EMC1,1,south,blue,20,miss,5,9,11
+EMC1,2,north ,blue,20,miss,5,9,11
+EMC1,3,south,yellow,20,miss,5,9,11
+EMC1,4,south,red,20,hit ,5,9,11
+EMC1,5,north,yellow,28,hit ,5,9,11
+EMC1,6,south,red,27,miss,5,9,11
+EMC1,7,north,yellow,21,miss,5,9,11
+EMC1,8,south,blue,21,miss,5,9,11
+EMC1,9,north ,red,21,miss,5,9,11
+EMC1,10,south,blue,24,miss,5,9,11
+EMC1,11,north,red,18,miss,5,9,11
+EMC1,12,south,yellow,28,miss,5,9,11
+EMC1,13,north,red,21,miss,5,9,11
+EMC1,14,south,yellow,21,miss,5,9,11
+EMC1,15,south,red,21,hit,5,9,11
+EMC1,16,south,yellow,24,miss,5,9,11
+EMC1,17,north,blue,20,miss,5,9,11
+EMC1,18,south,yellow,21,hit,5,9,11
+EMC1,19,north,blue,24,hit,5,9,11
+EMC1,20,north,red,20,hit,5,9,11
+EMC1,21,north,blue,15,miss,5,9,11
+EMC1,22,north,red,20,hit,5,9,11
+EMC1,23,south,blue,24,miss,5,9,11
+EMC1,24,south,yellow,20,miss,5,9,11
+EMC1,25,north,blue,18,miss,5,9,11
+EMC1,26,north,blue,18,miss,5,9,11
+EMC1,27,north,red,18,miss,5,9,11
+EMC1,28,south,yellow,23,miss,5,9,11
+EMC1,29,south,red,20,hit,5,9,11
+EMC1,30,north ,blue,8,miss,5,9,11
+EMC1,31,south,yellow,20,miss,5,9,11
+EMC1,32,south,red,17,hit,5,9,11
+EMC1,33,south,red,17,hit,5,9,11
+EMC1,34,north,blue,17,hit,5,9,11
+EMC1,35,north,yellow,23,miss,5,9,11
+EMC1,36,north,yellow,23,hit,5,9,11
+EMC1,1,south,red,20,miss,10,12,15
+EMC1,2,south,yellow,20,miss,10,12,15
+EMC1,3,south,red,20,miss,10,12,15
+EMC1,4,south,blue,20,miss,10,12,15
+EMC1,5,south,blue,20,miss,10,12,15
+EMC1,6,north ,blue,20,hit ,10,12,15
+EMC1,7,south,blue,20,miss,10,12,15
+EMC1,8,south,yellow,20,miss,10,12,15
+EMC1,9,north,yellow,20,miss,10,12,15
+EMC1,10,south,red,20,hit,10,12,15
+EMC1,11,north,red,20,miss,10,12,15
+EMC1,12,north,yellow,20,miss,10,12,15
+EMC1,13,south,red,20,miss,10,12,15
+EMC1,14,north,red,20,hit ,10,12,15
+EMC1,15,north,yellow,20,hit ,10,12,15
+EMC1,16,north,yellow,20,hit ,10,12,15
+EMC1,17,south,blue,20,miss,10,12,15
+EMC1,18,south,blue,20,miss,10,12,15
+EMC1,19,south,yellow,20,miss,10,12,15
+EMC1,20,south,blue,20,miss,10,12,15
+EMC1,21,north,red,20,miss,10,12,15
+EMC1,22,north,red,20,miss,10,12,15
+EMC1,23,north,yellow,20,miss,10,12,15
+EMC1,24,north,blue,20,miss,10,12,15
+EMC1,25,south,blue,15,miss,10,12,15
+EMC1,26,north,blue,15,hit ,10,12,15
+EMC1,27,north,blue,15,miss,10,12,15
+EMC1,28,south,yellow,15,miss,10,12,15
+EMC1,29,south,yellow,15,miss,10,12,15
+EMC1,30,north,red,15,hit ,10,12,15
+EMC1,31,north,yellow,15,hit ,10,12,15
+EMC1,32,south,red,15,miss,10,12,15
+EMC1,33,north,red,15,miss,10,12,15
+EMC1,34,north,blue,15,miss,10,12,15
+EMC1,35,north,blue,15,hit ,10,12,15
+EMC1,36,south,yellow,15,miss,10,12,15
+EMC2,1,north ,red,15,hit ,5,8,10
+EMC2,2,north ,red,15,miss,5,8,10
+EMC2,3,south,blue,15,hit ,5,8,10
+EMC2,4,south,blue,19,miss,5,8,10
+EMC2,5,south,yellow,19,miss,5,8,10
+EMC2,6,south,yellow,23,miss,5,8,10
+EMC2,7,north ,red,20,hit ,5,8,10
+EMC2,8,south,blue,22,hit ,5,8,10
+EMC2,9,south,yellow,21,miss,5,8,10
+EMC2,10,south,red,20,hit ,5,8,10
+EMC2,11,north ,blue,23,miss,5,8,10
+EMC2,12,north ,yellow,18,hit ,5,8,10
+EMC2,13,north ,blue,13,miss,5,8,10
+EMC2,14,north ,yellow,17,miss,5,8,10
+EMC2,15,north ,yellow,19,miss,5,8,10
+EMC2,16,north ,blue,13,miss,5,8,10
+EMC2,17,south,red,24,miss,5,8,10
+EMC2,18,south,red,14,hit ,5,8,10
+EMC2,19,north ,red,17,hit ,5,8,10
+EMC2,20,south,yellow,22,hit ,5,8,10
+EMC2,21,south,yellow,19,hit ,5,8,10
+EMC2,22,south,red,20,hit ,5,8,10
+EMC2,23,north ,blue,21,miss,5,8,10
+EMC2,24,north ,red,20,hit ,5,8,10
+EMC2,25,south,yellow,13,hit ,5,8,10
+EMC2,26,south,blue,26,miss,5,8,10
+EMC2,27,north ,blue,23,hit ,5,8,10
+EMC2,28,south,blue,15,hit ,5,8,10
+EMC2,29,north ,red,20,hit ,5,8,10
+EMC2,30,north ,red,20,hit ,5,8,10
+EMC2,31,south,yellow,14,hit ,5,8,10
+EMC2,32,north ,yellow,18,miss,5,8,10
+EMC2,33,south,blue,28,miss,5,8,10
+EMC2,34,south,blue,20,miss,5,8,10
+EMC2,35,north ,yellow,23,hit ,5,8,10
+EMC2,36,north ,red,20,hit ,5,8,10
+EMC2,1,south,yellow,18,hit ,9,11,14
+EMC2,2,north ,blue,24,miss,9,11,14
+EMC2,3,south,yellow,20,miss,9,11,14
+EMC2,4,north ,red,20,hit ,9,11,14
+EMC2,5,south,yellow,20,miss,9,11,14
+EMC2,6,south,yellow,20,miss,9,11,14
+EMC2,7,south,yellow,20,hit ,9,11,14
+EMC2,8,north ,yellow,20,miss,9,11,14
+EMC2,9,north ,blue,20,miss,9,11,14
+EMC2,10,north ,blue,22,miss,9,11,14
+EMC2,11,south,red,22,hit ,9,11,14
+EMC2,12,south,red,22,miss,9,11,14
+EMC2,13,south,blue,18,hit ,9,11,14
+EMC2,14,north ,yellow,19,miss,9,11,14
+EMC2,15,north ,red,20,hit ,9,11,14
+EMC2,16,north ,red,20,hit ,9,11,14
+EMC2,17,north ,blue,19,miss,9,11,14
+EMC2,18,north ,yellow,21,miss,9,11,14
+EMC2,19,north ,red,23,hit ,9,11,14
+EMC2,20,north ,blue,20,miss,9,11,14
+EMC2,21,north ,yellow,19,miss,9,11,14
+EMC2,22,south,red,24,miss,9,11,14
+EMC2,23,north ,red,22,miss,9,11,14
+EMC2,24,south,yellow,21,miss,9,11,14
+EMC2,25,south,blue,21,hit ,9,11,14
+EMC2,26,north ,red,20,miss,9,11,14
+EMC2,27,south,red,20,miss,9,11,14
+EMC2,28,south,blue,20,miss,9,11,14
+EMC2,29,south,red,18,miss,9,11,14
+EMC2,30,south,yellow,22,miss,9,11,14
+EMC2,31,north ,blue,23,hit ,9,11,14
+EMC2,32,south,yellow,17,miss,9,11,14
+EMC2,33,south,red,21,miss,9,11,14
+EMC2,34,north ,blue,22,miss,9,11,14
+EMC2,35,south,yellow,18,miss,9,11,14
+EMC2,36,north ,blue,26,miss,9,11,14
+IS1,1,south,blue,20,miss,4,8,10
+IS1,2,south,red,20,miss,4,8,10
+IS1,3,south,red,20,miss,4,8,10
+IS1,4,south,blue,20,hit,4,8,10
+IS1,5,north,red,20,hit,4,8,10
+IS1,6,south,yellow,20,miss,4,8,10
+IS1,7,south,yellow,20,miss,4,8,10
+IS1,8,north,blue,20,miss,4,8,10
+IS1,9,south,red,20,hit,4,8,10
+IS1,10,north,blue,20,miss,4,8,10
+IS1,11,south,red,20,hit,4,8,10
+IS1,12,south,blue,20,hit,4,8,10
+IS1,13,south,red,20,hit,4,8,10
+IS1,14,south,yellow,20,miss,4,8,10
+IS1,15,south,yellow,20,hit,4,8,10
+IS1,16,south,yellow,20,hit,4,8,10
+IS1,17,north,blue,20,hit,4,8,10
+IS1,18,north,red,20,miss,4,8,10
+IS1,19,north,yellow,20,miss,4,8,10
+IS1,20,north,yellow,20,hit,4,8,10
+IS1,21,north,yellow,20,hit,4,8,10
+IS1,22,south,red,20,hit,4,8,10
+IS1,23,north,blue,20,miss,4,8,10
+IS1,24,north,red,20,hit,4,8,10
+IS1,25,south,red,20,hit,4,8,10
+IS1,26,north,blue,20,hit,4,8,10
+IS1,27,north,blue,20,miss,4,8,10
+IS1,28,south,blue,20,miss,4,8,10
+IS1,29,north,red,20,hit,4,8,10
+IS1,30,north,red,20,hit,4,8,10
+IS1,31,north,blue,20,miss,4,8,10
+IS1,32,south,blue,20,hit,4,8,10
+IS1,33,north,yellow,20,miss,4,8,10
+IS1,34,north,yellow,20,hit,4,8,10
+IS1,35,north,yellow,20,hit,4,8,10
+IS1,36,south,red,20,hit,4,8,10
+IS1,1,north,Blue,17,miss,9,11,13
+IS1,2,south,red,19,miss,9,11,13
+IS1,3,north,yellow,20,miss,9,11,13
+IS1,4,south,yellow,20,miss,9,11,13
+IS1,5,south,blue,20,miss,9,11,13
+IS1,6,south,red,20,miss,9,11,13
+IS1,7,north,red,20,miss,9,11,13
+IS1,8,south,yellow,20,miss,9,11,13
+IS1,9,south,blue,20,miss,9,11,13
+IS1,10,south,red,20,miss,9,11,13
+IS1,11,north,yellow,20,miss,9,11,13
+IS1,12,south,blue,20,hit,9,11,13
+IS1,13,north,red,20,miss,9,11,13
+IS1,14,south,red,20,miss,9,11,13
+IS1,15,north,blue,20,miss,9,11,13
+IS1,16,north,yellow,20,miss,9,11,13
+IS1,17,south,red,20,miss,9,11,13
+IS1,18,south,blue,20,hit,9,11,13
+IS1,19,north,red,20,hit,9,11,13
+IS1,20,south,red,20,hit,9,11,13
+IS1,21,north,yellow,20,miss,9,11,13
+IS1,22,north,blue,20,miss,9,11,13
+IS1,23,south,yellow,20,miss,9,11,13
+IS1,24,south,yellow,20,miss,9,11,13
+IS1,25,north,red,20,hit,9,11,13
+IS1,26,south,blue,20,miss,9,11,13
+IS1,27,north,blue,20,hit,9,11,13
+IS1,28,north,red,20,hit,9,11,13
+IS1,29,north,yellow,20,miss,9,11,13
+IS1,30,south,blue,20,miss,9,11,13
+IS1,31,south,yellow,20,hit,9,11,13
+IS1,32,south,red,20,miss,9,11,13
+IS1,33,north,red,20,hit,9,11,13
+IS1,34,north,blue,20,miss,9,11,13
+IS1,35,north,yellow,20,hit,9,11,13
+IS1,36,north,blue,20,hit,9,11,13
+IS2,1,north ,red,15,hit ,4,8,10
+IS2,2,north ,blue,17,miss,4,8,10
+IS2,3,north ,blue,20,miss,4,8,10
+IS2,4,north ,yellow,20,hit ,4,8,10
+IS2,5,north ,red,20,hit ,4,8,10
+IS2,6,north ,red,20,hit,4,8,10
+IS2,7,north ,blue,20,miss,4,8,10
+IS2,8,south,yellow,20,miss,4,8,10
+IS2,9,north ,blue,24,hit,4,8,10
+IS2,10,south,red,18,hit,4,8,10
+IS2,11,south,yellow,20,hit,4,8,10
+IS2,12,south,red,18,hit,4,8,10
+IS2,13,north ,blue,17,miss,4,8,10
+IS2,14,south,yellow,24,hit,4,8,10
+IS2,15,north ,red,23,hit,4,8,10
+IS2,16,south,blue,20,miss,4,8,10
+IS2,17,south,yellow,27,hit,4,8,10
+IS2,18,south,blue,21,miss,4,8,10
+IS2,19,north ,red,26,hit,4,8,10
+IS2,20,south,blue,38,miss,4,8,10
+IS2,21,north ,blue,28,hit,4,8,10
+IS2,22,north ,yellow,12,miss,4,8,10
+IS2,23,south,red,16,hit,4,8,10
+IS2,24,south,red,16,hit,4,8,10
+IS2,25,north ,blue,30,hit,4,8,10
+IS2,26,south,yellow,30,miss,4,8,10
+IS2,27,south,yellow,30,miss,4,8,10
+IS2,28,south,blue,6,hit,4,8,10
+IS2,29,north ,red,8,miss,4,8,10
+IS2,30,north ,yellow,30,hit,4,8,10
+IS2,31,south,blue,30,miss,4,8,10
+IS2,32,south,yellow,20,miss,4,8,10
+IS2,33,north ,blue,8,miss,4,8,10
+IS2,34,north ,yellow,12,miss,4,8,10
+IS2,35,south,red,24,miss,4,8,10
+IS2,36,south,yellow,28,miss,4,8,10
+IS2,1,south,blue,14,miss,9,11,13
+IS2,2,north ,red,14,miss,9,11,13
+IS2,3,south,blue,12,hit,9,11,13
+IS2,4,north ,yellow,20,hit,9,11,13
+IS2,5,north ,red,16,miss,9,11,13
+IS2,6,north ,blue,24,miss,9,11,13
+IS2,7,south,yellow,24,hit,9,11,13
+IS2,8,south,red,24,miss,9,11,13
+IS2,9,south,red,10,hit,9,11,13
+IS2,10,north ,red,26,hit,9,11,13
+IS2,11,north ,red,10,miss,9,11,13
+IS2,12,north ,yellow,26,hit,9,11,13
+IS2,13,south,blue,32,miss,9,11,13
+IS2,14,north ,red,12,miss,9,11,13
+IS2,15,south,red,16,hit,9,11,13
+IS2,16,south,yellow,32,miss,9,11,13
+IS2,17,north ,red,26,miss,9,11,13
+IS2,18,south,blue,30,miss,9,11,13
+IS2,19,south,red,30,miss,9,11,13
+IS2,20,north ,red,24,hit,9,11,13
+IS2,21,south,yellow,18,hit,9,11,13
+IS2,22,south,yellow,24,hit,9,11,13
+IS2,23,north ,blue,6,miss,9,11,13
+IS2,24,north ,red,10,miss,9,11,13
+IS2,25,north ,blue,8,miss,9,11,13
+IS2,26,south,red,12,hit,9,11,13
+IS2,27,south,red,12,hit,9,11,13
+IS2,28,south,yellow,40,miss,9,11,13
+IS2,29,south,yellow,8,hit,9,11,13
+IS2,30,north ,blue,40,hit,9,11,13
+IS2,31,south,red,12,hit,9,11,13
+IS2,32,north ,yellow,8,miss,9,11,13
+IS2,33,south,red,30,hit,9,11,13
+IS2,34,north ,yellow,10,hit ,9,11,13
+IS2,35,north ,blue,40,hit,9,11,13
+IS2,36,north ,yellow,32,hit,9,11,13
+IS3,1,south,red,20,hit ,4,7,9
+IS3,2,north ,yellow,23,hit ,4,7,9
+IS3,3,north ,blue,28,hit ,4,7,9
+IS3,4,north ,yellow,25,hit ,4,7,9
+IS3,5,north ,blue,12,miss,4,7,9
+IS3,6,south,yellow,15,hit ,4,7,9
+IS3,7,north ,blue,12,miss,4,7,9
+IS3,8,north ,blue,12,miss,4,7,9
+IS3,9,south,red,20,hit ,4,7,9
+IS3,10,north ,red,20,miss,4,7,9
+IS3,11,north ,yellow,24,hit ,4,7,9
+IS3,12,south,red,20,hit ,4,7,9
+IS3,13,south,yellow,23,miss,4,7,9
+IS3,14,south,blue,13,hit ,4,7,9
+IS3,15,north ,red,20,hit ,4,7,9
+IS3,16,south,yellow,24,miss,4,7,9
+IS3,17,north ,blue,29,hit ,4,7,9
+IS3,18,north ,yellow,28,hit ,4,7,9
+IS3,19,south,yellow,28,hit ,4,7,9
+IS3,20,south,blue,12,hit ,4,7,9
+IS3,21,south,blue,28,miss,4,7,9
+IS3,22,north ,red,20,hit ,4,7,9
+IS3,23,north ,red,20,hit ,4,7,9
+IS3,24,south,red,20,hit ,4,7,9
+IS3,25,south,red,20,hit ,4,7,9
+IS3,26,south,blue,33,miss,4,7,9
+IS3,27,south,blue,32,miss,4,7,9
+IS3,28,north ,red,20,hit ,4,7,9
+IS3,29,south,blue,14,hit ,4,7,9
+IS3,30,north ,yellow,16,miss,4,7,9
+IS3,31,south,blue,12,hit ,4,7,9
+IS3,32,north ,red,20,hit ,4,7,9
+IS3,33,north ,yellow,27,hit ,4,7,9
+IS3,34,south,yellow,13,hit ,4,7,9
+IS3,35,south,red,20,hit ,4,7,9
+IS3,36,north ,yellow,27,hit ,4,7,9
+IS3,1,north ,red,20,hit ,8,10,12
+IS3,2,south,red,20,hit ,8,10,12
+IS3,3,south,yellow,27,miss,8,10,12
+IS3,4,south,blue,30,hit ,8,10,12
+IS3,5,north ,blue,30,hit ,8,10,12
+IS3,6,south,red,20,miss,8,10,12
+IS3,7,north ,blue,30,hit ,8,10,12
+IS3,8,south,red,20,hit ,8,10,12
+IS3,9,north ,yellow,23,miss,8,10,12
+IS3,10,south,blue,12,miss,8,10,12
+IS3,11,north ,yellow,12,miss,8,10,12
+IS3,12,south,yellow,12,hit ,8,10,12
+IS3,13,south,red,20,hit,8,10,12
+IS3,14,north ,blue,13,miss,8,10,12
+IS3,15,south,yellow,12,hit ,8,10,12
+IS3,16,south,red,20,hit ,8,10,12
+IS3,17,south,yellow,23,miss,8,10,12
+IS3,18,north ,red,20,miss,8,10,12
+IS3,19,north ,blue,30,hit,8,10,12
+IS3,20,south,yellow,28,miss,8,10,12
+IS3,21,south,blue,30,miss,8,10,12
+IS3,22,north ,red,20,hit,8,10,12
+IS3,23,south,blue,12,hit,8,10,12
+IS3,24,south,yellow,12,hit,8,10,12
+IS3,25,north ,yellow,28,hit,8,10,12
+IS3,26,south,red,20,hit,8,10,12
+IS3,27,north ,yellow,13,miss,8,10,12
+IS3,28,north ,yellow,13,hit ,8,10,12
+IS3,29,north ,blue,30,miss,8,10,12
+IS3,30,south,red,20,miss,8,10,12
+IS3,31,south,blue,13,miss,8,10,12
+IS3,32,south,yellow,12,hit,8,10,12
+IS3,33,north ,red,20,hit,8,10,12
+IS3,34,south,red,20,hit,8,10,12
+IS3,35,south,blue,11,hit,8,10,12
+IS3,36,north ,blue,30,miss,8,10,12
+SJ1,1,South,Yellow,20,0,6,10,12
+SJ1,2,South,Blue,20,1,6,10,12
+SJ1,3,North,red,20,1,6,10,12
+SJ1,4,North,Yellow,20,0,6,10,12
+SJ1,5,north,Blue,20,0,6,10,12
+SJ1,6,south,Yellow,20,0,6,10,12
+SJ1,7,north,Yellow,20,0,6,10,12
+SJ1,8,south,Blue,20,0,6,10,12
+SJ1,9,south,red,20,1,6,10,12
+SJ1,10,north,red,20,1,6,10,12
+SJ1,11,south,red,20,1,6,10,12
+SJ1,12,north,Blue,20,0,6,10,12
+SJ1,13,south,Blue,20,1,6,10,12
+SJ1,14,south,blue,20,0,6,10,12
+SJ1,15,north,red,20,1,6,10,12
+SJ1,16,south,Yellow,20,0,6,10,12
+SJ1,17,south,Yellow,20,1,6,10,12
+SJ1,18,north,Yellow,20,0,6,10,12
+SJ1,19,north,yellow,20,0,6,10,12
+SJ1,20,south,rred,20,1,6,10,12
+SJ1,21,south,blue ,20,1,6,10,12
+SJ1,22,north,red,20,1,6,10,12
+SJ1,23,south,blue,20,1,6,10,12
+SJ1,24,north,red,20,1,6,10,12
+SJ1,25,north,red,20,1,6,10,12
+SJ1,26,north,yellow,20,0,6,10,12
+SJ1,27,south,red,20,1,6,10,12
+SJ1,28,north,Yellow,20,1,6,10,12
+SJ1,29,north,yellow,20,1,6,10,12
+SJ1,30,north,Blue,20,1,6,10,12
+SJ1,31,south,blue,20,0,6,10,12
+SJ1,32,south,yellow,20,1,6,10,12
+SJ1,33,north,blue,20,0,6,10,12
+SJ1,34,south,red,20,1,6,10,12
+SJ1,35,south,blue,20,0,6,10,12
+SJ1,36,north,red,20,1,6,10,12
+SJ1,1,south,blue,20,0,11,13,17
+SJ1,2,south,yellow,20,0,11,13,17
+SJ1,3,North,blue,20,0,11,13,17
+SJ1,4,south,yellow,20,0,11,13,17
+SJ1,5,south,red,20,0,11,13,17
+SJ1,6,south,red,20,0,11,13,17
+SJ1,7,south,blue,20,0,11,13,17
+SJ1,8,north,yellow,20,0,11,13,17
+SJ1,9,North,blue,20,1,11,13,17
+SJ1,10,North,red,20,0,11,13,17
+SJ1,11,North,red,20,1,11,13,17
+SJ1,12,North,yellow,20,1,11,13,17
+SJ1,13,south,yellow,20,0,11,13,17
+SJ1,14,north,yellow,20,0,11,13,17
+SJ1,15,south,blue,20,0,11,13,17
+SJ1,16,North,blue,20,0,11,13,17
+SJ1,17,south,red,20,0,11,13,17
+SJ1,18,south,red,20,0,11,13,17
+SJ1,19,North,red,20,0,11,13,17
+SJ1,20,south,red,20,0,11,13,17
+SJ1,21,south,yellow,20,0,11,13,17
+SJ1,22,North,yellow,20,0,11,13,17
+SJ1,23,south,blue,20,0,11,13,17
+SJ1,24,North,blue,20,0,11,13,17
+SJ1,25,south,red,20,1,11,13,17
+SJ1,26,south,red,20,0,11,13,17
+SJ1,27,North,red,20,0,11,13,17
+SJ1,28,North,yellow,20,1,11,13,17
+SJ1,29,North,yellow,20,1,11,13,17
+SJ1,30,south,blue,20,0,11,13,17
+SJ1,31,North,blue,20,0,11,13,17
+SJ1,32,North,yellow,20,0,11,13,17
+SJ1,33,south,blue,20,0,11,13,17
+SJ1,34,North,blue,20,0,11,13,17
+SJ1,35,North,yellow,20,0,11,13,17
+SJ1,36,south,red,20,0,11,13,17
+SJ2,1,South,red,17,0,6,10,12
+SJ2,2,south,yellow,23,0,6,10,12
+SJ2,3,north,yellow,18,0,6,10,12
+SJ2,4,south,yellow,26,0,6,10,12
+SJ2,5,south,red,24,1,6,10,12
+SJ2,6,south,blue,16,0,6,10,12
+SJ2,7,North,blue,15,0,6,10,12
+SJ2,8,North,blue,16,0,6,10,12
+SJ2,9,North,yellow,15,1,6,10,12
+SJ2,10,North,red,15,1,6,10,12
+SJ2,11,North,blue,17,0,6,10,12
+SJ2,12,south,red,15,1,6,10,12
+SJ2,13,North,red,24,1,6,10,12
+SJ2,14,south,blue,25,0,6,10,12
+SJ2,15,North,yellow,25,0,6,10,12
+SJ2,16,south,blue,24,0,6,10,12
+SJ2,17,south,yellow,16,0,6,10,12
+SJ2,18,North,red,16,0,6,10,12
+SJ2,19,North,yellow,15,0,6,10,12
+SJ2,20,south,red,24,1,6,10,12
+SJ2,21,south,blue,15,1,6,10,12
+SJ2,22,North,yellow,15,0,6,10,12
+SJ2,23,south,blue,34,1,6,10,12
+SJ2,24,North,red,27,0,6,10,12
+SJ2,25,south,red,14,1,6,10,12
+SJ2,26,south,blue,18,0,6,10,12
+SJ2,27,North,yellow,10,1,6,10,12
+SJ2,28,North,blue,18,1,6,10,12
+SJ2,29,North,red,14,1,6,10,12
+SJ2,30,south,yellow,32,1,6,10,12
+SJ2,31,North,red,27,0,6,10,12
+SJ2,32,North,yellow,31,1,6,10,12
+SJ2,33,south,yellow,31,0,6,10,12
+SJ2,34,North,blue,34,0,6,10,12
+SJ2,35,North,blue,34,0,6,10,12
+SJ2,36,south,red,14,0,6,10,12
+SJ2,1,South, red,34,1,11,13,16
+SJ2,2,south,yellow,35,1,11,13,16
+SJ2,3,North,blue,38,0,11,13,16
+SJ2,4,south,red,33,1,11,13,16
+SJ2,5,south,blue,38,1,11,13,16
+SJ2,6,south,yellow,35,1,11,13,16
+SJ2,7,south,blue,38,1,11,13,16
+SJ2,8,North,blue,3,1,11,13,16
+SJ2,9,North,red,9,1,11,13,16
+SJ2,10,North,red,9,1,11,13,16
+SJ2,11,North,yellow,7,1,11,13,16
+SJ2,12,North,yellow,35,0,11,13,16
+SJ2,13,south,red,9,0,11,13,16
+SJ2,14,North,yellow,7,1,11,13,16
+SJ2,15,south,red,9,0,11,13,16
+SJ2,16,north,blue,4,1,11,13,16
+SJ2,17,south,blue,4,0,11,13,16
+SJ2,18,south,blue,4,0,11,13,16
+SJ2,19,North,red,7,1,11,13,16
+SJ2,20,south,blue,4,0,11,13,16
+SJ2,21,south,yellow,7,0,11,13,16
+SJ2,22,North,red,33,0,11,13,16
+SJ2,23,south,yellow,33,1,11,13,16
+SJ2,24,North,yellow,33,0,11,13,16
+SJ2,25,south,blue,39,1,11,13,16
+SJ2,26,south,blue,38,1,11,13,16
+SJ2,27,North,blue,38,0,11,13,16
+SJ2,28,North,yellow,33,0,11,13,16
+SJ2,29,North,yellow,35,0,11,13,16
+SJ2,30,south,yellow,35,1,11,13,16
+SJ2,31,North,red,33,0,11,13,16
+SJ2,32,North,blue,3,1,11,13,16
+SJ2,33,south,red,9,0,11,13,16
+SJ2,34,North,yellow,7,1,11,13,16
+SJ2,35,North,red,9,1,11,13,16
+SJ2,36,south,red,9,0,11,13,16
+EM1,1,South,Red,20,1,6,11,13
+EM1,2,South,Yellow,18,0,6,11,13
+EM1,3,South,Blue,12,0,6,11,13
+EM1,4,North,Blue ,12,1,6,11,13
+EM1,5,North,Red,20,1,6,11,13
+EM1,6,North,Blue,17,1,6,11,13
+EM1,7,North,Red,20,1,6,11,13
+EM1,8,South,Yellow,16,0,6,11,13
+EM1,9,North,Yellow,18,1,6,11,13
+EM1,10,South,Red,22,1,6,11,13
+EM1,11,South,Blue,22,1,6,11,13
+EM1,12,North,Yellow,16,1,6,11,13
+EM1,13,South,Blue,18,1,6,11,13
+EM1,14,South,Red,20,1,6,11,13
+EM1,15,South,Blue,17,0,6,11,13
+EM1,16,North,Yellow,22,0,6,11,13
+EM1,17,North,Blue,17,0,6,11,13
+EM1,18,North,Blue,16,0,6,11,13
+EM1,19,North,Yellow,18,0,6,11,13
+EM1,20,South,Yellow,22,1,6,11,13
+EM1,21,South,Red,20,1,6,11,13
+EM1,22,North,Yellow,22,1,6,11,13
+EM1,23,North,Red,20,1,6,11,13
+EM1,24,South,Red,20,1,6,11,13
+EM1,25,South,Yellow,18,0,6,11,13
+EM1,26,North,Blue,16,1,6,11,13
+EM1,27,North,Yellow,18,0,6,11,13
+EM1,28,South,Blue,20,0,6,11,13
+EM1,29,South,Red,20,1,6,11,13
+EM1,30,North,Yellow,20,1,6,11,13
+EM1,31,North,Blue,17,1,6,11,13
+EM1,32,South,Blue,22,0,6,11,13
+EM1,33,South,Yellow,20,0,6,11,13
+EM1,34,North,Red,20,1,6,11,13
+EM1,35,South,Red,20,0,6,11,13
+EM1,36,North,Red,20,1,6,11,13
+EM1,1,South,Blue ,16,0,12,14,17
+EM1,2,South,Yellow,18,0,12,14,17
+EM1,3,North,Yellow,18,0,12,14,17
+EM1,4,North,Red,20,1,12,14,17
+EM1,5,North,Red,20,1,12,14,17
+EM1,6,South,Blue ,10,0,12,14,17
+EM1,7,South,Red,20,0,12,14,17
+EM1,8,South,Red,22,1,12,14,17
+EM1,9,North,Yellow,14,1,12,14,17
+EM1,10,South,Yellow,22,0,12,14,17
+EM1,11,South,Blue ,12,0,12,14,17
+EM1,12,North,Blue ,10,1,12,14,17
+EM1,13,North,Blue ,10,1,12,14,17
+EM1,14,South,Yellow,16,0,12,14,17
+EM1,15,North,Blue ,22,1,12,14,17
+EM1,16,South,Blue ,22,0,12,14,17
+EM1,17,North,Yellow,20,0,12,14,17
+EM1,18,North,Blue ,16,0,12,14,17
+EM1,19,South,Red,20,0,12,14,17
+EM1,20,South,Yellow,18,0,12,14,17
+EM1,21,South,Red,16,0,12,14,17
+EM1,22,South,Red,16,0,12,14,17
+EM1,23,South,Yellow,16,0,12,14,17
+EM1,24,North,Red,10,1,12,14,17
+EM1,25,North,Blue ,20,1,12,14,17
+EM1,26,South,Yellow,20,0,12,14,17
+EM1,27,North,Red,20,0,12,14,17
+EM1,28,North,Red,16,1,12,14,17
+EM1,29,South,Blue ,14,0,12,14,17
+EM1,30,South,Blue ,14,0,12,14,17
+EM1,31,South,Yellow,14,0,12,14,17
+EM1,32,North,Red,14,1,12,14,17
+EM1,33,North,Red,22,1,12,14,17
+EM1,34,North,Blue ,14,1,12,14,17
+EM1,35,North,Yellow,16,0,12,14,17
+EM1,36,North,Yellow,16,0,12,14,17
+EM2,1,north ,red,20,1,12,14,18
+EM2,2,north,red,20,1,12,14,18
+EM2,3,north,yellow,20,0,12,14,18
+EM2,4,south,blue,22,0,12,14,18
+EM2,5,south,blue,26,0,12,14,18
+EM2,6,south,yellow,24,1,12,14,18
+EM2,7,south,yellow,16,1,12,14,18
+EM2,8,south,yellow,16,1,12,14,18
+EM2,9,south,blue,14,0,12,14,18
+EM2,10,north,blue,12,1,12,14,18
+EM2,11,north,red,14,1,12,14,18
+EM2,12,north,red,30,0,12,14,18
+EM2,13,south,red,28,1,12,14,18
+EM2,14,north,yellow,24,0,12,14,18
+EM2,15,south,red,24,1,12,14,18
+EM2,16,north,red,24,0,12,14,18
+EM2,17,north,blue,14,1,12,14,18
+EM2,18,south,red,14,0,12,14,18
+EM2,19,north,yellow,14,0,12,14,18
+EM2,20,north,blue,14,0,12,14,18
+EM2,21,north,yellow,29,0,12,14,18
+EM2,22,north,yellow,12,1,12,14,18
+EM2,23,south,blue,12,1,12,14,18
+EM2,24,south,blue,12,0,12,14,18
+EM2,25,north,yellow,29,0,12,14,18
+EM2,26,north,blue,29,0,12,14,18
+EM2,27,south,blue,29,1,12,14,18
+EM2,28,north,yellow,29,0,12,14,18
+EM2,29,south,blue,29,1,12,14,18
+EM2,30,south,yellow,12,0,12,14,18
+EM2,31,north,blue,12,1,12,14,18
+EM2,32,north,yellow,12,1,12,14,18
+EM2,33,south,red,12,1,12,14,18
+EM2,34,south,red,12,0,12,14,18
+EM2,35,south,red,24,1,12,14,18
+EM2,36,south,red,24,0,12,14,18
+EM2,1,north,blue,20,1,6,11,13
+EM2,2,north,yellow,20,0,6,11,13
+EM2,3,south,yellow,20,1,6,11,13
+EM2,4,south,yellow,20,0,6,11,13
+EM2,5,north,blue,22,0,6,11,13
+EM2,6,south,blue,22,0,6,11,13
+EM2,7,north,blue,22,0,6,11,13
+EM2,8,south,red,20,1,6,11,13
+EM2,9,north,red,20,0,6,11,13
+EM2,10,south,red,20,1,6,11,13
+EM2,11,north,yellow,20,0,6,11,13
+EM2,12,south,red,20,1,6,11,13
+EM2,13,north,yellow,22,1,6,11,13
+EM2,14,south,blue,22,0,6,11,13
+EM2,15,north,blue,22,0,6,11,13
+EM2,16,north,red,20,1,6,11,13
+EM2,17,north,red,20,1,6,11,13
+EM2,18,south,yellow,20,0,6,11,13
+EM2,19,north,blue,22,1,6,11,13
+EM2,20,north,yellow,20,0,6,11,13
+EM2,21,south,red,20,1,6,11,13
+EM2,22,south,blue,20,0,6,11,13
+EM2,23,south,red,20,1,6,11,13
+EM2,24,south,yellow,20,0,6,11,13
+EM2,25,north,yellow,20,1,6,11,13
+EM2,26,south,blue,20,1,6,11,13
+EM2,27,south,yellow,20,0,6,11,13
+EM2,28,south,blue,20,1,6,11,13
+EM2,29,north,red,20,1,6,11,13
+EM2,30,north,yellow,20,1,6,11,13
+EM2,31,north,red,20,1,6,11,13
+EM2,32,south,blue,20,1,6,11,13
+EM2,33,north ,red,20,1,6,11,13
+EM2,34,north,blue,20,1,6,11,13
+EM2,35,south,red,20,1,6,11,13
+EM2,36,south,yellow,20,1,6,11,13
+EM3,1,South,yellow,20,1,7,12,14
+EM3,2,south,red,20,1,7,12,14
+EM3,3,south,blue,20,0,7,12,14
+EM3,4,south,yellow,20,0,7,12,14
+EM3,5,north,red,20,1,7,12,14
+EM3,6,north,blue,20,0,7,12,14
+EM3,7,north,blue,20,0,7,12,14
+EM3,8,south,red,20,1,7,12,14
+EM3,9,south,yellow,20,0,7,12,14
+EM3,10,north,blue,20,1,7,12,14
+EM3,11,north,yellow,20,1,7,12,14
+EM3,12,south,red,20,0,7,12,14
+EM3,13,south,red,20,1,7,12,14
+EM3,14,north,blue,20,0,7,12,14
+EM3,15,south,red,20,1,7,12,14
+EM3,16,south,yellow,20,1,7,12,14
+EM3,17,north,blue,20,1,7,12,14
+EM3,18,south,yellow,20,0,7,12,14
+EM3,19,north,yellow,20,0,7,12,14
+EM3,20,north,red,20,1,7,12,14
+EM3,21,north,yellow,20,0,7,12,14
+EM3,22,south,blue,20,0,7,12,14
+EM3,23,south,red,20,1,7,12,14
+EM3,24,north,blue,20,0,7,12,14
+EM3,25,north,blue,20,0,7,12,14
+EM3,26,south,yellow,20,0,7,12,14
+EM3,27,south,blue,20,1,7,12,14
+EM3,28,north,blue,20,0,7,12,14
+EM3,29,north,yellow,20,0,7,12,14
+EM3,30,north,yellow,20,1,7,12,14
+EM3,31,south,red,20,0,7,12,14
+EM3,32,north,red,20,1,7,12,14
+EM3,33,south,red,20,1,7,12,14
+EM3,34,north,red,20,1,7,12,14
+EM3,35,north,yellow,20,1,7,12,14
+EM3,36,south,blue,20,1,7,12,14
+EM3,1,north,yellow,20,0,13,15,19
+EM3,2,north,blue,20,0,13,15,19
+EM3,3,South,yellow,20,0,13,15,19
+EM3,4,South,red,20,0,13,15,19
+EM3,5,north ,blue,20,0,13,15,19
+EM3,6,north,blue,20,0,13,15,19
+EM3,7,north,blue,20,0,13,15,19
+EM3,8,north,yellow,20,1,13,15,19
+EM3,9,north,red,20,0,13,15,19
+EM3,10,South,yellow,20,1,13,15,19
+EM3,11,South,red,20,1,13,15,19
+EM3,12,South,red,20,1,13,15,19
+EM3,13,South,yellow,20,0,13,15,19
+EM3,14,north,blue,20,0,13,15,19
+EM3,15,north,yellow,20,0,13,15,19
+EM3,16,South,blue,20,0,13,15,19
+EM3,17,South,blue,20,0,13,15,19
+EM3,18,north,blue,20,1,13,15,19
+EM3,19,South,yellow,20,0,13,15,19
+EM3,20,South,red,20,0,13,15,19
+EM3,21,South,red,20,0,13,15,19
+EM3,22,South,yellow,20,1,13,15,19
+EM3,23,South,red,20,0,13,15,19
+EM3,24,South,red,20,1,13,15,19
+EM3,25,north,yellow,20,0,13,15,19
+EM3,26,north,blue,20,0,13,15,19
+EM3,27,South,blue,20,0,13,15,19
+EM3,28,South,red,20,1,13,15,19
+EM3,29,South,yellow,20,0,13,15,19
+EM3,30,north,yellow,20,0,13,15,19
+EM3,31,north,red,20,1,13,15,19
+EM3,32,north,red,20,0,13,15,19
+EM3,33,South,yellow,20,0,13,15,19
+EM3,34,north,red,20,0,13,15,19
+EM3,35,north,blue,20,0,13,15,19
+EM3,36,north,blue,20,0,13,15,19
+EM4,1,south,blue,22,0,6,10,12
+EM4,2,south,blue,22,1,6,10,12
+EM4,3,south,red,22,1,6,10,12
+EM4,4,south,yellow,22,1,6,10,12
+EM4,5,north ,red,22,1,6,10,12
+EM4,6,north,yellow,22,0,6,10,12
+EM4,7,south,yellow,22,0,6,10,12
+EM4,8,south,blue,22,0,6,10,12
+EM4,9,north,red,22,1,6,10,12
+EM4,10,south,yellow,22,1,6,10,12
+EM4,11,south,blue,22,1,6,10,12
+EM4,12,south,red,22,1,6,10,12
+EM4,13,north,red,18,1,6,10,12
+EM4,14,north,blue,18,1,6,10,12
+EM4,15,north,red,18,1,6,10,12
+EM4,16,south,yellow,18,0,6,10,12
+EM4,17,north,blue,18,0,6,10,12
+EM4,18,south,yellow,18,0,6,10,12
+EM4,19,south,blue,18,0,6,10,12
+EM4,20,north,yellow,18,1,6,10,12
+EM4,21,north,blue,18,1,6,10,12
+EM4,22,north,yellow,18,1,6,10,12
+EM4,23,north,red,18,1,6,10,12
+EM4,24,north,red,18,1,6,10,12
+EM4,25,north,red,21,1,6,10,12
+EM4,26,north,yellow,21,0,6,10,12
+EM4,27,north,yellow,21,1,6,10,12
+EM4,28,south,red,21,1,6,10,12
+EM4,29,south,blue,21,0,6,10,12
+EM4,30,north,red,21,1,6,10,12
+EM4,31,south,red,21,1,6,10,12
+EM4,32,north,blue,21,1,6,10,12
+EM4,33,north,yellow,21,1,6,10,12
+EM4,34,south,blue,21,1,6,10,12
+EM4,35,south,yellow,21,1,6,10,12
+EM4,36,south,blue,21,0,6,10,12
+EM4,1,north,blue,20,0,11,13,17
+EM4,2,north,yellow,20,1,11,13,17
+EM4,3,south,yellow,20,0,11,13,17
+EM4,4,south,yellow,20,1,11,13,17
+EM4,5,south,blue,20,0,11,13,17
+EM4,6,south,yellow,20,0,11,13,17
+EM4,7,north,red,20,0,11,13,17
+EM4,8,north,blue,20,1,11,13,17
+EM4,9,south,blue,20,0,11,13,17
+EM4,10,south,red,20,0,11,13,17
+EM4,11,south,red,20,1,11,13,17
+EM4,12,south,red,20,0,11,13,17
+EM4,13,north,red,16,1,11,13,17
+EM4,14,north,blue,16,0,11,13,17
+EM4,15,north,yellow,16,1,11,13,17
+EM4,16,south,blue,16,0,11,13,17
+EM4,17,south,blue,16,0,11,13,17
+EM4,18,south,blue,16,1,11,13,17
+EM4,19,north,yellow,16,0,11,13,17
+EM4,20,south,red,16,0,11,13,17
+EM4,21,south,yellow,16,0,11,13,17
+EM4,22,north,red,16,0,11,13,17
+EM4,23,north,yellow,16,0,11,13,17
+EM4,24,north,red,16,1,11,13,17
+EM4,25,south,yellow,23,0,11,13,17
+EM4,26,north,blue,23,0,11,13,17
+EM4,27,south,yellow,23,1,11,13,17
+EM4,28,north,blue,23,0,11,13,17
+EM4,29,north,blue,23,0,11,13,17
+EM4,30,south,blue,23,0,11,13,17
+EM4,31,north,yellow,23,0,11,13,17
+EM4,32,south,red,23,0,11,13,17
+EM4,33,north,red,23,1,11,13,17
+EM4,34,north,yellow,23,0,11,13,17
+EM4,35,north,red,23,0,11,13,17
+EM4,36,south,red,23,1,11,13,17
