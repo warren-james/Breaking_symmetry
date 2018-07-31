@@ -38,6 +38,7 @@
 #### libraries needed ####
 library(tidyverse)
 library(psyphy)
+library(lme4)
 
 #### any functions #### 
 # To make the proportions plots
@@ -422,9 +423,13 @@ desc_minus5 <- bias_sides_2[bias_sides_2$participant != "5",] %>%
 m1 <- glm(prop ~ separation, 
           data = side, 
           family = binomial())
+summary(m1)
+
 m2 <- glm(prop ~ separation + as.factor(bias_type),
           data = side,
           family = binomial())
+summary(m2)
+
 # Neither of these is significant which suggests that on average participants did not
 # modify their fixations with relation to separation and there was no improvement 
 # when adding in condition... (this is easily told by looking at the plots though)
@@ -433,6 +438,7 @@ m2 <- glm(prop ~ separation + as.factor(bias_type),
 m3 <- glm(prop ~ as.factor(bias_type),
           data = side,
           family = binomial)
+summary(m3)
 
 # We could also try looking at whether people were sensitive to the bias side 
 # Maybe by getting a value for how much more often they looked at the "biased" 
@@ -471,18 +477,35 @@ glm_dat$bias_box_left <- as.factor(glm_dat$bias_box_left)
 m4 <- glmer(fixated_common ~ bias_type + (1|participant),
             data = glm_dat, 
             family = binomial())
+summary(m4)
 # this is significant
+
 
 # just to satisfy some curiosity
 m5 <- glmer(fixated_common ~ bias_type + bias_box_left + (1|participant),
             data = glm_dat,
             family = binomial())
+summary(m5)
 # nope, doesn't add anything
 
 # what about fixation cross side...
 m6 <- glmer(fixated_common ~ bias_type + cross_side + (1|participant),
             data = glm_dat,
             family = binomial())
+summary(m6)
+
+# maybe add in the interaction as it should only be predictive for th 50-50
+m7 <- glmer(fixated_common ~ (bias_type + cross_side)^2 + (1|participant),
+            data = glm_dat,
+            family = binomial())
+summary(m7)
+
+
+
+
+
+
+
 
 
 
