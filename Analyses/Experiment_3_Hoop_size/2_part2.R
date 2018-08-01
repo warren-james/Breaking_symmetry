@@ -440,6 +440,11 @@ glm_dat$small_hoop_left <- as.factor(glm_dat$small_hoop_left)
 m1 <- glmer(subj_left ~ small_hoop_left + (1|participant),
           family = binomial(),
           data = glm_dat)
+summary(m1)
+# shows sig effect 
+
+# do we need a varying slope model as well... 
+# should probably look at separation as well...
 
 
 

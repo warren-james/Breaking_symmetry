@@ -480,6 +480,13 @@ m4 <- glmer(fixated_common ~ bias_type + (1|participant),
 summary(m4)
 # this is significant
 
+# add random slopes by condition
+m4.1 <- glmer(fixated_common ~ bias_type + (1 + bias_type|participant),
+              data = glm_dat,
+              family = binomial())
+summary(m4.1)
+
+
 
 # just to satisfy some curiosity
 m5 <- glmer(fixated_common ~ bias_type + bias_box_left + (1|participant),
