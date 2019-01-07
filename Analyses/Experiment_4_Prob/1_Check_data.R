@@ -133,7 +133,7 @@ rm(plt, plt_dat)
 # gets the exact same results anyway
 df_acc <- df
 m = glm(data=df, accuracy~separation:participant,
-        family= binomial) # for one participant
+        family= binomial(mafc.logit(10))) # for one participant
         #:participant, family=binomial) # for more than one
 df_acc$p = predict(m, type = "response")
 
@@ -170,9 +170,7 @@ rm(e)
 
 # get predictions
 m = glm(data = df_va, cbind(num_correct, trials-num_correct)~
-          separation:participant, binomial)#, binomial) # for one participant
-          #:participant, binomial) # for more than one
-
+          separation:participant, family = binomial(mafc.logit(10)))
 df_va$p = predict(m, type = "response")
 
 # tidy 
@@ -251,7 +249,9 @@ for (p in unique(df_va$participant))
   # general linear model
   ss = df_va[which(df_va$participant==p),]
   m = glm(data = ss, cbind(num_correct, trials-num_correct)~
-            separation, binomial, offset = ss$off_set)
+            separation,
+          family = binomial(mafc.logit(10)),
+          offset = ss$off_set)
   for(i in c(1:1000,1280)){
     y = predict(m, data.frame(separation = i), type = "response")[1]
 

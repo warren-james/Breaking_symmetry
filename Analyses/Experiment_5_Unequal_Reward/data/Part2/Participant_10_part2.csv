@@ -1,0 +1,13 @@
+Trial,Colour,Direction,Left_Gamble,Right_Gamble,Subject_Position,Accuracy,Winnings
+1,B,Right,25,25,-9,0,0
+2,Y,Right,25,25,-1,0,0
+3,B,Left,10,40,-9,1,10
+4,Y,Right,25,25,-1,0,0
+5,Y,Right,25,25,0,1,25
+6,R,Left,40,10,0,1,40
+7,G,Left,25,25,0,0,0
+8,B,Left,25,25,0,0,0
+9,R,Left,40,10,0,1,40
+10,G,Right,25,25,0,0,0
+11,R,Right,25,25,0,1,25
+12,G,Left,40,10,-8,0,0
