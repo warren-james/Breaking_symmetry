@@ -311,8 +311,9 @@ plt <- plt + scale_x_continuous(name="Delta (Metres)" ,
                                 limits= c(1.5, 10),
                                 breaks = c(2,4,6,8,10))
 plt <- plt + geom_hline(yintercept = 0)
-plt <- plt + facet_wrap(~participant, ncol = 6)
-plt <- plt + theme(legend.position = "bottom")
+plt <- plt + facet_wrap(~participant, ncol = 7)
+plt <- plt + theme(legend.position = "bottom",
+                   strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm")))
 
 # Change legend title 
 plt$labels$colour <- "Line Type"
@@ -386,7 +387,8 @@ prop_plt <- prop_plt + scale_y_continuous(name="Normalised Participant Position"
 prop_plt <- prop_plt + scale_x_continuous(name="Delta (Metres)",
                                 limits= c(1.5, 10),
                                 breaks = c(2,4,6,8,10))
-prop_plt <- prop_plt + theme(legend.position = "bottom")
+prop_plt <- prop_plt + theme(legend.position = "bottom",
+                             strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm")))
 # prop_plt <- prop_plt + scale_fill_discrete(breaks = c("Large Hoop",
 #                                                       "Centre",
 #                                                       "Small Hoop"))
@@ -396,7 +398,7 @@ prop_plt <- prop_plt + theme(legend.position = "bottom")
 #prop_plt <- prop_plt + geom_vline(data = switch_points,
 #                                  aes(xintercept = as.numeric(switch_point)), 
 #                                  linetype = "dashed")
-prop_plt <- prop_plt + facet_wrap(~participant, ncol = 6)
+prop_plt <- prop_plt + facet_wrap(~participant, ncol = 7)
 prop_plt$labels$colour <- "Stood Towards"
 prop_plt$labels$fill <- "Stood Towards"
 # Draw plot
@@ -682,10 +684,10 @@ plt <- plt + geom_line(data = plt_data[plt_data$Acc_type == "Expected" |
                                          plt_data$Acc_type == "Centre (Probability)",], 
                        aes(linetype = Acc_type),
                        size = 1)
-plt <- plt + theme(legend.position = "bottom")
+plt <- plt + theme(legend.position = "bottom",strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm")))
 # plt <- plt + geom_point()
 # plt <- plt + geom_line(aes(linetype = condition))
-plt <- plt + facet_wrap(~as.numeric(participant), ncol = 6)
+plt <- plt + facet_wrap(~as.numeric(participant), ncol = 7)
 plt$labels$x <- "Delta (Metres)"
 plt$labels$y <- "Accuracy"
 plt$labels$linetype <- "Accuracy for:"

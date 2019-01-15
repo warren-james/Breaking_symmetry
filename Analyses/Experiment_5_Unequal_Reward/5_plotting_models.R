@@ -4,7 +4,7 @@
 #### library ####
 library(tidyverse)
 library(rstan)
-
+library(brms)
 #### load data ####
 load("scratch/data/model_data")
 
@@ -80,6 +80,9 @@ load("scratch/model_outputs/m_brms")
 post <- marginal_effects(m_brms)
 
 # make quick plots to show interaction
-plot(post, plot = F)[[3]]
-                     
+plt <- plot(post, plot = F)[[3]]
+plt$labels$x <- "Normalised Hoop Delta"
+plt$labels$y <- "Normalised Standing Position"
+plt$labels$colour <- "Split"
+plt$labels$fill <- "Split"
 

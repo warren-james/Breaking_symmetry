@@ -23,6 +23,7 @@ load("scratch/data/df_part1")
 #### Summaries and Plotting ####
 # proportion of equal vs unequal 
 plt_prop_gamble_types <- df_part2 %>% 
+  mutate(Participant = as.factor(as.numeric(Participant))) %>%
   group_by(Participant, Gamble_Type) %>%
   summarise(n = n()) %>%
   ggplot(aes(Participant, n, fill = Gamble_Type)) + 
@@ -30,7 +31,8 @@ plt_prop_gamble_types <- df_part2 %>%
   theme_bw() + 
   scale_y_discrete(limits = seq(0,12,2)) + 
   theme(legend.position = "bottom")
-plt_prop_gamble_types$labels$y <- "No. of each gamble type"
+plt_prop_gamble_types$labels$y <- "No. of each split"
+plt_prop_gamble_types$labels$fill <- "Split"
 plt_prop_gamble_types
 
 # probably want to save these as well
@@ -38,6 +40,7 @@ plt_prop_gamble_types
 
 # choices made 
 plt_standing_pos <- df_part2 %>%
+  mutate(Participant = as.factor(as.numeric(Participant))) %>%
   ggplot(aes(HoopDelta, Norm_Dist, colour = Gamble_Type)) +
   geom_jitter() + 
   theme_bw() + 
@@ -46,6 +49,7 @@ plt_standing_pos <- df_part2 %>%
         strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm")))
 plt_standing_pos$labels$x <- "Delta (Metres)"
 plt_standing_pos$labels$y <- "Nomalised Standing Position"
+plt_standing_pos$labels$colour <- "Split"
 plt_standing_pos
 
 # plot together
@@ -57,6 +61,7 @@ ggsave(file = "../../Figures/Experiment_5_Unequal_Reward/prop_and_position.png",
 
 # just plot everything with equal and unequal gamebles
 plt_everything <- df_part2 %>%
+  mutate(Participant = as.factor(as.numeric(Participant))) %>%
   filter(Norm_Dist < 1.001) %>%
   ggplot(aes(HoopDelta, Norm_Dist, colour = Gamble_Type)) +
   geom_jitter() + 
@@ -72,6 +77,7 @@ plt_everything
 
 # With trial info?
 plt_trials <- df_part2 %>%
+  mutate(Participant = as.factor(as.numeric(Participant))) %>%
   unite(Colour_Gamble, c(Colour, Gamble_Type)) %>%
   mutate(Colour_Gamble = fct_reorder(Colour_Gamble, HoopDelta)) %>%
   ggplot(aes(Trial, Norm_Dist, colour = Colour_Gamble, shape = Colour_Gamble)) + 
