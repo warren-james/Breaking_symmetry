@@ -282,17 +282,30 @@ norm_dat$metres <- norm_dat$hoop_pos*Hoop_size
 
 #### make plot of opt swithing poing by standing position ####
 # still need to calculate their opt standing positions
+# plt_dat <- norm_dat %>%
+#   mutate(participant = as.numeric(participant)) %>%
+#   select(participant,
+#          trial,
+#          hoop_pos,
+#          norm_dist,
+#          equacc,
+#          optpos) %>%
+#   gather(norm_dist:optpos,
+#          key = "point_type", 
+#          value = "norm_dist")
+# 
+# plt_acc <- plt_dat %>%
+#   filter(point_type == "norm_dist") %>%
+#   ggplot(aes(hoop_pos*Hoop_size, norm_dist)) + 
+#   geom_point(alpha = 0.3) + 
+#   theme_bw() work in progress here ....
+
 temp_plt_dat <- norm_dat
 temp_plt_dat$participant <- as.numeric(temp_plt_dat$participant)
 
 plt <- ggplot(temp_plt_dat, aes(metres, norm_dist))
 plt <- plt + geom_point(alpha = 0.3)
-#plt <- plt + geom_jitter(width = 0.3, height = 0.0)
 plt <- plt + theme_bw()
-# plt <- plt + geom_line(aes(hoop_pos, equacc, colour = "Equal Accuracy"), size = 1.2, alpha = 0.7)
-# plt <- plt + geom_line(aes(hoop_pos, optpos, colour = "Optimal"), size = 1.2, alpha = 0.7)
-# plt <- plt + geom_point(aes(hoop_pos, optpos, colour = "Optimal"))
-# plt <- plt + geom_point(aes(hoop_pos, equacc, colour = "Equal Accuracy"))
 plt <- plt + geom_line(aes(metres, equacc,
                            colour = "Equal Accuracy"),
                        size = 1.2,
@@ -669,6 +682,21 @@ plt_dat_Centre <- plt_data[plt_data$Acc_type == "Centre (Distance)",]
 
 
 # make plot
+# plt <- plt_data %>%
+#   ggplot(aes(hoop_pos*Hoop_size, 
+#              Accuracy)) + 
+#   theme_bw() + 
+#   geom_area(data = plt_dat_Optimal,
+#             aes(hoop_pos*Hoop_size,
+#                 Accuracy),
+#             fill = "blue",
+#             alpha = 0.3) + 
+#   geom_area(data = plt_dat_Centre,
+#             aes(hoop_pos*Hoop_size,
+#                 Accuracy),
+#             fill = "red",
+#             alpha = 0.3) + 
+  
 plt <- ggplot(plt_data, aes(hoop_pos*Hoop_size, 
                             Accuracy))
 plt <- plt + theme_bw()

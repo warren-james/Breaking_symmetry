@@ -13,6 +13,7 @@ options(digits = 5)
 library(tidyverse)
 library(psyphy)
 library(reshape2)
+library(ggthemes)
 
 #### Any Functions ####
 # might be useful for making variable names in a function for making the dataframes?
@@ -270,3 +271,30 @@ ggsave("../../Figures/Experiment_2_Two_throw/Accuracyshaded_regions.png",
        height = 12,
        width = 18,
        units = "cm")
+
+
+#### same as above but just lines version ####
+plt <- plt_dat %>%
+  ungroup() %>%
+  mutate(Participant = as.numeric(Participant)) %>%
+  filter(Type != "Centre") %>%
+  unite(Line_type, c("Num_throws", "Type")) %>%
+  filter(Line_type != "One_Optimal") %>%
+  ggplot(aes(HoopDelta*Hoop_size, mean_acc, colour = Line_type)) + 
+  geom_line() + 
+  scale_colour_ptol() + 
+  theme_bw() + 
+  facet_wrap(~Participant, nrow = 3) + 
+  theme(legend.position = "bottom",
+        strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm")))
+plt$labels$x <- "Delta (Metres)"
+plt$labels$y <- "Accuracy"
+plt$labels$Colour <- "Line Type"
+plt
+# need to sort out level labels
+ggsave("../../Figures/Experiment_2_Two_throw/Accuracy_lines.png",
+       height = 12, 
+       width = 18,
+       units = "cm")
+
+

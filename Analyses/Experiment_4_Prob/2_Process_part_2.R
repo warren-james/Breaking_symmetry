@@ -74,8 +74,11 @@ prop_plt <- function(dataframe, title, sep_type){
   if(length(unique(prop_sides$participant))>1){
     plt <- plt + facet_wrap(~as.numeric(participant))
   }
-  plt <- plt + theme_bw()
-  plt <- plt + theme(legend.position = "bottom")
+  plt <- plt + theme_bw() +
+    theme(legend.position = "bottom", 
+          strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm"))) +
+    scale_colour_ptol() + 
+    scale_fill_ptol()
   return(plt)
 }
 
@@ -216,14 +219,13 @@ rm(df_part2)
 
 #### Making plots ####
 # setup data
-prop_sides <- df
-prop_sides$lcr <- as.factor(prop_sides$lcr)
-prop_sides$prop_boxes <- prop_sides$lcr
-prop_sides <- prop_sides %>%
+prop_sides <- df %>% 
+  mutate(lcr = as.factor(lcr),
+         prop_boxes = lcr) %>%
   group_by(participant, separation, bias, bias_type, prop_boxes) %>%
   summarise(n = n()) %>%
   complete(prop_boxes, fill = list(n = 0)) %>%
-  mutate(prop = n / sum(n)) 
+  mutate(prop = n / sum(n))
 
 # use switch_points to get switch points for both bias types 
 switch_bias <- select(switch_points, 
@@ -283,7 +285,7 @@ rm(switch_bias, switch_random)
 
 # make plot(s)
 # random plt
-prop_plt(prop_sides_random, "random", "pixels")
+# prop_plt(prop_sides_random, "random", "pixels")
 # ggsave("scratch/plots/Part_2_prop_random_pixels.pdf", height = 10, width = 10)
 
 prop_plt(prop_sides_random, "random", "Visual Degrees")
@@ -293,10 +295,10 @@ prop_plt(prop_sides_random, "random", "Visual Degrees")
 #        units = "cm")
 
 # bias plt 
-prop_plt(prop_sides_bias, "biased", "pixels")
+# prop_plt(prop_sides_bias, "biased", "pixels")
 # ggsave("scratch/plots/Part_2_prop_biased_pixels.pdf")
 
-prop_plt(prop_sides_bias, "biased", "Visual Degrees")
+# prop_plt(prop_sides_bias, "biased", "Visual Degrees")
 # ggsave("../../Figures/Experiment_4_Prob/Part_2_prop_biased_vdegs.png",
 #        height = 12,
 #        width = 18,

@@ -80,7 +80,9 @@ load("scratch/model_outputs/m_brms")
 post <- marginal_effects(m_brms)
 
 # make quick plots to show interaction
-plt <- plot(post, plot = F)[[3]]
+plt <- plot(post, plot = F)[[3]] + 
+  ggthemes::scale_colour_ptol() + 
+  ggthemes::scale_fill_ptol()
 plt$labels$x <- "Normalised Hoop Delta"
 plt$labels$y <- "Normalised Standing Position"
 plt$labels$colour <- "Split"

@@ -9,6 +9,7 @@ library(tidyverse)
 library(psyphy)
 library(reshape2)
 library(lme4)
+library(ggthemes)
 
 #### Any Functions ####
 
@@ -57,22 +58,25 @@ rm(df_part2_OT, df_part2_TT, OT, TT, df_part2)
 
 #### PLOTS ####
 #### PLOTS: Individual points for all positions #### 
-plt <- ggplot(df, aes(HoopDelta*Hoop_size,
-                      abspos,
-                      colour = Num_throws))
-plt <- plt + geom_point(position = "jitter")
-plt <- plt + facet_wrap(~as.numeric(Participant), nrow = 3)
-plt <- plt + theme_bw()
-plt <- plt + geom_vline(aes(xintercept = switchSlab*Hoop_size),
-                        linetype = "dashed")
-plt <- plt + scale_y_continuous(name = "Normalised Participant standing position",
-                                limits = c(0,2))
-plt <- plt + scale_x_continuous(name = "Delta (Metres)",
-                                limits = c(0,10),
-                                breaks = c(2,4,6,8,10))
-plt <- plt + theme(legend.position = "bottom")
-plt$labels$colour <- "Number of Throws"
-# show plot 
+plt <- df %>%
+  ggplot(aes(HoopDelta*Hoop_size,
+             abspos,
+             colour = Num_throws)) +
+  geom_point(position = "jitter") + 
+  scale_colour_ptol() + 
+  facet_wrap(~as.numeric(Participant), nrow = 3) + 
+  theme_bw() + 
+  geom_vline(aes(xintercept = switchSlab*Hoop_size),
+             linetype = "dashed") +
+  theme(legend.position = "bottom") + 
+  scale_x_continuous(name = "Delta (Metres)",
+                     limits = c(0,10),
+                     breaks = c(2,4,6,8,10)) +
+  scale_y_continuous(name = "Normalised Participant standing position",
+                     limits = c(0,2)) + 
+  theme(legend.position = "bottom",
+        strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm")))
+plt$labels$colour = "No. Throws"
 plt
 
 # save this 
@@ -84,27 +88,27 @@ plt
 
 #### PLOTS: Average standing position ####
 # setup dataframe
-pltdat <- as.tibble(df)
-pltdat <- pltdat %>%
-  group_by(Participant, HoopDelta, Num_throws, switchSlab) %>%
-  summarise(mean_pos = mean(abspos))
-
-# make plot 
-plt <- ggplot(pltdat, aes(HoopDelta*Hoop_size,
-                          mean_pos,
-                          colour = Num_throws))
-plt <- plt + geom_point(position = position_jitter(width=.1,height=.0))
-plt <- plt + facet_wrap(~Participant, nrow = 3)
-plt <- plt + theme_bw()
-plt <- plt + geom_vline(aes(xintercept = switchSlab * Hoop_size))
-plt <- plt + scale_y_continuous(name = "Normalised participant standing position",
-                                limits = c(0,1))
-plt <- plt + scale_x_continuous(name = "Delta (Metres)",
-                                limits = c(0,10),
-                                breaks = c(2,4,6,8,10))
-plt$labels$colour <- "No. of Throws"
-# show plot
-plt
+# pltdat <- as.tibble(df)
+# pltdat <- pltdat %>%
+#   group_by(Participant, HoopDelta, Num_throws, switchSlab) %>%
+#   summarise(mean_pos = mean(abspos))
+# 
+# # make plot 
+# plt <- ggplot(pltdat, aes(HoopDelta*Hoop_size,
+#                           mean_pos,
+#                           colour = Num_throws))
+# plt <- plt + geom_point(position = position_jitter(width=.1,height=.0))
+# plt <- plt + facet_wrap(~Participant, nrow = 3)
+# plt <- plt + theme_bw()
+# plt <- plt + geom_vline(aes(xintercept = switchSlab * Hoop_size))
+# plt <- plt + scale_y_continuous(name = "Normalised participant standing position",
+#                                 limits = c(0,1))
+# plt <- plt + scale_x_continuous(name = "Delta (Metres)",
+#                                 limits = c(0,10),
+#                                 breaks = c(2,4,6,8,10))
+# plt$labels$colour <- "No. of Throws"
+# # show plot
+# plt
 
 # save plot 
 # ggsave("../../Figures/Experiment_2_Two_throw/Part2_BOTH_AvG.png",

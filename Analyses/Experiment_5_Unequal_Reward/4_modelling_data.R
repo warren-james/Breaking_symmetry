@@ -183,9 +183,9 @@ save(m6.1, file = "scratch/model_outputs/m6.1_output")
 # brms model 
 m_brms <- brm(Norm_Dist ~ Norm_Delta*Gamble_Type,
               data = model_data, family = "beta",
-              iter = 1000,
-              chains = 1,
-              cores = 1)
+              iter = 4000,
+              chains = 2,
+              cores = 2)
 
 # save this 
 save(m_brms, file = "scratch/model_outputs/m_brms")

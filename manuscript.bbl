@@ -106,6 +106,39 @@ Brainard, D\BPBI H.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Camerer%
+\ \BBA {} Hogarth%
+}{%
+Camerer%
+\ \BBA {} Hogarth%
+}{%
+{\protect \APACyear {1999}}%
+}]{%
+Camerer1999}
+\APACinsertmetastar {%
+Camerer1999}%
+\begin{APACrefauthors}%
+Camerer, C\BPBI F.%
+\BCBT {}\ \BBA {} Hogarth, R\BPBI M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1999}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {The Effects of Financial Incentives in Experiments: A
+  Review and Capital-Labor-Production Framework} {The effects of financial
+  incentives in experiments: A review and capital-labor-production
+  framework}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of Risk and Uncertainty}{19}{1}{7--42}.
+\newblock
+\begin{APACrefURL} \url{https://doi.org/10.1023/A:1007850605129}
+  \end{APACrefURL}
+\newblock
+\begin{APACrefDOI} \doi{10.1023/A:1007850605129} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Chang%
 \ \protect \BOthers {.}}{%
 Chang%
@@ -779,6 +812,32 @@ Pelli, D\BPBI G.%
   psychophysics: Transforming numbers into movies}.{\BBCQ}
 \newblock
 \APACjournalVolNumPages{Spatial vision}{10}{4}{437--442}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Phillips%
+\ \BBA {} Edwards%
+}{%
+Phillips%
+\ \BBA {} Edwards%
+}{%
+{\protect \APACyear {1966}}%
+}]{%
+phillips1966conservatism}
+\APACinsertmetastar {%
+phillips1966conservatism}%
+\begin{APACrefauthors}%
+Phillips, L\BPBI D.%
+\BCBT {}\ \BBA {} Edwards, W.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1966}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Conservatism in a simple probability inference task.}
+  {Conservatism in a simple probability inference task.}{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of experimental psychology}{72}{3}{346}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%

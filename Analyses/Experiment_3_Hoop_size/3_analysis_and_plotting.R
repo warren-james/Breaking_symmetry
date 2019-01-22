@@ -7,6 +7,7 @@
 #### Load in the libraries ####
 library(tidyverse)
 library(reshape2) # might not need this one?
+library(ggthemes)
 
 # set options
 options(digits = 4)
@@ -140,27 +141,27 @@ rm(Act_pos, Opt_pos)
 # Or line plots of average accuracy accross all participants?
 
 #### Plots: Accuracy ####
-temp <- group_by(Accuracy_long, type, standard_sep)
-plt_dat_acc <- summarise(temp, mean_acc = mean(Mean_acc),
-                               sd_acc = sd(Mean_acc), 
-                               N = length(Mean_acc),
-                               se = sd_acc/sqrt(N))
+plt_acc <- Accuracy_long %>%
+  group_by(type, standard_sep) %>%
+  summarise(mean_acc = mean(Mean_acc),
+            sd_acc = sd(Mean_acc),
+            N = length(Mean_acc),
+            se = sd_acc/sqrt(N)) %>%
+  ggplot(aes(standard_sep, mean_acc, colour = type)) +
+  geom_point() + 
+  geom_errorbar(aes(ymin = mean_acc - se,
+                    ymax = mean_acc + se)) +
+  scale_y_continuous(limits = c(0,1),
+                     breaks = c(0,0.25,0.5,0.75,1)) + 
+  scale_x_continuous(limits = c(-2.5,3.5),
+                     breaks = seq(-2,3, by = 1)) + 
+  theme_bw() + 
+  scale_clour_ptol() 
+plt_acc$labels$x = "Standardised Separation"
+plt_acc$labels$y = "Mean Accuracy"
+plt_acc$labels$colour = "Type"
+plt_acc 
 
-# tidy
-rm(temp)
-
-# make plot 
-plt_acc <- ggplot(plt_dat_acc, aes(standard_sep, mean_acc, colour = type))
-plt_acc <- plt_acc + geom_point()
-plt_acc <- plt_acc + geom_errorbar(aes(ymin = mean_acc - se,
-                                       ymax = mean_acc + se))
-plt_acc <- plt_acc + scale_y_continuous(limits = c(0,1),
-                                        breaks = c(0,0.25,0.5,0.75,1))
-plt_acc <- plt_acc + scale_x_continuous(limits = c(-2.5,3.5),
-                                      breaks = seq(-2,3, by = 1))
-plt_acc <- plt_acc + labs(x = "Standardised Separation",
-                          y = "Mean Accuracy",
-                          colour = "Type")
 #plt_acc <- plt_acc+ ggtitle("Average Accuracy for each hoop separation compared to
 #            expected accuracy under the optimal strategy")
 #ggsave("plots/Session_2_plot.pdf",

@@ -10,6 +10,7 @@ library(tidyverse)
 # library(rstan)
 library(gridExtra)
 library(forcats)
+library(ggthemes)
 
 #### Constants ####
 slab_size <- 0.46
@@ -26,7 +27,8 @@ plt_prop_gamble_types <- df_part2 %>%
   mutate(Participant = as.factor(as.numeric(Participant))) %>%
   group_by(Participant, Gamble_Type) %>%
   summarise(n = n()) %>%
-  ggplot(aes(Participant, n, fill = Gamble_Type)) + 
+  ggplot(aes(Participant, n, fill = Gamble_Type)) +
+  scale_fill_ptol() + 
   geom_bar(stat = "identity", width = 0.5) +
   theme_bw() + 
   scale_y_discrete(limits = seq(0,12,2)) + 
@@ -42,6 +44,7 @@ plt_prop_gamble_types
 plt_standing_pos <- df_part2 %>%
   mutate(Participant = as.factor(as.numeric(Participant))) %>%
   ggplot(aes(HoopDelta, Norm_Dist, colour = Gamble_Type)) +
+  scale_colour_ptol() +
   geom_jitter() + 
   theme_bw() + 
   facet_wrap(~Participant, ncol = 4) + 
@@ -59,11 +62,43 @@ plt_together <- arrangeGrob(plt_prop_gamble_types, plt_standing_pos, ncol = 2)
 # save this 
 ggsave(file = "../../Figures/Experiment_5_Unequal_Reward/prop_and_position.png", plt_together)
 
+#### Proportion over distance ####
+plt_prop_dist <- df_part2 %>%
+  mutate(Participant = as.factor(as.numeric(Participant))) %>%
+  group_by(Participant, Gamble_Type, HoopDelta) %>%
+  summarise(n = n()) %>%
+  ungroup() %>%
+  complete(Participant,
+           Gamble_Type,
+           HoopDelta,
+           fill = list(n = 0)) %>%
+  spread(Gamble_Type, n) %>%
+  filter(Equal + Unequal > 0) %>%
+  gather(Equal:Unequal,
+         key = Gamble_Type,
+         value = n) %>%
+  mutate(freq = n/3) %>%
+  filter(Gamble_Type != "Equal") %>%
+  ggplot(aes(HoopDelta*slab_size, freq)) +
+  geom_line() + 
+  theme_bw() +
+  facet_wrap(~Participant) + 
+  theme(strip.text.x = element_text(margin = margin(0.01,
+                                                    0,
+                                                    0.01,
+                                                    0,
+                                                    "mm")))
+plt_prop_dist$labels$x <- "Delta (Metres)"
+plt_prop_dist$labels$y <- "Frequency of Unequal Splits"
+plt_prop_dist
+
+
 # just plot everything with equal and unequal gamebles
 plt_everything <- df_part2 %>%
   mutate(Participant = as.factor(as.numeric(Participant))) %>%
   filter(Norm_Dist < 1.001) %>%
   ggplot(aes(HoopDelta, Norm_Dist, colour = Gamble_Type)) +
+  scale_colour_ptol() +
   geom_jitter() + 
   geom_smooth(method = "glm",
               method.args = list(family = "binomial"),

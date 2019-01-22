@@ -405,9 +405,57 @@ ggsave("../../Figures/Experiment_4_prob/Estimated_Accuracy_both.png",
        width = 18,
        units = "cm")
 
+#### same as above but with lines ####
+plt_rand <- All_Acc %>%
+  filter(Pred_type != "Centre",
+         condition == "Random") %>%
+  ungroup() %>%
+  mutate(participant = as.numeric(participant)) %>%
+  ggplot(aes(get_VisDegs(separation/ppcm, Screen_dist),
+             Acc, colour = Pred_type)) + 
+  geom_line() + 
+  ggtitle("Random Condition") + 
+  scale_colour_ptol() + 
+  theme_bw() + 
+  facet_wrap(~participant) + 
+  theme(legend.position = "bottom",
+        strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm")))
+plt_rand$labels$x <- "Delta (Visual Degrees)"
+plt_rand$labels$y <- "Accuracy"
+plt_rand$labels$colour <- "Line Type"
+plt_rand
 
+# save
+ggsave("../../Figures/Experiment_4_prob/Random_Est_Accuracy.png",
+       height = 12,
+       width = 18,
+       units = "cm")
 
+# bias
+plt_bias <- All_Acc %>%
+  filter(Pred_type != "Centre",
+         condition == "Bias") %>%
+  ungroup() %>%
+  mutate(participant = as.numeric(participant)) %>%
+  ggplot(aes(get_VisDegs(separation/ppcm, Screen_dist),
+             Acc, colour = Pred_type)) + 
+  geom_line() + 
+  ggtitle("Bias Condition") + 
+  scale_colour_ptol() + 
+  theme_bw() + 
+  facet_wrap(~participant) + 
+  theme(legend.position = "bottom",
+        strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm")))
+plt_bias$labels$x <- "Delta (Visual Degrees)"
+plt_bias$labels$y <- "Accuracy"
+plt_bias$labels$colour <- "Line Type"
+plt_bias
 
+# save
+ggsave("../../Figures/Experiment_4_prob/biasom_Est_Accuracy.png",
+       height = 12,
+       width = 18,
+       units = "cm")
 
 
 
