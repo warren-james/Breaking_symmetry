@@ -345,18 +345,64 @@ plt$labels$colour <- "Accuracy Type"
 # plt$coordinates$limits$y <- c(0,1)
 plt
 # save 
-ggsave("../../Figures/Experiment_4_prob/exp_vs_opt_rand.png",
+# ggsave("../../Figures/Experiment_4_prob/exp_vs_opt_rand.png",
+#        height = 12,
+#        width = 18,
+#        units = "cm")
+# 
+
+
+
+#### setup plot for paper ####
+# lines plts for bias and rand comparison of optimal to 
+# expected given actual 
+plt_rand <- AccMea_rand %>%
+  ungroup() %>%
+  mutate(participant = as.numeric(participant)) %>%
+  ggplot(aes(get_VisDegs(separation/ppcm, Screen_dist),
+             Acc,
+             colour = Pred_type)) +
+  geom_line() + 
+  ggthemes::scale_colour_ptol() +
+  theme_bw() + 
+  theme(legend.position = "bottom",
+        strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm"))) +
+  ggtitle("Random Condition") +
+  facet_wrap(~participant)
+plt_rand$labels$x <- "Delta (Visual Degrees)"
+plt_rand$labels$y <- "Accuracy"
+plt_rand$labels$colour <- "Line Type"
+plt_rand
+
+# save 
+ggsave("../../Figures/Experiment_4_prob/exp_vs_opt_rand_lines.png",
        height = 12,
        width = 18,
        units = "cm")
 
+plt_bias <- AccMea_bias %>%
+  ungroup() %>%
+  mutate(participant = as.numeric(participant)) %>%
+  ggplot(aes(get_VisDegs(separation/ppcm, Screen_dist),
+             Acc,
+             colour = Pred_type)) +
+  geom_line() + 
+  ggthemes::scale_colour_ptol() +
+  theme_bw() + 
+  theme(legend.position = "bottom",
+        strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm"))) +
+  ggtitle("Bias Condition") +
+  facet_wrap(~participant)
+plt_bias$labels$x <- "Delta (Visual Degrees)"
+plt_bias$labels$y <- "Accuracy"
+plt_bias$labels$colour <- "Line Type"
+plt_bias
 
-
-
-
-
-
-
+# save
+ggsave("../../Figures/Experiment_4_prob/exp_vs_opt_bias_lines.png",
+       height = 12,
+       width = 18,
+       units = "cm")
 
 
 
