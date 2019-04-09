@@ -4,7 +4,9 @@
 #### library ####
 library(tidyverse)
 library(rstan)
+library(tidybayes)
 library(brms)
+
 #### load data ####
 load("scratch/data/model_data")
 
@@ -87,4 +89,37 @@ plt$labels$x <- "Normalised Hoop Delta"
 plt$labels$y <- "Normalised Standing Position"
 plt$labels$colour <- "Split"
 plt$labels$fill <- "Split"
+plt
 
+#### BRMS: posterior predictions ####
+plt <- model_data %>%
+  add_predicted_draws(m_brms) %>%
+  ungroup() %>%
+  mutate(Norm_Delta = round(Norm_Delta, digits = 3)) %>%
+  filter(Norm_Delta == 1 | Norm_Delta == 0.2 | Norm_Delta == 0.529) %>%
+  ggplot(aes(.prediction,
+             colour = Gamble_Type,
+             fill = Gamble_Type)) + 
+  geom_density(alpha = 0.3) + 
+  theme_minimal() + 
+  ggthemes::scale_colour_ptol() + 
+  ggthemes::scale_fill_ptol() + 
+  facet_wrap(~Norm_Delta)
+plt
+
+#### BRMS: dist_type ####
+# load model 
+load("scratch/model_outputs/m_brms_v2")
+
+# plot 
+plt <- model_data %>%
+  add_predicted_draws(m_brms_v2) %>%
+  ggplot(aes(.prediction,
+             colour = Gamble_Type,
+             fill = Gamble_Type)) + 
+  geom_density(alpha = 0.3) + 
+  theme_minimal() + 
+  ggthemes::scale_colour_ptol() + 
+  ggthemes::scale_fill_ptol() + 
+  facet_wrap(~dist_type)
+plt

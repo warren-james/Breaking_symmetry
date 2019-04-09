@@ -60,7 +60,16 @@ model_data <- df_part2 %>%
          Unequal = as.numeric(as.factor(Gamble_Type))-1) %>%
   filter(Norm_Dist <= 1) %>%
   mutate(Norm_Dist = (Norm_Dist + 1e-4)/(1+ 2e-4)) %>%
-  select(Participant, Norm_Delta, Est_Accuracy, Gamble_Type, Norm_Dist, Unequal)
+  select(Participant, Norm_Delta, Est_Accuracy, Gamble_Type, Norm_Dist, Unequal) %>%
+  mutate(med_dist = median(Norm_Delta))
+
+# add a dist_type predictor
+model_data$dist_type <- "close"
+model_data$dist_type[model_data$Norm_Delta > model_data$med_dist] <- "far"
+
+# deselect med_dist 
+model_data <- model_data %>% 
+  select(-med_dist)
 
 # save this 
 save(model_data, file = "scratch/data/model_data")
@@ -189,3 +198,14 @@ m_brms <- brm(Norm_Dist ~ Norm_Delta*Gamble_Type,
 
 # save this 
 save(m_brms, file = "scratch/model_outputs/m_brms")
+
+
+# same again with dist_type 
+m_brms_v2 <- brm(Norm_Dist ~ dist_type*Gamble_Type,
+                 data = model_data, family = "beta",
+                 iter = 2000,
+                 chains = 1,
+                 cores = 1)
+
+# save
+save(m_brms_v2, file = "scratch/model_outputs/m_brms_v2")

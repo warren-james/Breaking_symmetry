@@ -326,7 +326,8 @@ plt <- plt + scale_x_continuous(name="Delta (Metres)" ,
 plt <- plt + geom_hline(yintercept = 0)
 plt <- plt + facet_wrap(~participant, ncol = 7)
 plt <- plt + theme(legend.position = "bottom",
-                   strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm")))
+                   strip.text.x = element_blank())
+                   #strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm")))
 
 # Change legend title 
 plt$labels$colour <- "Line Type"
@@ -673,6 +674,21 @@ plt
 
 # tidy 
 rm(plt)
+
+#### new version of above plot ####
+plt <- plt_data %>%
+  filter(Acc_type == "Optimal" | Acc_type == "Expected") %>%
+  ggplot(aes(hoop_pos*Hoop_size, Accuracy, colour = Acc_type)) + 
+  geom_line() + 
+  theme_bw() + 
+  theme(legend.position = "bottom",
+        strip.text.x = element_blank()) + 
+  ggthemes::scale_colour_ptol() + 
+  facet_wrap(~participant, ncol = 7)
+plt$labels$x <- "Detla (Metres)"
+plt$labels$colour <- "Type"
+plt
+
 
 #### plot Accuracy types with regions instead ####
 # setup dataframes

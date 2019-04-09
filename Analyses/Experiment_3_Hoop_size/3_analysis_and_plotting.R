@@ -156,7 +156,7 @@ plt_acc <- Accuracy_long %>%
   scale_x_continuous(limits = c(-2.5,3.5),
                      breaks = seq(-2,3, by = 1)) + 
   theme_bw() + 
-  scale_clour_ptol() 
+  ggthemes::scale_colour_ptol() 
 plt_acc$labels$x = "Standardised Separation"
 plt_acc$labels$y = "Mean Accuracy"
 plt_acc$labels$colour = "Type"
@@ -180,6 +180,26 @@ plt_dat_pos <- summarise(temp, mean_pos = mean(Mean_pos),
 rm(temp)
 
 # make plot 
+# plt_pos <- Position_long %>%
+#   group_by(type, standard_sep) %>%
+#   summarise(mean_pos = mean(Mean_pos),
+#             sd_pos = sd(Mean_pos),
+#             N = length(Mean_pos),
+#             se = sd/sqrt(N)) %>%
+#   ggplot(aes(standard_sep-3, mean_pos, colour = type)) + 
+#   geom_point() + 
+#   geom_errorbar(aes(ymin = mean_pos - se,
+#                     ymax = mean_pos + se)) + 
+#   scale_y_continuous(limits = c(-1,1),
+#                      breaks = seq(-1,1,.25)) + 
+#   scale_x_continuous(limits = c(-2.5,3.5),
+#                      breaks = seq(-2,3,1)) + 
+#   ggtitle("Average standing position across hoop separations
+#            compared to optimal standing positions") 
+# plt_pos$labels$x = "Standardised Separation"
+# plt_pos$labels$y = "Mean Standing Position (normalised)"
+# plt_pos$labels$colour = "Type"
+# plt_pos
 plt_pos <- ggplot(plt_dat_pos, aes((standard_sep-3), mean_pos, colour = type))
 plt_pos <- plt_pos + geom_point()
 plt_pos <- plt_pos + geom_errorbar(aes(ymin = mean_pos - se,
