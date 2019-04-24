@@ -35,18 +35,9 @@ model_data <- df_part2 %>%
   select(participant, bias, block, trial, separation, fixated_box, standard_boxes, bias_type) %>%
   group_by(participant) %>%
   mutate(Delta = separation/max(separation)) %>%
-  ungroup()
-
-# add predictor columns
-# fixated likely
-model_data$fixated_likely <- 0
-model_data$fixated_likely[model_data$standard_boxes == "most likely"] <- 1
-model_data$fixated_likely <- as.factor(model_data$fixated_likely)
-
-# fixated centre 
-model_data$fixated_centre <- 0
-model_data$fixated_centre[model_data$standard_boxes == "centre"] <- 1
-model_data$fixated_centre <- as.factor(model_data$fixated_centre)
+  ungroup() %>% 
+  mutate(fixated_likely = as.factor(ifelse(standard_boxes == "most likely", 1, 0)),
+         fixated_centre = as.factor(ifelse(standard_boxes == "centre", 1, 0)))
 
 #### Modelling ####
 #### Modelling: Centre Vs. Side ####

@@ -61,11 +61,9 @@ model_data <- df_part2 %>%
   filter(Norm_Dist <= 1) %>%
   mutate(Norm_Dist = (Norm_Dist + 1e-4)/(1+ 2e-4)) %>%
   select(Participant, Norm_Delta, Est_Accuracy, Gamble_Type, Norm_Dist, Unequal) %>%
-  mutate(med_dist = median(Norm_Delta))
-
-# add a dist_type predictor
-model_data$dist_type <- "close"
-model_data$dist_type[model_data$Norm_Delta > model_data$med_dist] <- "far"
+  mutate(med_dist = median(Norm_Delta),
+         dist_type = ifelse(Norm_Delta > med_dist, "far", "close")) %>%
+  select(-med_dist)
 
 # deselect med_dist 
 model_data <- model_data %>% 
