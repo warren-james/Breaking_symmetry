@@ -100,6 +100,9 @@ rm(a,i,q,x,z)
 # add in large pos 
 dat$large_pos <- dat$small_pos*-1
 
+# save
+save(dat, file = "scratch/df_part2_raw")
+
 #### load in data from part 1 ####
 # part1 acc measures
 load("temp/beanbagdat")
@@ -268,6 +271,8 @@ norm_dat <- norm_dat[,c("participant",
 # tidy 
 rm(temp_avg, temp_avg_small, temp_small)
 
+# save 
+save(norm_dat, file = "scratch/df_part2_norm")
 
 #### get standing position for equal accuracy ####
 norm_dat$equacc <- norm_dist(norm_dat$shift, norm_dat$hoop_pos)
@@ -438,7 +443,7 @@ t.test(prop ~ stpos_type, data = bias_sides_2)
 # shows it significant
 # but this is a bad way to do it and you know that....
 
-#### GLMER time bois and girls ####
+#### GLMER ####
 # setup the data
 glm_dat <- dat[dat$subject_position != 0,]
 

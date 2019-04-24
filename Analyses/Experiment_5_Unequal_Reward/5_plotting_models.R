@@ -84,12 +84,19 @@ post <- marginal_effects(m_brms)
 # make quick plots to show interaction
 plt <- plot(post, plot = F)[[3]] + 
   ggthemes::scale_colour_ptol() + 
-  ggthemes::scale_fill_ptol()
+  ggthemes::scale_fill_ptol() + 
+  theme_bw()
 plt$labels$x <- "Normalised Hoop Delta"
 plt$labels$y <- "Normalised Standing Position"
 plt$labels$colour <- "Split"
 plt$labels$fill <- "Split"
 plt
+
+# save this plot 
+ggsave("../../Figures/Experiment_5_Unequal_Reward/Model_output.png",
+       height = 12,
+       width = 18,
+       units = "cm")
 
 #### BRMS: posterior predictions ####
 plt <- model_data %>%

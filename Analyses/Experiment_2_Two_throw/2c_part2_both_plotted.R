@@ -122,9 +122,9 @@ plt
 # setup data
 glm_dat <- df 
 
-m1 <- glmer(abspos ~ Num_throws + (1|Participant),
-            family = gaussian(),
+m1 <- lmer(abspos ~ Num_throws + (1|Participant),
             data = glm_dat)
+
 # don't think this is significant?
 
 
