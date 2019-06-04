@@ -446,6 +446,33 @@ Kahneman%
 Kahneman%
 \ \BBA {} Tversky%
 }{%
+{\protect \APACyear {1972}}%
+}]{%
+KAHNEMAN1972430}
+\APACinsertmetastar {%
+KAHNEMAN1972430}%
+\begin{APACrefauthors}%
+Kahneman, D.%
+\BCBT {}\ \BBA {} Tversky, A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1972}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Subjective probability: A judgment of
+  representativeness} {Subjective probability: A judgment of
+  representativeness}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Cognitive Psychology}{3}{3}{430 - 454}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Kahneman%
+\ \BBA {} Tversky%
+}{%
+Kahneman%
+\ \BBA {} Tversky%
+}{%
 {\protect \APACyear {1979}}%
 }]{%
 KahnemanProspect}

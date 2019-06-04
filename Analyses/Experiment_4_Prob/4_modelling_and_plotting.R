@@ -39,6 +39,17 @@ model_data <- df_part2 %>%
   mutate(fixated_likely = as.factor(ifelse(standard_boxes == "most likely", 1, 0)),
          fixated_centre = as.factor(ifelse(standard_boxes == "centre", 1, 0)))
 
+# try this all again ionce the largest delta is filtered out? 
+# The furthest delta might be messing with the predictions a bit?
+model_data_trim <- df_part2 %>%
+  filter(separation < 600) %>%
+  select(participant, bias, block, trial, separation, fixated_box, standard_boxes, bias_type) %>%
+  group_by(participant) %>% 
+  mutate(Delta = separation/max(separation)) %>%
+  ungroup() %>% 
+  mutate(fixated_likely = as.factor(ifelse(standard_boxes == "most likely", 1, 0)),
+         fixated_centre = as.factor(ifelse(standard_boxes == "centre", 1, 0)))
+  
 #### Modelling ####
 #### Modelling: Centre Vs. Side ####
 #### m1: fixated_likely ~ bias_type ####
@@ -65,9 +76,41 @@ m3_centre_binom <- brm(fixated_centre ~ (bias_type + Delta)^2,
                        chains = 1,
                        iter = 2000)
 
+# same as above, but with random intercepts
+m4_centre_binom <- brm(fixated_centre ~ (bias_type + Delta)^2 + (1|participant), 
+                       data = model_data_trim,
+                       family = "bernoulli",
+                       cores = 1,
+                       chains = 1,
+                       iter = 2000)
+
+# add in random slopes for Delta as well 
+m5_centre_binom <- brm(fixated_centre ~ (bias_type + Delta)^2 + (1 + Delta|participant), 
+                       data = model_data,
+                       family = "bernoulli",
+                       cores = 1,
+                       chains = 1,
+                       iter = 2000)
+
+# add in dist_type random slopes
+m6_centre_binom <- brm(fixated_centre ~ (bias_type + Delta)^2 + (1 + bias_type + Delta|participant), 
+                       data = model_data,
+                       family = "bernoulli",
+                       cores = 1,
+                       chains = 1,
+                       iter = 2000)
+
+# add in interaction random effect
+m7_centre_binom <- brm(fixated_centre ~ (bias_type + Delta)^2 + (1 + (bias_type + Delta)^2|participant), 
+                       data = model_data,
+                       family = "bernoulli",
+                       cores = 1,
+                       chains = 1,
+                       iter = 2000)
+
 # mess about with this to get it working
 plt <- model_data %>%
-  add_predicted_draws(m3_centre_binom) %>%
+  add_predicted_draws(m4_centre_binom) %>%
   group_by(.row, bias_type, Delta) %>%
   summarise(.prediction = mean(.prediction)) %>%
   ungroup() %>%
@@ -77,10 +120,11 @@ plt <- model_data %>%
              colour = Delta,
              fill = Delta)) + 
   geom_density(alpha = 0.3) + 
-  theme_minimal() + 
-  ggthemes::scale_color_ptol() +
-  ggthemes::scale_fill_ptol() + 
+  see::theme_modern() + 
+  see::scale_colour_material() +
+  see::scale_fill_material() + 
   facet_wrap(~bias_type)
+plt$labels$x <- "Proportion of fixations to the centre"
 plt
 
 #### Modelling: Fixated Likely side ####
