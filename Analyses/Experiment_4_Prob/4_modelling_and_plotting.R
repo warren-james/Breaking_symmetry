@@ -102,7 +102,7 @@ m6_centre_binom <- brm(fixated_centre ~ (bias_type + Delta)^2 + (1 + bias_type +
 
 # add in interaction random effect
 m7_centre_binom <- brm(fixated_centre ~ (bias_type + Delta)^2 + (1 + (bias_type + Delta)^2|participant), 
-                       data = model_data,
+                       data = model_data_trim,
                        family = "bernoulli",
                        cores = 1,
                        chains = 1,
@@ -110,8 +110,8 @@ m7_centre_binom <- brm(fixated_centre ~ (bias_type + Delta)^2 + (1 + (bias_type 
 
 # mess about with this to get it working
 plt <- model_data %>%
-  add_predicted_draws(m4_centre_binom) %>%
-  group_by(.row, bias_type, Delta) %>%
+  add_predicted_draws(m3_centre_binom) %>%
+  group_by(participant,.row, bias_type, Delta) %>%
   summarise(.prediction = mean(.prediction)) %>%
   ungroup() %>%
   filter(Delta == max(Delta) | Delta == min(Delta)) %>%
@@ -126,6 +126,7 @@ plt <- model_data %>%
   facet_wrap(~bias_type)
 plt$labels$x <- "Proportion of fixations to the centre"
 plt
+
 
 #### Modelling: Fixated Likely side ####
 #### modelling: binomial #####
