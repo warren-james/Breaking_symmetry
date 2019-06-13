@@ -39,10 +39,11 @@
 library(tidyverse)
 library(psyphy)
 library(lme4)
+library(ggthemes)
 
 #### any functions #### 
 # To make the proportions plots
-prop_plt <- function(dataframe, title, sep_type){
+prop_plt <- function(dataframe, title, sep_type, lfa){
   # set up the plot
   if(sep_type == "pixels"){
     plt <- ggplot(dataframe,
@@ -79,6 +80,9 @@ prop_plt <- function(dataframe, title, sep_type){
           strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm"))) +
     scale_colour_ptol() + 
     scale_fill_ptol()
+  plt <- plt + geom_bar(data = lfa, aes(separation, prop, 
+                                        fill = prop_boxes),
+                        stat = "identity")
   return(plt)
 }
 
@@ -303,6 +307,33 @@ prop_plt(prop_sides_random, "random", "Visual Degrees")
 #        height = 12,
 #        width = 18,
 #        units = "cm")
+
+#### Same plots as above, remove lfa ####
+prop_sides_random %>% 
+  filter(separation != 640) %>%
+  prop_plt("random", "Visual Degrees")
+
+prop_sides_bias %>% 
+  filter(separation != 640) %>%
+  prop_plt("bias", "Visual Degrees")
+
+#### new plot with stacked bar ####
+# this needs to be max value  +1
+prop_sides_lfa_rand <- prop_sides_random %>%
+  filter(separation == 640) %>% 
+  mutate(separation = 20)
+
+prop_sides_lfa_bias <- prop_sides_bias %>%
+  filter(separation == 640) %>% 
+  mutate(separation = 10)
+
+prop_sides_random %>% 
+  filter(separation != 640) %>%
+  prop_plt("Random", "Visual Degrees", prop_sides_lfa_rand)
+
+
+
+
 
 #### Make plots of just centre vs side by condition ####
 # add in centre vs side column 
