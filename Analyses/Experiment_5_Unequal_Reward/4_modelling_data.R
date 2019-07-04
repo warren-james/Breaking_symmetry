@@ -65,9 +65,6 @@ model_data <- df_part2 %>%
          dist_type = ifelse(Norm_Delta > med_dist, "far", "close")) %>%
   select(-med_dist)
 
-# deselect med_dist 
-model_data <- model_data %>% 
-  select(-med_dist)
 
 # save this 
 save(model_data, file = "scratch/data/model_data")
