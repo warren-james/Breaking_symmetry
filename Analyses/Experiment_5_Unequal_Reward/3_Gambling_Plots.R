@@ -110,7 +110,7 @@ plt_everything$labels$y <- "Normalised Standing Position"
 plt_everything
 
 
-# With trial info?
+#### Plot Trials ####
 plt_trials <- df_part2 %>%
   mutate(Participant = as.factor(as.numeric(Participant))) %>%
   unite(Colour_Gamble, c(Colour, Gamble_Type)) %>%
@@ -122,6 +122,42 @@ plt_trials <- df_part2 %>%
                      values = rep(c("red", "yellow", "blue", "green"), each = 2)) + 
   scale_shape_manual(name = "Gamble type and Distance",
                      values = rep(c(15,17), 4)) + 
+  scale_x_continuous(breaks = c(2,4,6,8,10,12)) +
+  see::theme_lucid() + 
   facet_wrap(~Participant)
-plt_trials$labels$y <- "Normalise Standing Position"
+plt_trials$labels$y <- "Normalised Standing Position"
 plt_trials
+
+# save 
+ggsave(file = "../../Figures/Experiment_5_Unequal_Reward/Plot_each_trial.png")
+
+#### Proportion over distance ####
+# need to standardise the distances... 
+# setup data
+plt_dist_prop <- df_part2 %>% 
+  mutate(Participant = as.factor(as.numeric(Participant))) %>%
+  group_by(Participant, Colour, Gamble_Type) %>%
+  summarise(n = n()) %>%
+  mutate(n = n/3) %>%
+  ungroup() %>%
+  complete(Participant,
+           Gamble_Type,
+           Colour,
+           fill = list(n = 0))
+# reorder Colour Factor
+plt_dist_prop$Colour <- fct_relevel(plt_dist_prop$Colour, "R", "Y", "B", "G")
+# make plot 
+plt_dist_prop <- plt_dist_prop %>%
+  ggplot(aes(Colour, n, fill = Gamble_Type)) +
+  scale_fill_ptol() + 
+  geom_bar(stat = "identity", width = 0.5) +
+  see::theme_lucid() + 
+  facet_wrap(~Participant)
+plt_dist_prop$labels$y <- ""
+plt_dist_prop
+
+# save 
+ggsave(file = "../../Figures/Experiment_5_Unequal_Reward/Prop_gambles_dist.png")
+
+
+

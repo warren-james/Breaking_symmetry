@@ -75,14 +75,19 @@ prop_plt <- function(dataframe, title, sep_type, lfa){
   if(length(unique(prop_sides$participant))>1){
     plt <- plt + facet_wrap(~as.numeric(participant))
   }
-  plt <- plt + theme_bw() +
+  plt <- plt + theme_minimal() +
     theme(legend.position = "bottom", 
           strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm"))) +
     scale_colour_ptol() + 
-    scale_fill_ptol()
+    scale_fill_ptol() + 
+    scale_y_continuous(breaks = c(0, 0.5, 1))
+  if(missing(lfa) == FALSE){
   plt <- plt + geom_bar(data = lfa, aes(separation, prop, 
                                         fill = prop_boxes),
                         stat = "identity")
+  plt <- plt + scale_x_continuous(breaks = c(2.5, 5, 7.5, 11),
+                                  labels = c("2.5", "5", "7.5", "FP"))
+  }
   return(plt)
 }
 
@@ -321,15 +326,19 @@ prop_sides_bias %>%
 # this needs to be max value  +1
 prop_sides_lfa_rand <- prop_sides_random %>%
   filter(separation == 640) %>% 
-  mutate(separation = 20)
+  mutate(separation = 11)
 
 prop_sides_lfa_bias <- prop_sides_bias %>%
   filter(separation == 640) %>% 
-  mutate(separation = 10)
+  mutate(separation = 11)
 
 prop_sides_random %>% 
   filter(separation != 640) %>%
   prop_plt("Random", "Visual Degrees", prop_sides_lfa_rand)
+
+prop_sides_bias %>% 
+  filter(separation != 640) %>%
+  prop_plt("Random", "Visual Degrees", prop_sides_lfa_bias)
 
 
 
