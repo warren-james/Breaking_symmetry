@@ -40,9 +40,7 @@ colnames(acc_sep) <- c("participant",
 load("scratch/new_data/df_part2")
 
 # set one column for swith_point 
-df_part2$switch_point <- df_part2$Eighty_Twenty
-df_part2$switch_point[df_part2$bias_left == 0.5] <- df_part2$Fifty_Fifty[df_part2$bias_left == 0.5]
-
+df_part2$switch_point <- ifelse(df_part2$bias_left == 0.5, df_part2$Fifty_Fifty, df_part2$Eighty_Twenty)
 
 # trim df_part2 down to be just what is needed for now...
 trimmed_bias <- select(df_part2[df_part2$bias_type == "biased",],
@@ -351,7 +349,9 @@ plt
 #        units = "cm")
 # 
 
-
+# combine both and save 
+AccMea <- rbind(AccMea_bias, AccMea_rand)
+save(AccMea, file = "scratch/new_data/AccMea")
 
 #### setup plot for paper ####
 # lines plts for bias and rand comparison of optimal to 
@@ -364,7 +364,7 @@ plt_rand <- AccMea_rand %>%
              colour = Pred_type)) +
   geom_line() + 
   ggthemes::scale_colour_ptol() +
-  theme_bw() + 
+  theme_minimal() + 
   theme(legend.position = "bottom",
         strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm"))) +
   ggtitle("Random Condition") +
@@ -388,7 +388,7 @@ plt_bias <- AccMea_bias %>%
              colour = Pred_type)) +
   geom_line() + 
   ggthemes::scale_colour_ptol() +
-  theme_bw() + 
+  theme_minimal() + 
   theme(legend.position = "bottom",
         strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm"))) +
   ggtitle("Bias Condition") +

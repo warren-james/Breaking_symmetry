@@ -62,7 +62,7 @@ import_names <- c(
 results_files <- dir("data/results/Part_1/")
 
 #results_files <- c("75_75_part1.txt")
-
+count <- 1
 # read in each data file
 for (f in results_files){
   d <- read.csv(
@@ -75,7 +75,8 @@ for (f in results_files){
   temp <- strsplit(f, '[_]')[[1]]
   
   # now input this information
-  d$participant <- temp[2]
+  d$participant <- as.factor(count)
+  count <- count + 1
   
   d$part <- substring(temp[3],5,5)
   
@@ -111,11 +112,9 @@ save(df, file = "scratch/new_data/Part_1_data_nar")
 
 #### Plot: just to check ####
 # setup dataframe 
-temp <- group_by(df, participant, separation)
-plt_dat <- summarise(temp, mean_acc = mean(accuracy))
-
-# tidy
-rm(temp)
+plt_dat <- df %>%
+  group_by(participant, separation) %>%
+  summarise(mean_acc = mean(accuracy))
 
 # make the plot
 plt <- ggplot(plt_dat, aes(separation, mean_acc)) + geom_point()
@@ -124,8 +123,6 @@ if(length(unique(df$participant)) > 1){
   plt <- plt + facet_wrap(~participant)
 }
 plt
-
-rm(plt, plt_dat)
 
 #### Get switch points ####
 # Try using accuracy column?
@@ -285,3 +282,4 @@ save(acc_sep, file = "scratch/new_data/acc_sep")
 
 # tidy
 rm(list = ls())
+???

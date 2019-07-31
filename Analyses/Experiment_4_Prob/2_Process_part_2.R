@@ -130,7 +130,7 @@ results_files <- dir("data/results/Part_2/")
 
 # temp 
 # results_files <- c("75_75_2_2_part2.txt","70_70_1_2_part2.txt")
-
+count <- 1 
 # read in each data file
 for (f in results_files){
   d <- read.csv(
@@ -144,7 +144,8 @@ for (f in results_files){
   
   # now input this information
   # participant
-  d$participant <- temp[2]
+  d$participant <- as.factor(count)
+  count <- count + 1
   # condition
   d$condition <- temp[3]
   # bias
@@ -336,10 +337,21 @@ prop_sides_random %>%
   filter(separation != 640) %>%
   prop_plt("Random", "Visual Degrees", prop_sides_lfa_rand)
 
+# save
+ggsave("../../Figures/Experiment_4_Prob/Part_2_wbar_random.png",
+       height = 12,
+       width = 18,
+       units = "cm")
+
 prop_sides_bias %>% 
   filter(separation != 640) %>%
   prop_plt("Random", "Visual Degrees", prop_sides_lfa_bias)
 
+# save
+ggsave("../../Figures/Experiment_4_Prob/Part_2_wbar_bias.png",
+       height = 12,
+       width = 18,
+       units = "cm")
 
 
 
