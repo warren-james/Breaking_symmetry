@@ -4,7 +4,6 @@
 #   - Same as above but for accuracy 
 
 
-
 #### Library ####
 library(tidyverse)
 library(brms)
@@ -104,3 +103,42 @@ m_fc_2 <- brm(fixated_centre ~ (bias_type + separation)^2,
               chains = 1, 
               iter = 2000,
               warmup = 1000)
+
+#### STAN MODELS ####
+#### STAN: m1 - likely ~ bias_type ####
+m_matrix <- model.matrix(fixated_likely ~ bias_type, data = m_data_fix_trim)
+
+stan_df <- list(
+  N = nrow(m_data_fix_trim),
+  K = ncol(m_matrix),
+  y = m_data_fix_trim$fixated_likely,
+  X = m_matrix
+)
+
+m1_stan_berno <- stan(
+  file = "modelling/Stan/models/berno.stan",
+  data = stan_df,
+  chains = 1,
+  warmup = 1000,
+  iter = 2000,
+  refresh = 100
+)
+
+#### STAN: m2 - likely ~ (bias_type + separation)^2 ####
+m_matrix <- model.matrix(fixated_likely ~ (bias_type + separation)^2, data = m_data_fix_trim)
+
+stan_df <- list(
+  N = nrow(m_data_fix_trim),
+  K = ncol(m_matrix),
+  y = m_data_fix_trim$fixated_likely,
+  X = m_matrix
+)
+
+m2_stan_berno <- stan(
+  file = "modelling/Stan/models/berno.stan",
+  data = stan_df,
+  chains = 1,
+  warmup = 1000,
+  iter = 2000,
+  refresh = 100
+)
