@@ -15,7 +15,7 @@ load("scratch/new_data/df_part2")
 load("scratch/new_data/AccMea")
 
 
-#### Sort Model data ####
+#### Sort Model data: Fixations ####
 m_data_fix <- df_part2 %>% 
   mutate(participant = as.factor(participant),
          fixated_likely = ifelse(standard_boxes == "most likely", 1, 0),
@@ -39,6 +39,50 @@ m_data_fix_trim <- m_data_fix %>%
 
 # save
 save(m_data_fix_trim, file = "modelling/Stan/model_data/m_data_fix_trim")
+
+#### Sort model data: Acc ####
+# plots to check some things 
+AccMea %>% 
+  group_by(participant) %>%
+  filter(separation != max(separation)) %>%
+  mutate(diff = Acc - Actual) %>%
+  ggplot(aes(separation, diff, colour = Pred_type)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") +
+  facet_wrap(~condition)
+
+# AccMea %>% 
+#   group_by(participant) %>%
+#   filter(separation != max(separation)) %>%
+#   spread(Pred_type, Acc) %>% 
+#   ggplot(aes(Expected, Optimal, colour = condition)) + 
+#   geom_point() + 
+#   geom_smooth(method = "binomail")
+  
+# AccMea %>% 
+#   group_by(participant) %>% 
+#   filter(separation != max(separation)) %>% 
+#   ungroup() %>% 
+#   spread(Pred_type, Acc) %>% 
+#   gather(c(Actual, Centre, Optimal, Expected), 
+#          key = "acc_type",
+#          value = "accuracy") %>%
+#   ggplot(aes(separation, accuracy, colour = acc_type)) + 
+#   geom_point() + 
+#   geom_smooth(method = "glm") + 
+#   facet_wrap(~condition)
+
+m_data_acc <- AccMea %>% 
+  spread(Pred_type, Acc) %>% 
+  select(participant, separation, condition, Actual, Optimal) %>% 
+  gather(c(Actual,Optimal),
+         key = "Acc_type",
+         value = "Accuracy") %>% 
+  group_by(participant) %>%
+  filter(separation != max(separation)) %>%
+  ungroup() %>%
+  mutate(beta_acc = Accuracy*(1-1e-4),
+         separation = separation/max(separation))
 
 #### MODELS ####
 #### MODELS: Fixated "likely" ####
@@ -156,3 +200,17 @@ m2_fl_berno <- stan(
 
 # save output 
 save(m2_fl_berno, file = "modelling/Stan/model_outputs/m2_fl_berno")
+
+
+##### ACCURACY ####
+# Try some beta regressions for the accuracy... 
+# Probably need to do a comparison of expected vs actual and use that as
+# the comparison? since the Bias condition should have a higher accuracy anyway 
+m_data <- m_data_acc %>% 
+  filter(Acc_type == "Actual")
+m1_acc <- brm(beta_acc ~ (separation + condition)^2,
+              data = m_data_acc, 
+              family = "beta",
+              chains = 1,
+              iter = 2000,
+              warmup = 1000)
