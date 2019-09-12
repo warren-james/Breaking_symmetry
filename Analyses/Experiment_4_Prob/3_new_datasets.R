@@ -40,7 +40,9 @@ colnames(acc_sep) <- c("participant",
 load("scratch/new_data/df_part2")
 
 # set one column for swith_point 
-df_part2$switch_point <- ifelse(df_part2$bias_left == 0.5, df_part2$Fifty_Fifty, df_part2$Eighty_Twenty)
+df_part2$switch_point <- ifelse(df_part2$bias_left == 0.5,
+                                df_part2$Fifty_Fifty,
+                                df_part2$Eighty_Twenty)
 
 # trim df_part2 down to be just what is needed for now...
 trimmed_bias <- select(df_part2[df_part2$bias_type == "biased",],

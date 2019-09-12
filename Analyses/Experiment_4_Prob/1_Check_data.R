@@ -11,20 +11,9 @@
 # but for future reference:
 # 1 = C, 2 = D, 3 = H, 4 = K, 5 = N, 6 = O, 7 = R, 8 = S, 9 = V, 10 = Z
 
-# participant 91 was using white letters that were 0.3VD and this didn't
-# drop performance to chance levels so may need to go smaller or lower contrast
-# maybe a lower contrast as that's what was in the original paper
-# participant 90 grey letters(grey2 in stimuli) and same VD
-# 89 used grey3
-# 88 used grey3 with 0.5VD
-# 87 used grey3 with 0.4VD
-# 86 used grey3 with 0.35VD **** This seems like the best one ****
-# 80 & 79 & 78 & 77 tests so don't worry 
-
 # pix per degree set to 35.561 or 36 rounded
 # distances used based on Clarke and Hunt (2016)
 # Josephine's version 100,200,250,290,330,370,410,455
-
 
 
 #### libraries needed ####
@@ -111,104 +100,31 @@ df <- df[complete.cases(df),]
 save(df, file = "scratch/new_data/Part_1_data_nar")
 
 #### Plot: just to check ####
-# setup dataframe 
-plt_dat <- df %>%
-  group_by(participant, separation) %>%
-  summarise(mean_acc = mean(accuracy))
-
-# make the plot
-plt <- ggplot(plt_dat, aes(separation, mean_acc)) + geom_point()
-# Just to check if there's enough people to facet_wrap
-if(length(unique(df$participant)) > 1){
-  plt <- plt + facet_wrap(~participant)
-}
+plt <- df %>% 
+  group_by(participant, separation) %>% 
+  summarise(accuracy = mean(accuracy)) %>%
+  ggplot(aes(get_VisDegs(separation/ppcm, Screen_dist), accuracy)) + 
+  geom_point() + 
+  geom_smooth(method = glm,
+              method.args = list(family = binomial(mafc.logit(10))),
+              se = F, fullrange = T) + 
+  facet_wrap(~participant) + 
+  theme_bw() + 
+  theme(strip.text.x = element_blank())
+plt$labels$x <- "Delta (Visual Degrees)"
+plt$labels$y <- "Accuracy"
 plt
 
+ggsave("../../Figures/Experiment_4_Prob/Part_1_curves.png",
+       height = 3.5,
+       width = 5.6)
+
 #### Get switch points ####
-# Try using accuracy column?
-# This way works as well... so we should be able to do this in matlab as well?
-# gets the exact same results anyway
 df_acc <- df
 m = glm(data=df, accuracy~separation:participant,
         family= binomial(mafc.logit(10))) # for one participant
         #:participant, family=binomial) # for more than one
 df_acc$p = predict(m, type = "response")
-
-# get summary for the plot
-plot_dat <- group_by(df_acc, participant, separation)
-plot_dat <- summarise(plot_dat, accuracy = mean(accuracy),
-                      p = mean(p))
-
-
-# make plot 
-plt <- ggplot(plot_dat, aes(separation, accuracy))
-plt <- plt + geom_point()
-plt <- plt + geom_smooth(method=glm,
-                         method.args = list(family = "binomial"), 
-                         aes(y=p),
-                         fullrange=T, se=F)
-if(length(unique(df_acc$participant)) > 1){
-  plt <- plt + facet_wrap(~participant)
-}
-plt
-
-# first set up the dataset (similar to beanbag study)
-df_va <- group_by(df, participant, separation)
-df_va <- summarise(df_va, trials = length(accuracy),
-                   num_correct = sum(accuracy),
-                   accuracy = sum(accuracy)/length(accuracy))
-
-# set the offset 
-e <- 0.01
-df_va$off_set = log((1-e)/e)
-
-# tidy 
-rm(e)
-
-# get predictions
-m = glm(data = df_va, cbind(num_correct, trials-num_correct)~
-          separation:participant, family = binomial(mafc.logit(10)))
-df_va$p = predict(m, type = "response")
-
-# tidy 
-rm(m)
-
-# tidy data 
-plot_dat2 <- select(df_va,
-                    participant, 
-                    separation, 
-                    accuracy,
-                    p)
-
-# make plot 
-plt2 <- ggplot(plot_dat2, aes(separation, accuracy))
-plt2 <- plt2 + geom_point()
-plt2 <- plt2 + geom_smooth(method=glm,
-                           method.args = list(family = "binomial"), 
-                           aes(y=p),
-                           fullrange=T, se=F)
-if(length(unique(df_va$participant)) > 1){
-  plt2 <- plt2 + facet_wrap(~participant)
-}
-plt2
-# write a save part here
-# ggsave("scratch/plots/Part_1_Plots.pdf", height = 10, width = 10)
-
-# Make version with VD
-plt3 <- ggplot(plot_dat2, aes(get_VisDegs(separation/ppcm, Screen_dist), accuracy))
-plt3 <- plt3 + geom_point()
-plt3 <- plt3 + theme_bw()
-plt3 <- plt3 + geom_smooth(method = glm,
-                           method.args = list(family = "binomial"),
-                           aes(y = p), 
-                           fullrange = T, se = F)
-if(length(unique(df_va$participant)) > 1){
-  plt3 <- plt3 + facet_wrap(~participant)
-}
-plt3 <- plt3 + labs(x = "Delta (in Visual Degrees)",
-                    y = "Accuracy")
-plt3
-# ggsave("scratch/plots/Part_1_Plots_VD.pdf", height = 10, width = 10)
 
 
 #### Extract switching points ####
@@ -220,10 +136,6 @@ plt3
 
 # set distances to test 
 sep <- c(64:1000,1280)
-# unused at the moment
-
-# part 2?
-# sep <- c(103,203,252,295,334,373,416,455,500,640)
 
 # data frame for accuracy accross separations
 acc_sep <- tibble(
@@ -241,15 +153,12 @@ switch_points <- tibble(
 )
 
 #loop
-for (p in unique(df_va$participant))
-{
+for (p in unique(df_acc$participant)){
   # general linear model
-  ss = df_va[which(df_va$participant==p),]
-  m = glm(data = ss, cbind(num_correct, trials-num_correct)~
-            separation,
-          family = binomial(mafc.logit(10)),
-          offset = ss$off_set)
-  for(i in c(1:1000,1280)){
+  ss = df_acc[df_acc$participant == p,]
+  m = glm(data = ss, accuracy~separation,
+          family = binomial(mafc.logit(10)))
+  for(i in sep){
     y = predict(m, data.frame(separation = i), type = "response")[1]
 
     # add into new data frame
@@ -282,4 +191,3 @@ save(acc_sep, file = "scratch/new_data/acc_sep")
 
 # tidy
 rm(list = ls())
-???

@@ -55,11 +55,12 @@ prop_plt <- function(dataframe, title, sep_type, lfa){
                       prop))
   }
   # make the title
-  plt <- plt + ggtitle(paste("Propotion of saccades to each side in the", title, "condition"))
-  # make the stacked plots
-  plt <- plt + geom_area(aes(colour = prop_boxes,
-                             fill = prop_boxes),
-                         position = "stack")
+  plt <- plt +
+    ggtitle(paste("Propotion of saccades to each side in the", title, "condition")) +
+  # stack areas
+    geom_area(aes(colour = prop_boxes,
+                  fill = prop_boxes),
+              position = "stack")
   # input switch point line
   if(sep_type == "pixels"){
     plt <- plt + geom_vline(aes(xintercept = switch_point),
@@ -78,8 +79,8 @@ prop_plt <- function(dataframe, title, sep_type, lfa){
   plt <- plt + theme_minimal() +
     theme(legend.position = "bottom", 
           strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm"))) +
-    scale_colour_ptol() + 
-    scale_fill_ptol() + 
+    see::scale_colour_flat() + 
+    see::scale_fill_flat() + 
     scale_y_continuous(breaks = c(0, 0.5, 1))
   if(missing(lfa) == FALSE){
   plt <- plt + geom_bar(data = lfa, aes(separation, prop, 
@@ -126,15 +127,15 @@ import_names <- c(
   "bias_left")
 
 # set path
-results_files <- dir("data/results/Part_2/")
+results_files <- c("data/results/Part_2/")
 
 # temp 
 # results_files <- c("75_75_2_2_part2.txt","70_70_1_2_part2.txt")
 count <- 1 
 # read in each data file
-for (f in results_files){
+for (f in dir(results_files)){
   d <- read.csv(
-    paste("data/results/Part_2/", f, sep=""), header = F)
+    paste(results_files, f, sep=""), header = F)
   
   # change column names
   names(d) <- import_names
@@ -175,25 +176,20 @@ df <- select(df,
 
 # rename condition and bias levels to mean something 
 # condition
-df$condition[df$condition == 1] <- "random first"
-df$condition[df$condition == 2] <- "bias first"
+df$condition <- ifelse(df$condition == 1, "random first", "bias_first")
 
 # bias
-df$bias[df$bias == 1] <- "left bias"
-df$bias[df$bias == 2] <- "right bias"
+df$bias <- ifelse(df$bias == 1, "left bias", "right bias")
 
-# add in an accuracy column?
-df$accuracy <- 0
-df$accuracy[df$response_letter == df$actual_letter] <- 1
+# add in an accuracy column
+df$accuracy <- ifelse(df$response_letter == df$actual_letter, 1, 0)
 
 # add in column about bias_type
-df$bias_type <- "random"
-df$bias_type[df$bias_left != 0.5] <- "biased"
+df$bias_type <- ifelse(df$bias_left == .5, "random", "biased")
 
 # rename for spatial information... 0r make -1,0,1 so it's consistent?
-df$lcr <- 0 
-df$lcr[df$fixated_box == 2] <- -1
-df$lcr[df$fixated_box == 3] <- 1
+df$lcr <- ifelse(df$fixated_box == 1, 0, 
+                ifelse(df$fixated_box == 2, -1, 1))
 
 # get whether they fixated the common or uncommon side
 # centre as this stays the same
@@ -206,7 +202,6 @@ df$standard_boxes[df$fixated_box == 3 & df$bias == "right bias"] <- "most likely
 # left bias
 df$standard_boxes[df$fixated_box == 2 & df$bias == "left bias"] <- "most likely"
 df$standard_boxes[df$fixated_box == 3 & df$bias == "left bias"] <- "least likely"
-
 
 # when should we get rid of NA's?
 # people may have seen where the target was and so could update their beliefs about
@@ -345,7 +340,7 @@ ggsave("../../Figures/Experiment_4_Prob/Part_2_wbar_random.png",
 
 prop_sides_bias %>% 
   filter(separation != 640) %>%
-  prop_plt("Random", "Visual Degrees", prop_sides_lfa_bias)
+  prop_plt("Bias", "Visual Degrees", prop_sides_lfa_bias)
 
 # save
 ggsave("../../Figures/Experiment_4_Prob/Part_2_wbar_bias.png",
@@ -358,8 +353,7 @@ ggsave("../../Figures/Experiment_4_Prob/Part_2_wbar_bias.png",
 
 #### Make plots of just centre vs side by condition ####
 # add in centre vs side column 
-prop_sides$cen_sid <- "Side"
-prop_sides$cen_sid[prop_sides$prop_boxes == 0] <- "Centre"
+prop_sides$cen_sid <- ifelse(prop_sides$prop_boxes == 1, "Side", "Centre")
 
 # get summary 
 cen_side <- prop_sides %>%
@@ -373,21 +367,22 @@ cen_side <- merge(cen_side, switch_points)
 centre <- cen_side[cen_side$cen_sid == "Centre",]
 side <- cen_side[cen_side$cen_sid == "Side",]
 
-dot_plt <- ggplot(side, aes(get_VisDegs(separation/ppcm, Screen_dist), 
-                              prop,
-                              colour = bias_type))
-dot_plt <- dot_plt + geom_point(aes(shape = bias_type,
-                                    colour = bias_type)) + 
-                     scale_shape_manual(values=c(3,4))
-# make 80_20 switch
-dot_plt <- dot_plt + geom_vline(aes(xintercept = get_VisDegs(Eighty_Twenty/ppcm, Screen_dist)),
-                                linetype = "dashed",
-                                colour = "red")
-# make 50_50 switch
-dot_plt <- dot_plt + geom_vline(aes(xintercept = get_VisDegs(Fifty_Fifty/ppcm, Screen_dist)),
-                                linetype = "dashed",
-                                colour = "blue")
-dot_plt <- dot_plt + facet_wrap(~participant)
+dot_plt <- side %>% 
+  ggplot(aes(get_VisDegs(separation/ppcm, Screen_dist),
+             prop,
+             colour = bias_type)) + 
+  geom_point(aes(shape = bias_type)) + 
+  scale_shape_manual(values = c(3, 4)) + 
+  geom_vline(aes(xintercept = get_VisDegs(Eighty_Twenty/ppcm, Screen_dist)),
+             linetype = "dashed",
+             colour ="blue" ) + 
+  geom_vline(aes(xintercept = get_VisDegs(Fifty_Fifty/ppcm, Screen_dist)),
+             linetype = "dashed",
+             colour ="red" ) + 
+  facet_wrap(~participant) + 
+  theme_bw() + 
+  theme(legend.position = "bottom") + 
+  see::scale_color_flat() 
 dot_plt <- dot_plt + theme(legend.position="bottom")
 dot_plt$labels$y <- "Proportion of Fixations to the side boxes"
 dot_plt$labels$x <- "Delta (Visual Degrees)"
