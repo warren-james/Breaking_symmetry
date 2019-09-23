@@ -12,6 +12,27 @@ library(ggthemes)
 # set options
 options(digits = 4)
 
+#### getting sqaured dist from switch and centre ####
+load("scratch/df_part2_norm")
+
+df_dist <- norm_dat %>% 
+  mutate(dist_zero = subject_position^2,
+         dist_centre = ((subject_position - shift)^2),
+         baseline = shift^2) %>%
+  # mutate(dist_zero = norm_dist^2,
+  #        dist_centre = ((subject_position - shift)/hoop_pos)^2,
+  #        baseline = (shift/hoop_pos)^2) %>%
+  group_by(participant) %>% 
+  summarise(zero = mean(dist_zero),
+            acc = mean(dist_centre),
+            baseline = mean(baseline)) %>%
+  gather(zero:baseline,
+         key = "distance_from",
+         value = "squared_distance") %>% 
+  ggplot(aes(distance_from, squared_distance)) + 
+  geom_boxplot()
+df_dist
+
 #### load in wide datasets ####
 # setup colnames
 names <- c("participant", "minus2", "minus1", "m", "plus1", "plus2", "plus3", "type")

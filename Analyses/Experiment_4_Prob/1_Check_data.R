@@ -135,7 +135,7 @@ df_acc$p = predict(m, type = "response")
 # Also, check the 75% to compare to Josephine's to see if we get the same
 
 # set distances to test 
-sep <- c(64:1000,1280)
+sep <- c(1,55:1000,1280)
 
 # data frame for accuracy accross separations
 acc_sep <- tibble(

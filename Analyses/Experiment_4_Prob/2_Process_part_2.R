@@ -56,7 +56,7 @@ prop_plt <- function(dataframe, title, sep_type, lfa){
   }
   # make the title
   plt <- plt +
-    ggtitle(paste("Propotion of saccades to each side in the", title, "condition")) +
+    ggtitle(paste("Proportion of saccades to each side in the", title, "condition")) +
   # stack areas
     geom_area(aes(colour = prop_boxes,
                   fill = prop_boxes),
@@ -176,7 +176,7 @@ df <- select(df,
 
 # rename condition and bias levels to mean something 
 # condition
-df$condition <- ifelse(df$condition == 1, "random first", "bias_first")
+df$condition <- ifelse(df$condition == 1, "symmetric first", "bias_first")
 
 # bias
 df$bias <- ifelse(df$bias == 1, "left bias", "right bias")
@@ -185,7 +185,7 @@ df$bias <- ifelse(df$bias == 1, "left bias", "right bias")
 df$accuracy <- ifelse(df$response_letter == df$actual_letter, 1, 0)
 
 # add in column about bias_type
-df$bias_type <- ifelse(df$bias_left == .5, "random", "biased")
+df$bias_type <- ifelse(df$bias_left == .5, "symmetric", "biased")
 
 # rename for spatial information... 0r make -1,0,1 so it's consistent?
 df$lcr <- ifelse(df$fixated_box == 1, 0, 
@@ -242,25 +242,25 @@ colnames(switch_bias) <- c("participant",
 # add bias_type
 switch_bias$bias_type <- "biased"
 
-# again for random
-switch_random <- select(switch_points, 
+# again for symmetric
+switch_sym <- select(switch_points, 
                       participant,
                       Fifty_Fifty)
 # change colnames
-colnames(switch_random) <- c("participant",
+colnames(switch_sym) <- c("participant",
                            "switch_point")
 # add bias_type
-switch_random$bias_type <- "random"
+switch_sym$bias_type <- "symmetric"
 
 # change back to numeric?
 prop_sides$prop_boxes <- as.numeric(prop_sides$prop_boxes)-2
 
 # get separate datasets 
-prop_sides_random <- prop_sides[prop_sides$bias_type == "random",]
+prop_sides_sym <- prop_sides[prop_sides$bias_type == "symmetric",]
 prop_sides_bias <- prop_sides[prop_sides$bias_type == "biased",]
 
 # add in switch points 
-prop_sides_random <- merge(prop_sides_random, switch_random)
+prop_sides_sym <- merge(prop_sides_sym, switch_sym)
 prop_sides_bias <- merge(prop_sides_bias, switch_bias)
 
 # rename levels in prop_boxes for each set 
@@ -277,24 +277,24 @@ prop_sides_bias$prop_boxes[prop_sides_bias$prop_boxes == -1 &
 prop_sides_bias$prop_boxes[prop_sides_bias$prop_boxes == 1 &
                              prop_sides_bias$bias == "right bias"] <- "Common side"
 
-# for random condition we just want left, right, and centre
-prop_sides_random$prop_boxes[prop_sides_random$prop_boxes == 0] <- "Centre"
-prop_sides_random$prop_boxes[prop_sides_random$prop_boxes == 1] <- "Right"
-prop_sides_random$prop_boxes[prop_sides_random$prop_boxes == -1] <- "Left"
+# for symmetric condition we just want left, right, and centre
+prop_sides_sym$prop_boxes[prop_sides_sym$prop_boxes == 0] <- "Centre"
+prop_sides_sym$prop_boxes[prop_sides_sym$prop_boxes == 1] <- "Right"
+prop_sides_sym$prop_boxes[prop_sides_sym$prop_boxes == -1] <- "Left"
 
 
 # tidy 
-rm(switch_bias, switch_random)
+rm(switch_bias, switch_sym)
 
 # can edit prop_boxes to be appropriately named now as well...
 
 # make plot(s)
-# random plt
-# prop_plt(prop_sides_random, "random", "pixels")
-# ggsave("scratch/plots/Part_2_prop_random_pixels.pdf", height = 10, width = 10)
+# symmetric plt
+# prop_plt(prop_sides_symmetric, "symmetric", "pixels")
+# ggsave("scratch/plots/Part_2_prop_symmetric_pixels.pdf", height = 10, width = 10)
 
-prop_plt(prop_sides_random, "random", "Visual Degrees")
-# ggsave("../../Figures/Experiment_4_Prob/Part_2_prop_random_vdegs.png",
+prop_plt(prop_sides_sym, "symmetric", "Visual Degrees")
+# ggsave("../../Figures/Experiment_4_Prob/Part_2_prop_symmetric_vdegs.png",
 #        height = 12,
 #        width = 18,
 #        units = "cm")
@@ -310,9 +310,9 @@ prop_plt(prop_sides_random, "random", "Visual Degrees")
 #        units = "cm")
 
 #### Same plots as above, remove lfa ####
-prop_sides_random %>% 
+prop_sides_sym %>% 
   filter(separation != 640) %>%
-  prop_plt("random", "Visual Degrees")
+  prop_plt("symmetric", "Visual Degrees")
 
 prop_sides_bias %>% 
   filter(separation != 640) %>%
@@ -320,7 +320,7 @@ prop_sides_bias %>%
 
 #### new plot with stacked bar ####
 # this needs to be max value  +1
-prop_sides_lfa_rand <- prop_sides_random %>%
+prop_sides_lfa_sym <- prop_sides_sym %>%
   filter(separation == 640) %>% 
   mutate(separation = 11)
 
@@ -328,12 +328,12 @@ prop_sides_lfa_bias <- prop_sides_bias %>%
   filter(separation == 640) %>% 
   mutate(separation = 11)
 
-prop_sides_random %>% 
+prop_sides_sym %>% 
   filter(separation != 640) %>%
-  prop_plt("Random", "Visual Degrees", prop_sides_lfa_rand)
+  prop_plt("Symmetrical", "Visual Degrees", prop_sides_lfa_sym)
 
 # save
-ggsave("../../Figures/Experiment_4_Prob/Part_2_wbar_random.png",
+ggsave("../../Figures/Experiment_4_Prob/Part_2_wbar_sym.png",
        height = 12,
        width = 18,
        units = "cm")
@@ -432,13 +432,13 @@ bias_sides_3$highest <- pmax(bias_sides_3$`1`, bias_sides_3$`-1`)
 bias_sides_3$lowest <- pmin(bias_sides_3$`1`, bias_sides_3$`-1`)
 
 temp_data <- matrix(c(mean(bias_sides_3$highest[bias_sides_3$bias_type == "biased"]),
-                      mean(bias_sides_3$highest[bias_sides_3$bias_type == "random"]),
+                      mean(bias_sides_3$highest[bias_sides_3$bias_type == "symmetric"]),
                       mean(bias_sides_3$lowest[bias_sides_3$bias_type == "biased"]),
-                      mean(bias_sides_3$lowest[bias_sides_3$bias_type == "random"])),
+                      mean(bias_sides_3$lowest[bias_sides_3$bias_type == "symmetric"])),
                       ncol = 2)
 
 colnames(temp_data) <- c("highest", "lowest")
-rownames(temp_data) <- c("biased", "random")
+rownames(temp_data) <- c("biased", "symmetric")
 
 # all these show that they are significant... Maybe
 # ask Alasdair about it?
@@ -529,7 +529,7 @@ m4 <- glmer(fixated_common ~ bias_type + (1|participant),
 summary(m4)
 # this is significant
 
-# add random slopes by condition
+# add symmetric slopes by condition
 m4.1 <- glmer(fixated_common ~ bias_type + (1 + bias_type|participant),
               data = glm_dat,
               family = binomial())

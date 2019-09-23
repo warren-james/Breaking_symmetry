@@ -6,6 +6,7 @@
 
 #### Library ####
 library(tidyverse)
+library(tidybayes)
 library(brms)
 library(rstan) 
 # NB: Not sure which to use just yet... we'll try both though 
@@ -38,22 +39,48 @@ dat_m1_flike <- df_part2 %>%
   select(participant, condition, bias, bias_type, fixate_most_likely, separation) %>%
   ungroup()
 
+# averaged data 
+temp <- dat_m1_flike %>% 
+  group_by(participant, separation, bias_type) %>% 
+  summarise(fixate_most_likely = mean(fixate_most_likely)) %>% 
+  mutate(prop_l = (fixate_most_likely + 1e-4)*0.999)
+
 # run model 
 m1_flike <- brm(fixate_most_likely ~ bias_type, 
-              data = dat_m1_flike, 
-              family = "bernoulli", 
-              chains = 1,
-              iter = 2000,
-              warmup = 1000)
+                data = dat_m1_flike, 
+                family = "bernoulli", 
+                chains = 1,
+                iter = 2000,
+                warmup = 1000)
+
+m1_flike_re <- brm(fixate_most_likely ~ bias_type + (1 + bias_type|participant), 
+                   data = dat_m1_flike, 
+                   family = "bernoulli",
+                   chains = 1,
+                   iter = 2000,
+                   warmup = 1000)
 
 #### m2: most likely ~ (group + separation)^2 ####
 # run model 
 m2_flike <- brm(fixate_most_likely ~ (bias_type + separation)^2,
-              data = dat_m1_flike,
-              family = "bernoulli",
-              chains = 1,
-              iter = 2000,
-              warmup = 1000)
+                data = dat_m1_flike,
+                family = "bernoulli",
+                prior = c(
+                  prior(student_t(3, 1.6, .2), class = Intercept)
+                  ),
+                chains = 1,
+                iter = 2000,
+                warmup = 1000)
+
+m2_flike_ri <- brm(fixate_most_likely ~ (bias_type + separation)^2 + (1 + bias_type|participant),
+                   data = dat_m1_flike,
+                   family = "bernoulli",
+                   prior = c(
+                     prior(student_t(3, 1.6, .2), class = Intercept)
+                   ),
+                   chains = 1,
+                   iter = 2000,
+                   warmup = 1000)
 
 # make a plot for the line 
 # works, could look nicer... will work on it 
@@ -61,11 +88,53 @@ dat_m1_flike %>%
   group_by(bias_type) %>% 
   modelr::data_grid(separation = modelr::seq_range(separation, n = 10)) %>% 
   add_fitted_draws(m2_flike) %>%
-  ggplot(aes(separation, .value, colour = bias_type)) + 
-  stat_lineribbon() + 
+  ggplot(aes(separation,
+             .value,
+             colour = bias_type,
+             fill = bias_type)) + 
+  stat_lineribbon(aes(group = paste(group,
+                                    ...width..)),
+                  .width = c(.5, .8, .95),
+                  alpha = .25) + 
+  geom_point(data = temp, aes(separation, fixate_most_likely)) +
+  # see::theme_abyss() +
+  theme_bw() + 
+  # scale_colour_manual(values = c("#FFED41", "#FFED42")) + 
+  # scale_colour_manual(values = c("#FF0000", "#FF0001")) + 
+  # theme(legend.position = "none")
+  see::scale_color_flat() + 
+  see::scale_fill_flat()
+
+# for random intercepts
+dat_m1_flike %>% 
+  group_by(bias_type, participant) %>% 
+  modelr::data_grid(separation = modelr::seq_range(separation, n = 10)) %>% 
+  add_fitted_draws(m2_flike_ri) %>%
+  ungroup() %>%
+  ggplot(aes(separation,
+             .value,
+             colour = bias_type,
+             fill = bias_type)) + 
+  geom_smooth() + 
+  stat_lineribbon(aes(group = paste(group,
+                                    ...width..)),
+                  .width = c(.5, .8, .95),
+                  alpha = .25) +
+  geom_point(data = temp, aes(separation, fixate_most_likely)) +
   theme_bw() + 
   see::scale_color_flat() + 
-  scale_fill_brewer(palette = "Greys")
+  see::scale_fill_flat()
+
+# plot predictions?
+dat_m1_flike %>% 
+  group_by(bias_type) %>%
+  modelr::data_grid(separation = modelr::seq_range(separation, n = 1000)) %>%
+  add_predicted_draws(m2_flike) %>%
+  ungroup() %>% 
+  group_by(bias_type, separation, .row) %>% 
+  summarise(mean_pred = mean(.prediction)) %>% 
+  ggplot(aes(mean_pred, colour = bias_type, fill = bias_type)) + 
+  geom_density()
 
 m2_flike_2 <- brm(fixate_most_likely ~ (bias_type + separation)^2 + (1|participant),
                   data = dat_m1_flike,
@@ -112,20 +181,20 @@ dat_m1_side <- df_part2 %>%
 
 # run model 
 m1_side <- brm(side ~ bias_type, 
-                data = dat_m1_side, 
-                family = "bernoulli", 
-                chains = 1,
-                iter = 2000,
-                warmup = 1000)
+               data = dat_m1_side, 
+               family = "bernoulli", 
+               chains = 1,
+               iter = 2000,
+               warmup = 1000)
 
 #### m2: side ~ (group + separation)^2 ####
 # run model 
 m2_side <- brm(side ~ (bias_type + separation)^2,
-                data = dat_m1_side,
-                family = "bernoulli",
-                chains = 1,
-                iter = 2000,
-                warmup = 1000)
+               data = dat_m1_side,
+               family = "bernoulli",
+               chains = 1,
+               iter = 2000,
+               warmup = 1000)
 
 # #### Sort Model data: Fixations ####
 # m_data_fix <- df_part2 %>% 

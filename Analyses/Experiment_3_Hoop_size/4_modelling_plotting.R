@@ -1,5 +1,4 @@
 #### Modelling and plotting Hoop Size ####
-# 
 
 #### Library ####
 library(brms)

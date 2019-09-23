@@ -23,43 +23,51 @@ get_avg <- function(df, index, participant){
 #### read in dataset ####
 beanbagdat <- read.csv("data/Part_1_measures.txt", sep = "\t")
 
+# num_particiapnts
+num_particiapnts <- length(unique(paste(beanbagdat$experimenter, 
+                                        beanbagdat$participant)))
+
 #### collapse across directions ####
-temp <- group_by(beanbagdat, experimenter, participant, slab, hoop_size)
-beanbagdat <- summarise(temp, inhoop = sum(inhoop))
-
-#### pre-process some data ####
-# how many throws?
-beanbagdat$trials <- 18 
-
-# get their accuracy  
-beanbagdat$acc <- beanbagdat$inhoop/beanbagdat$trials
-
-# make participant a factor 
-beanbagdat$participant <- paste(beanbagdat$experimenter, beanbagdat$participant, sep = "_")
-beanbagdat$participant <- as.factor(beanbagdat$participant)
-
-# drop experimenter column
-beanbagdat <- beanbagdat[ , !(names(beanbagdat) %in% "experimenter")]
-
-# define offset... force model to predict 99% accuracy for distance = 0
-e <- 0.01
-beanbagdat$off_set = log((1-e)/e)
+# sort data 
+beanbagdat <- beanbagdat %>% 
+  mutate(participant = paste(experimenter, participant, sep = "_")) %>%
+  group_by(participant, slab, hoop_size) %>% 
+  summarise(inhoop = sum(inhoop)) %>%
+  ungroup() %>%
+  mutate(acc = inhoop/18,
+         off_set = log((1-0.01)/0.01),
+         participant_num = factor(participant,
+                                  labels = c(seq(1, num_particiapnts, 1))))
 
 #### get accuracy over distance, for each participant and hoop size ####
-m = glm(data=beanbagdat, cbind(inhoop, trials-inhoop)~slab:hoop_size:participant, binomial, offset=off_set)
+m = glm(data=beanbagdat, acc~slab:hoop_size:participant, binomial, offset=off_set)
 beanbagdat$p = predict(m, type="response")
 
 # tidy up
-rm(e, m)
+rm(m)
 
 #### make the plots ####
+plt <- beanbagdat %>% 
+  ggplot(aes(slab*Hoop_size,
+             acc, 
+             colour = hoop_size)) + 
+  geom_point(position = position_jitter(width = .1, height = 0)) + 
+  theme_bw() + 
+  see::scale_color_flat() + 
+  facet_wrap(~participant, nrow = 4) + 
+  geom_smooth(method = glm, 
+              method.args = list(family = "binomial"),
+              aes(y = p),
+              fullrange = T, se = F) + 
+  theme(legend.position = "bottom") + 
+  
 plt <- ggplot(beanbagdat, aes(x=slab*Hoop_size,
                               y=acc,
                               colour = hoop_size))
 plt <- plt + geom_point(position=position_jitter(width=.1,height=.0))
 plt <- plt + theme_bw()
 plt <- plt + scale_y_continuous(name="Accuracy")
-plt <- plt + facet_wrap(~as.numeric(participant), nrow=4)
+plt <- plt + facet_wrap(~participant_num, nrow=4)
 plt <- plt + scale_x_continuous(name="Delta (Metres)",
                                 limit=c(0,12),
                                 breaks = c(3,6,9,12))
