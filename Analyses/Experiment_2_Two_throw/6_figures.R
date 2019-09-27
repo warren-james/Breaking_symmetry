@@ -7,23 +7,34 @@ library(tidyverse)
 #### load data ####
 load("scratch/df_part2")
 
+# remove trials where participants stood outside the range?
+df_part2 %>%  
+  mutate(outside = ifelse(abspos > 1, 1, 0)) %>% 
+  group_by(outside) %>% 
+  summarise(n = n()/length(df_part2$Num_throws))
+
+# only lose 2.6% of trials... 
+
 # pre processing 
 df_part2 %>% 
   group_by(Participant) %>% 
   mutate(temp = as.numeric(as.factor(HoopDelta)),
-         slab_measures = factor(temp, labels = c("~90%", "~50% - 1", "~50%", "~50% + 1", "~50% + 2", "~10%")),
+         slab_measures = factor(temp, labels = c("~90%", "~50% - 1",
+                                                 "~50%", "~50% + 1",
+                                                 "~50% + 2", "~10%")),
          participant_num = as.numeric(as.factor(Participant))) %>% 
   select(-temp) %>%
-  ungroup() -> df_part2
+  ungroup() %>% 
+  filter(abspos <= 1) -> df_part2
 
 #### PLOTS ####
-# some density plots?
-df_part2 %>%
+# some histograms?
+plt_hist <- df_part2 %>%
   ggplot(aes(x = abspos,
-             # y = slab_measures,
              colour = Num_throws,
              fill = Num_throws)) + 
-  geom_histogram(position = "dodge") + 
+  geom_histogram(position = "dodge",
+                 binwidth = .1) + 
   # ggridges::stat_density_ridges(quantiles = 2, #quantile_fun = mean,
   #                               quantile_lines = T,
   #                               alpha = .15) + 
@@ -31,32 +42,27 @@ df_part2 %>%
   see::scale_fill_flat() + 
   theme_bw() +
   facet_wrap(~slab_measures)
+plt_hist
 
-plt_dst2 <- norm_dat %>% 
-  ggplot(aes(x = norm_dist, 
-             y = slab_measures,
-             colour = slab_measures,
-             fill = slab_measures)) + 
-  ggridges::stat_density_ridges(quantile_fun = mean,
-                                quantile_lines = T,
-                                alpha = .15,
-                                linetype = "dashed") + 
-  #jittered_points = T,position = "raincloud") + 
-  ggridges::stat_density_ridges(quantile_lines = T,
-                                quantiles = 2,
-                                alpha = .15) +
-  see::scale_color_pizza() +
-  see::scale_fill_pizza() +
-  see::theme_blackboard() +
-  # see::scale_color_flat() + 
-  # see::scale_fill_flat() + 
-  # theme_bw() +
-  scale_x_continuous("Normalised Distance", 
-                     limits = c(-1, 1)) + 
-  scale_y_discrete("")
-plt_dst2$labels$colour <- "Hoop Delta"
-plt_dst2$labels$fill <- "Hoop Delta"
-plt_dst2
+# try some boxplots
+plt_box <- df_part2 %>% 
+  ggplot(aes(slab_measures,
+             abspos,
+             colour = Num_throws,
+             fill = Num_throws)) + 
+  geom_boxplot(alpha = .3) +
+  see::scale_color_flat() + 
+  see::scale_fill_flat() + 
+  scale_y_continuous("", 
+                     breaks = c(0, 1),
+                     labels = c("Centre","Side")) + 
+  theme_bw() 
+plt_box$labels$x = "Slab Measures"
+plt_box$labels$y = "Absolute position"
+plt_box$labels$colour = "No. Throws"
+plt_box$labels$fill = "No. Throws"
+plt_box
+
 
 
 

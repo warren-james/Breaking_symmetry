@@ -62,6 +62,33 @@ plt_together <- arrangeGrob(plt_prop_gamble_types, plt_standing_pos, ncol = 2)
 # save this 
 ggsave(file = "../../Figures/Experiment_5_Unequal_Reward/prop_and_position.png", plt_together)
 
+#### combine the above plots together somehow... 
+# sort data first 
+prop_split <- plt_prop_gamble_types[["data"]] %>% 
+  ungroup() %>% 
+  select(-.group) %>%
+  spread(Gamble_Type, n) %>%
+  replace_na(list(Equal = 0, Unequal = 0)) %>%
+  mutate(Equal = Equal/(Equal + Unequal),
+         Unequal = 1 - Equal,
+         order = Equal,
+         HoopDelta = 21) %>% 
+  gather(Equal:Unequal,
+         key = "Split",
+         value = "prop")
+
+plt_standing_pos[["data"]] 
+
+plt_combined <- plt_standing_pos + 
+  geom_bar(data = prop_split, 
+           aes(HoopDelta, prop,
+               fill = Split,
+               colour = Split),
+           stat = "identity") + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() 
+plt_combined
+
 #### Proportion over distance ####
 plt_prop_dist <- df_part2 %>%
   mutate(Participant = as.factor(as.numeric(Participant))) %>%
