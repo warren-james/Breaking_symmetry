@@ -71,13 +71,42 @@ prop_split <- plt_prop_gamble_types[["data"]] %>%
   replace_na(list(Equal = 0, Unequal = 0)) %>%
   mutate(Equal = Equal/(Equal + Unequal),
          Unequal = 1 - Equal,
-         order = Equal,
-         HoopDelta = 21) %>% 
+         order = as.numeric(as.factor(Equal)),
+         HoopDelta = 25) %>% 
   gather(Equal:Unequal,
          key = "Split",
          value = "prop")
 
-plt_standing_pos[["data"]] 
+# get order data 
+temp_order <- prop_split %>% 
+  group_by(Participant) %>% 
+  summarise(order = unique(order))
+
+plt_combined <- plt_standing_pos[["data"]] %>% 
+  merge(temp_order) %>% 
+  mutate(Split = Gamble_Type) %>%
+  filter(Norm_Dist <= 1) %>%
+  ggplot(aes(HoopDelta, Norm_Dist, colour = Split)) +
+  scale_colour_ptol() +
+  geom_jitter(alpha = .5) + 
+  # theme_bw() + 
+  see::theme_abyss() + 
+  theme(strip.text.x = element_blank()) +
+  geom_bar(data = prop_split, 
+           aes(HoopDelta, prop,
+               fill = Split),
+               # colour = Split),
+           width = 2,
+           colour = "black",
+           alpha = .5,
+           stat = "identity") + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() + 
+  scale_x_continuous(breaks = seq(0, 25, 5),
+                     labels = c(seq(0,20,5), "Ratio")) +
+  facet_wrap(~ order + Participant)
+ plt_combined 
+  
 
 plt_combined <- plt_standing_pos + 
   geom_bar(data = prop_split, 
