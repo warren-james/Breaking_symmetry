@@ -44,6 +44,15 @@ plt_hist <- df_part2 %>%
   facet_wrap(~slab_measures)
 plt_hist
 
+df_part2 %>% 
+  ggplot(aes(x = abspos,
+             colour = Num_throws,
+             fill = Num_throws)) + 
+  geom_density(alpha = .3) + 
+  facet_wrap(~slab_measures) + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() 
+
 # try some boxplots
 plt_box <- df_part2 %>% 
   ggplot(aes(slab_measures,

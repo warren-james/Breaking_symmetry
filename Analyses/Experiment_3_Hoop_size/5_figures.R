@@ -150,14 +150,12 @@ norm_dat %>%
   geom_segment(aes(x = 0.5, y = 0,
                    xend = 0.5, yend = 4),
                linetype = "dashed") +
-  # geom_vline(xintercept = 0, 
-  #            linetype = "dashed",
-  #            aes(colour = slab_measures)) + 
   geom_histogram(aes(y = ..density..),
                  binwidth = .1,
                  alpha = .3) + 
   geom_line(data = data_lines, 
-            aes(x, density, 
+            aes(x, density,
+            # aes(x, density*31, 
                 colour = slab_measures)) + 
   facet_wrap(~slab_measures) + 
   scale_x_continuous(breaks = c(0, .5, 1),
@@ -165,22 +163,22 @@ norm_dat %>%
   # see::theme_modern() + 
   theme_bw() + 
   theme(legend.position = "none",
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank()) +
+  #       axis.title.y = element_blank(),
+        axis.title.x = element_blank()) +
   see::scale_color_flat() + 
   see::scale_fill_flat() + 
   geom_text(data = data_lines, 
             aes(1, 3.8,
-                # label = paste(expression(alpha), "==", round(a, 1))),
                 label = paste("hat(mu)==", round(mu(a,b), 2))),
             parse = T, hjust = 1,
             size = 3) +
   geom_text(data = data_lines, 
             aes(1, 3.3,
-                # label = paste(expression(beta), "==", round(a, 1))),
                 label = paste("hat(phi)==", round(phi(a,b), 1))),
             parse = T, hjust = 1,
-            size = 3)
+            size = 3) + 
+  scale_y_continuous("Density", sec.axis = sec_axis(trans = (~ . * 31), name = "Count")) # + 
+  # stat_bin(binwidth= .1, geom="text", aes(label=..count..))
 
 # save 
 ggsave("../../Figures/Experiment_3_Hoop_size/histogram_beta_fit.png",
