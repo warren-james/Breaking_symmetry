@@ -99,10 +99,11 @@ plt_fix[["data"]] %>%
   spread(key = Q, value = quantiles) %>% 
   select(-max, -min, - median)
 
-# save this 
-ggsave("../../Figures/Experiment_4_Prob/boxes_prop_CML.png",
-       width = 5.6,
-       heigh = 3.5)
+# check if you want to save 
+# ggsave("../../Figures/Experiment_4_Prob/boxes_prop_CML.png",
+#        width = 5.6,
+#        heigh = 3.5)
+
 
 #### PLOTS ####
 #### centre vs side by switch point ####

@@ -168,12 +168,11 @@ for (p in unique(df_acc$participant)){
   }
   # get subset of acc_sep
   temp <- acc_sep[acc_sep$participant == p,]
-  
+  acc <- temp$accuracy
   # Extract switch points 
-  F_F = temp$separation[max(which(temp$accuracy > 0.55))]
-  E_T = temp$separation[max(which(temp$accuracy > 0.82))]
-  SP = temp$separation[max(which(temp$accuracy > 0.685))]
-  
+  F_F = temp$separation[which(abs(acc - .55) == min(abs(acc - .55)))]
+  SP = temp$separation[which(abs(acc - .685) == min(abs(acc - .685)))]
+  E_T = temp$separation[which(abs(acc - .82) == min(abs(acc - .82)))]
   
   # Add into dataframe
   switch_points <- rbind(switch_points, data.frame(participant = p,
