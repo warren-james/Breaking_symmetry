@@ -326,7 +326,7 @@ temp <- dat_sym %>%
 AccMea_sym <- temp %>%
   gather(Pred_type, Acc, Centre:Optimal)
 
-AccMea_sym$condition <- "symmetric"
+AccMea_sym$condition <- "Symmetric"
 
 # plot this
 plt <- AccMea_sym %>% 

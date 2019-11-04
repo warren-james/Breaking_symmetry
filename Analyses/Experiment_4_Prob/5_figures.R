@@ -4,6 +4,8 @@
 #### Library ####
 library(tidyverse)
 
+#### functions ####
+
 #### Load data ####
 load("scratch/new_data/df_part2")
 load("scratch/new_data/AccMea")
@@ -23,6 +25,7 @@ df_part2 <- df_part2 %>%
          lcr,
          standard_boxes,
          accuracy)
+
 #### NB: Really close... one point isn't working for some reason.... ####
 # Need to work on labels 
 # labels should reflect participants' own biases in the "symmetric" condition 
@@ -31,7 +34,9 @@ check <- df_part2 %>%
   group_by(participant, bias_type, lcr, standard_boxes, dist_type) %>%
   summarise(n = n()) %>% 
   ungroup() %>%
-  complete(lcr, nesting(participant, bias_type, standard_boxes, dist_type), fill = list(n = 0)) %>% 
+  complete(lcr,
+           nesting(participant, bias_type, standard_boxes, dist_type),
+           fill = list(n = 0)) %>% 
   ungroup() %>%
   group_by(participant, bias_type, dist_type) %>%
   spread(lcr, n) %>% 
@@ -80,7 +85,19 @@ plt_fix <- check %>%
   see::scale_color_flat(name = "Condition") + 
   scale_x_discrete("Delta") + 
   theme_bw()
-plt_fix  
+plt_fix 
+
+# some quick descriptives 
+plt_fix[["data"]] %>% 
+  group_by(prop_type, dist_type, bias_type) %>% 
+  summarise(mu = mean(proportion),
+            med = median(proportion),
+            quantiles = list(quantile(proportion))) %>%
+            # iqr = qwraps2::median_iqr(proportion)) %>% 
+  unnest %>% 
+  mutate(Q = rep(c("min","Q1","median","Q3","max"), length(mu)/5)) %>% 
+  spread(key = Q, value = quantiles) %>% 
+  select(-max, -min, - median)
 
 # save this 
 ggsave("../../Figures/Experiment_4_Prob/boxes_prop_CML.png",
@@ -97,34 +114,6 @@ df_part2 %>%
   summarise(centre = mean(centre)) %>% 
   ggplot(aes(dist_type, centre, fill = bias_type)) + 
   geom_boxplot()
-
-# need to check these two... slightly different results
-plt_box_1 <- df_part2 %>% 
-  group_by(participant, bias_type, dist_type) %>% 
-  mutate(centre = ifelse(standard_boxes == "centre", 1, 0),
-         ML = ifelse(standard_boxes == "most likely", 1, 0),
-         LL = ifelse(standard_boxes == "least likely", 1, 0),
-         n = n()) %>%
-  summarise(centre = mean(centre),
-            ML = mean(ML),
-            LL = mean(LL)) %>% 
-  mutate(total = centre + ML + LL) %>%
-  gather(centre:LL,
-         key = "prop_type",
-         value = "proportion") %>%
-  mutate(prop_type = factor(prop_type, c("centre", "ML", "LL"),
-                            labels = c("Centre", "Most Likely", "Least Likely"))) %>%
-  ggplot(aes(dist_type, proportion, fill = bias_type)) +
-  geom_boxplot() +
-  scale_y_continuous(element_blank(),
-                     breaks = seq(0,1,.2),
-                     labels = scales::percent_format(accuracy = 1)) +
-  facet_wrap(~prop_type) +
-  see::scale_fill_flat(name = "Condition") +
-  scale_x_discrete("Delta") + 
-  theme_bw()
-plt_box_1
-
 
 # comparing this by condition
 # this one's weird.... make it simpler
@@ -295,9 +284,19 @@ AccMea %>%
          Acc) %>%
   mutate(dist_type = ifelse(separation < switch_point, "Close", "Far"),
          Diff_Opt_m_Acc = Optimal - Actual,
-         Diff_Opt_m_Exp = Optimal - Expected) %>%
+         Diff_Opt_m_Exp = Optimal - Expected,
+         Diff_Opt_d_Exp = Expected/Optimal) %>%
   group_by(participant, condition, dist_type) %>%
-  summarise(Diff_Opt_m_Acc = mean(Diff_Opt_m_Acc)) %>% 
-  ggplot(aes(dist_type, Diff_Opt_m_Acc, fill = condition)) + 
-  geom_boxplot()
+  summarise(Diff_Opt_m_Acc = mean(Diff_Opt_m_Acc),
+            Diff_Opt_m_Exp = mean(Diff_Opt_m_Exp),
+            Diff_Opt_d_Exp = mean(Diff_Opt_d_Exp)) %>% 
+  ggplot(aes(dist_type, Diff_Opt_d_Exp,
+             fill = condition,
+             colour = condition)) + 
+  geom_boxplot(alpha = .3) + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() + 
+  theme_bw() + 
+  scale_x_discrete("Distance Type") + 
+  scale_y_continuous("Expected Accuracy / Optimal Accuracy")
   
