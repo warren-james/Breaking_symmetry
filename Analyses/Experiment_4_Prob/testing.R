@@ -149,8 +149,8 @@ far_acc <- acc_c %>%
   select(participant, far_dist, far_acc) %>% 
   distinct()
 
-test <- df_part2 %>% 
-  select(participant, bias_type, bias_left, separation, fixated_box, accuracy) %>% 
+new_acc_measures <- df_part2 %>% 
+  select(participant, lcr, standard_boxes, bias_type, bias_left, separation, fixated_box, accuracy) %>% 
   mutate(l_dist = ifelse(fixated_box == 1, separation, 
                          ifelse(fixated_box == 2, 1, 2*separation)),
          r_dist = ifelse(fixated_box == 1, separation, 
@@ -168,7 +168,9 @@ test <- df_part2 %>%
          Centre = (c_acc * bias_left) + (c_acc * ll_bias),
          Side = (fix_acc * pmax(bias_left, ll_bias)) + (far_acc * (pmin(bias_left, ll_bias))),
          Optimal = pmax(Side, Centre))%>% 
-  select(participant, 
+  select(participant,
+         lcr,
+         standard_boxes,
          separation, 
          bias_type, 
          accuracy, 
@@ -178,7 +180,7 @@ test <- df_part2 %>%
          Optimal)
 
 # overall plot
-plt_check <- test %>% 
+plt_check <- new_acc_measures %>% 
   group_by(participant, bias_type, separation) %>% 
   summarise(Actual = mean(accuracy),
             Centre = mean(Centre),
@@ -213,7 +215,7 @@ plt_sc <- plt_check[["data"]] %>%
 plt_sc
 
 # now take the above data and we can plot something like the boxplots from before 
-plt_box_acc <- test %>% 
+plt_box_acc <- new_acc_measures %>% 
   mutate(dist_type = ifelse(Centre > Side, "close", "far")) %>% 
   group_by(participant, bias_type, dist_type) %>% 
   summarise(Actual = mean(accuracy),
@@ -235,8 +237,38 @@ plt_box_acc <- test %>%
   scale_x_discrete("Distance Type")
 plt_box_acc
 
+#### recreate fixation prop plots with more accurate switch point ####
+# labels should reflect participants' own biases in the "symmetric" condition 
+# get dist type as well 
+new_df <- new_acc_measures %>%
+  mutate(dist_type = ifelse(Centre > Side, "close", "far")) %>% 
+  select(participant, bias_type, lcr, standard_boxes, dist_type) %>%
+  group_by(participant, bias_type, lcr, standard_boxes, dist_type) %>%
+  summarise(n = n()) %>% 
+  ungroup() %>%
+  complete(lcr,
+           nesting(participant, bias_type, standard_boxes, dist_type),
+           fill = list(n = 0)) %>% 
+  ungroup() %>%
+  group_by(participant, bias_type, dist_type) %>%
+  spread(lcr, n) %>% 
+  mutate(most = ifelse(sum(`-1`) > sum(`1`), -1, 1),
+         least = ifelse(sum(`-1`) < sum(`1`), -1, 1),
+         # need to make sure that the biased group does not change 
+         # will need to do this in the main df 
+         lcr2 = ifelse(standard_boxes == "centre", 0,
+                       ifelse(standard_boxes == "most likely", most, least)),
+         n = ifelse(lcr2 == 0, max(`0`),
+                    ifelse(lcr2 == 1, max(`1`), max(`-1`)))) %>% 
+  select(participant, bias_type, standard_boxes, lcr2, most, least, dist_type) %>% 
+  merge(new_acc_measures) %>% 
+  mutate(st_box = ifelse(bias_type == "Biased", standard_boxes,
+                         ifelse(lcr == 0, "centre",
+                                ifelse(lcr == most, "most likely", "least likely"))))
 
 
 
-#### reacreate fixation prop plots with more accurate switch point ####
+
+
+
 
