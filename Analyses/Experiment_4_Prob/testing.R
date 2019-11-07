@@ -200,6 +200,18 @@ plt_check <- test %>%
   scale_x_continuous("Delta (pixels)")
 plt_check
 
+# plot side vs. centre 
+plt_sc <- plt_check[["data"]] %>% 
+  gather(c(Centre, Side),
+         key = "strat",
+         value = "acc") %>% 
+  ggplot(aes(separation, acc, 
+             colour = strat)) + 
+  geom_line(aes(linetype = bias_type)) + 
+  facet_wrap(~participant) + 
+  guides(linetype = F)
+plt_sc
+
 # now take the above data and we can plot something like the boxplots from before 
 plt_box_acc <- test %>% 
   mutate(dist_type = ifelse(Centre > Side, "close", "far")) %>% 
@@ -225,4 +237,6 @@ plt_box_acc
 
 
 
+
+#### reacreate fixation prop plots with more accurate switch point ####
 
