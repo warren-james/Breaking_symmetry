@@ -103,14 +103,17 @@ save(df, file = "scratch/new_data/Part_1_data_nar")
 plt <- df %>% 
   group_by(participant, separation) %>% 
   summarise(accuracy = mean(accuracy)) %>%
-  ggplot(aes(get_VisDegs(separation/ppcm, Screen_dist), accuracy)) + 
+  # ggplot(aes(get_VisDegs(separation/ppcm, Screen_dist), accuracy)) + 
+  ggplot(aes(separation, accuracy)) + 
   geom_point() + 
   geom_smooth(method = glm,
               method.args = list(family = binomial(mafc.logit(10))),
               se = F, fullrange = T) + 
   facet_wrap(~participant) + 
   theme_bw() + 
-  theme(strip.text.x = element_blank())
+  geom_hline(yintercept = .82) + 
+  geom_hline(yintercept = .55) #+ 
+  #theme(strip.text.x = element_blank())
 plt$labels$x <- "Delta (Visual Degrees)"
 plt$labels$y <- "Accuracy"
 plt

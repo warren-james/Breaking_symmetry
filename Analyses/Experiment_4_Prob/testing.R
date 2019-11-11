@@ -6,6 +6,98 @@ load("scratch/new_data/acc_sep")
 load("scratch/new_data/df_part2")
 load("scratch/new_data/AccMea")
 
+# try working out new version of acc_sep with a set value of 100% for the closest separation and see what changes... 
+load("scratch/new_data/Part_1_data_nar")
+# to be added 
+df_close <- tibble(participant = rep(unique(df$participant), each = 12),
+                   separation = rep(1, length(participant)),
+                   accuracy = rep(1, length(participant)))
+
+df_test <- df %>%
+  as_tibble() %>% 
+  select(participant, separation, accuracy) %>% 
+  bind_rows(df_close)
+
+df_summ <- df %>% 
+  group_by(participant, separation) %>% 
+  summarise(acc = mean(accuracy))
+
+# run model 
+m_extra <- glm(accuracy ~ separation:participant, 
+               data = df_test, 
+               family = binomial(mafc.probit(10)))
+m_orig <- glm(accuracy ~ separation:participant, 
+              data = df, 
+              family = binomial(mafc.logit(10)))
+
+# get df for diff between model estimates 
+seps <- seq(1, 500, 1)
+df_est <- tibble(participant = rep(unique(df$participant), each = length(seps)),
+                 separation = rep(seps, length(unique(participant))),
+                 p = as.numeric(predict(m_orig,
+                                        data.frame(separation = separation,
+                                                   participant = participant),
+                                        type = "response")),
+                 type = "Original") %>% 
+  bind_rows(tibble(participant = rep(unique(df$participant), each = length(seps)),
+                   separation = rep(seps, length(unique(participant))),
+                   p = as.numeric(predict(m_extra,
+                                          data.frame(separation = separation,
+                                                     participant = participant),
+                                          type = "response")),
+                   type = "Extra")) %>% 
+  spread(type, p) %>% 
+  mutate(diff = Extra - Original) %>% 
+  # creates a plot of the difference,
+  # empty shaded region shows the size of the difference 
+  # nothing showing means they were the same
+  ggplot(aes(separation, Extra)) + 
+  geom_ribbon(aes(ymin = Extra,
+                  ymax = Original)) + 
+  facet_wrap(~participant)
+  # # Makes a line plot of the data
+  # ggplot(aes(Extra, Original)) +
+  # geom_point(size = .1) +
+  # geom_abline(intercept = 0,
+  #             slope = 1) +
+  # facet_wrap(~participant)
+  # # plots the difference
+  # ggplot(aes(separation, diff)) + 
+  # geom_line() + 
+  # facet_wrap(~participant)
+df_est 
+
+cor.test(df_est[["data"]]$Original, df_est[["data"]]$Extra)
+
+# make quick plt 
+df_test %>% 
+  group_by(participant, separation) %>% 
+  summarise(acc = mean(accuracy)) %>% 
+  ggplot(aes(separation, acc)) + 
+  geom_point() + 
+  geom_smooth(method = "glm",
+              method.args = list(family = binomial(mafc.logit(10))),
+              se = F) + 
+  geom_smooth(data = df_summ,
+              aes(separation, acc),
+              method = "glm", 
+              method.args = list(family = binomial(mafc.logit(10))),
+              se = F,
+              colour = "red") +
+  facet_wrap(~participant)
+
+df %>% 
+  group_by(participant, separation) %>% 
+  summarise(acc = mean(accuracy)) %>% 
+  ggplot(aes(separation, acc)) + 
+  geom_point() + 
+  geom_smooth(method = "glm",
+              method.args = list(family = binomial(mafc.logit(10))),
+              se = F,
+              fullrange = T) + 
+  scale_x_continuous(limits = c(1, 460)) + 
+  facet_wrap(~participant)
+
 # quick pre-process 
 df_part2 <- df_part2 %>% 
   mutate(max_chance = ifelse(bias_type == "symmetric", 0.5, 0.8))
@@ -166,8 +258,9 @@ new_acc_measures <- df_part2 %>%
   merge(fix_acc) %>% 
   mutate(Expected = (l_acc * bias_left) + (r_acc * ll_bias),
          Centre = (c_acc * bias_left) + (c_acc * ll_bias),
-         Side = (fix_acc * pmax(bias_left, ll_bias)) + (far_acc * (pmin(bias_left, ll_bias))),
-         Optimal = pmax(Side, Centre))%>% 
+         Side_opt = (fix_acc * pmax(bias_left, ll_bias)) + (far_acc * (pmin(bias_left, ll_bias))),
+         Side_nopt = (fix_acc * pmin(bias_left, ll_bias)) + (far_acc * (pmax(bias_left, ll_bias))),
+         Optimal = pmax(Side_opt, Centre))%>% 
   select(participant,
          lcr,
          standard_boxes,
@@ -176,7 +269,8 @@ new_acc_measures <- df_part2 %>%
          accuracy, 
          Expected,
          Centre,
-         Side,
+         Side_opt,
+         Side_nopt,
          Optimal)
 
 # overall plot
@@ -184,7 +278,7 @@ plt_check <- new_acc_measures %>%
   group_by(participant, bias_type, separation) %>% 
   summarise(Actual = mean(accuracy),
             Centre = mean(Centre),
-            Side = mean(Side),
+            Side = mean(Side_opt),
             Expected = mean(Expected),
             Optimal = mean(Optimal)) %>% 
   ungroup() %>% 
@@ -216,11 +310,11 @@ plt_sc
 
 # now take the above data and we can plot something like the boxplots from before 
 plt_box_acc <- new_acc_measures %>% 
-  mutate(dist_type = ifelse(Centre > Side, "close", "far")) %>% 
+  mutate(dist_type = ifelse(Centre > Side_opt, "close", "far")) %>% 
   group_by(participant, bias_type, dist_type) %>% 
   summarise(Actual = mean(accuracy),
             Centre = mean(Centre),
-            Side = mean(Side),
+            Side = mean(Side_opt),
             Expected = mean(Expected),
             Optimal = mean(Optimal)) %>% 
   ungroup() %>% 
@@ -237,7 +331,90 @@ plt_box_acc <- new_acc_measures %>%
   scale_x_discrete("Distance Type")
 plt_box_acc
 
+# use this one, need to rescale it so 0 is the minimum accuracy and 1 is maximum
+test <- new_acc_measures %>% 
+  # filter(separation != 640) %>% 
+  mutate(max_acc = pmax(Centre, Side_opt, Side_nopt),
+         min_acc = pmin(Centre, Side_opt, Side_nopt)) %>% 
+  group_by(participant, separation, bias_type) %>% 
+  summarise(Expected = mean(Expected),
+            Centre = mean(Centre),
+            Side_opt = mean(Side_opt),
+            Side_nopt = mean(Side_nopt),
+            min = mean(min_acc),
+            max = mean(max_acc)) %>% 
+  ggplot(aes(separation, Expected,
+             # colour = bias_type,
+             fill = bias_type)) +
+  # geom_ribbon(aes(ymin = Centre, 
+  #             ymax = Side_nopt),
+  #             alpha = .3) + 
+  geom_ribbon(aes(ymin = Centre, 
+                  ymax = Side_opt),
+              alpha = .3) +  
+  # geom_line(colour = "black") + 
+  geom_line(aes(colour = bias_type)) + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() +
+  scale_y_continuous("Accuracy") +
+  facet_wrap(~participant) 
+  # facet_grid(bias_type ~ participant)
+test
+
 #### recreate fixation prop plots with more accurate switch point ####
+# first try without dist_type since that's confusing 
+df_part2 %>% 
+  group_by(participant, bias_type, standard_boxes, lcr) %>% 
+  summarise(n = n()) %>% 
+  ungroup() %>%
+  complete(lcr,
+           nesting(participant, bias_type, standard_boxes),
+           fill = list(n = 0)) %>% 
+  ungroup() %>%
+  group_by(participant, bias_type) %>%
+  spread(lcr, n) %>% 
+  mutate(most = ifelse(sum(`-1`) > sum(`1`), -1, 1),
+         least = ifelse(sum(`-1`) < sum(`1`), -1, 1),
+         # need to make sure that the biased group does not change 
+         # will need to do this in the main df 
+         lcr2 = ifelse(standard_boxes == "centre", 0,
+                       ifelse(standard_boxes == "most likely", most, least)),
+         n = ifelse(lcr2 == 0, max(`0`),
+                    ifelse(lcr2 == 1, max(`1`), max(`-1`)))) %>% 
+  select(participant, bias_type, standard_boxes, lcr2, most, least) %>% 
+  merge(df_part2) %>% 
+  mutate(st_box = ifelse(bias_type == "Biased", standard_boxes,
+                         ifelse(lcr == 0, "centre",
+                                ifelse(lcr == most, "most likely", "least likely")))) %>% 
+  ungroup() %>% 
+  group_by(participant, bias_type) %>%
+  mutate(centre = ifelse(st_box == "centre", 1, 0),
+         ML = ifelse(st_box == "most likely", 1, 0),
+         LL = ifelse(st_box == "least likely", 1, 0),
+         n = n()) %>%
+  summarise(centre = mean(centre),
+            ML = mean(ML),
+            LL = mean(LL)) %>% 
+  gather(centre:LL,
+         key = "prop_type",
+         value = "proportion") %>%
+  mutate(prop_type = factor(prop_type, c("centre", "ML", "LL"),
+                            labels = c("Centre", "Most Likely", "Least Likely"))) %>%
+  ggplot(aes(bias_type, proportion,
+             fill = bias_type,
+             colour = bias_type)) +
+  geom_boxplot(alpha = .3) + 
+  theme_bw() + 
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        legend.position = "bottom") +
+  scale_y_continuous(element_blank(), 
+                     breaks = seq(0,1,.2), 
+                     labels = scales::percent_format(accuracy = 1)) +
+  see::scale_color_flat() + 
+  see::scale_fill_flat() +
+  facet_wrap(~prop_type)
+
 # labels should reflect participants' own biases in the "symmetric" condition 
 # get dist type as well 
 new_df <- new_acc_measures %>%
@@ -268,7 +445,13 @@ new_df <- new_acc_measures %>%
 
 
 
-
+# sactter 
+new_acc_measures %>%
+  ggplot(aes(Expected, Optimal, colour = participant)) +
+  geom_abline(slope = 1, intercept = 0) +
+  geom_point() +
+  facet_wrap(~bias_type) +
+  theme(legend.position = "none")
 
 
 
