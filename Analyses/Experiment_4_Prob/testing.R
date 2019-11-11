@@ -1,5 +1,6 @@
 # library 
 library(tidyverse)
+library(psyphy)
 
 # work out opt values 
 load("scratch/new_data/acc_sep")
@@ -418,7 +419,7 @@ df_part2 %>%
 # labels should reflect participants' own biases in the "symmetric" condition 
 # get dist type as well 
 new_df <- new_acc_measures %>%
-  mutate(dist_type = ifelse(Centre > Side, "close", "far")) %>% 
+  mutate(dist_type = ifelse(Centre > Side_opt, "close", "far")) %>% 
   select(participant, bias_type, lcr, standard_boxes, dist_type) %>%
   group_by(participant, bias_type, lcr, standard_boxes, dist_type) %>%
   summarise(n = n()) %>% 
@@ -447,11 +448,86 @@ new_df <- new_acc_measures %>%
 
 # sactter 
 new_acc_measures %>%
+  group_by(participant, separation, bias_type) %>% 
+  summarise(Expected = mean(Expected),
+            Optimal = mean(Optimal)) %>% 
   ggplot(aes(Expected, Optimal, colour = participant)) +
   geom_abline(slope = 1, intercept = 0) +
   geom_point() +
   facet_wrap(~bias_type) +
   theme(legend.position = "none")
 
+# same again but for overall accuracy
+new_acc_measures %>% 
+  group_by(participant, bias_type) %>% 
+  mutate(side_fix = ifelse(lcr != 0, 1, 0)) %>%
+  summarise(Actual = mean(accuracy),
+            Expected = mean(Expected), 
+            Optimal = mean(Optimal),
+            side_prop = sum(side_fix)/n()) %>% 
+  ggplot(aes(Optimal, Expected,
+             colour = side_prop)) + 
+  geom_abline(intercept = 0, slope = 1) + 
+  geom_point() + 
+  facet_wrap(~bias_type) + 
+  geom_text(aes(label = participant),
+            nudge_x = -.004,
+            nudge_y = -.004,
+            angle = 45)
 
+# above looks nice, but maybe we want to look at how far they are from the line? 
+
+# with separation as a factor 
+new_acc_measures %>% 
+  group_by(participant, bias_type) %>% 
+  mutate(side_fix = ifelse(lcr != 0, 1, 0),
+         sep_factor = as.numeric(as.factor(separation))) %>%
+  ungroup() %>% 
+  group_by(participant, bias_type, sep_factor) %>% 
+  summarise(Actual = mean(accuracy),
+            Expected = mean(Expected), 
+            Optimal = mean(Optimal),
+            side_prop = sum(side_fix)/n()) %>% 
+  # plot change over separation 
+  ggplot(aes(sep_factor, Expected, 
+             size = side_prop,
+             colour = bias_type)) + 
+             # colour = side_prop,
+             # shape = bias_type)) + 
+  geom_point(alpha = .6) +
+  facet_wrap(~participant) + 
+  see::scale_color_flat()
+  # # plot for each separation
+  # ggplot(aes(Optimal, Expected,
+  #            colour = side_prop)) + 
+  # geom_point() + 
+  # # geom_text(aes(label = participant),
+  # #           nudge_x = .004, 
+  # #           nudge_y = .004,
+  # #           angle = 45) + 
+  # geom_abline(intercept = 0, slope = 1) + 
+  # facet_grid(bias_type ~ sep_factor)
+
+# box plots again 
+new_acc_measures %>%
+  group_by(participant, bias_type) %>% 
+  summarise(Expected = mean(Expected),
+            Optimal = mean(Optimal)) %>% 
+  mutate(diff_edo = Expected/Optimal) %>% 
+  ggplot(aes(bias_type, diff_edo,
+             fill = bias_type)) + 
+  geom_boxplot()
+  
+# recreate line plot from paper at the moment 
+new_acc_measures %>% 
+  group_by(participant, bias_type, separation) %>% 
+  summarise(Expected = mean(Expected),
+            Optimal = mean(Optimal),
+            Actual = mean(accuracy)) %>% 
+  mutate(diff_edo = Expected/Optimal) %>% 
+  ggplot(aes(separation, diff_edo, 
+             colour = bias_type)) + 
+  geom_line(aes(group = interaction(bias_type, participant))) + 
+  see::scale_color_flat() + 
+  facet_wrap(~bias_type)
 
