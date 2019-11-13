@@ -7,6 +7,8 @@ load("scratch/new_data/acc_sep")
 load("scratch/new_data/df_part2")
 load("scratch/new_data/AccMea")
 
+#### revisiting at part 1 ####
+# no need to do this, but at least we know now 
 # try working out new version of acc_sep with a set value of 100% for the closest separation and see what changes... 
 load("scratch/new_data/Part_1_data_nar")
 # to be added 
@@ -99,6 +101,7 @@ df %>%
   scale_x_continuous(limits = c(1, 460)) + 
   facet_wrap(~participant)
 
+#### pre process the data ####
 # quick pre-process 
 df_part2 <- df_part2 %>% 
   mutate(max_chance = ifelse(bias_type == "symmetric", 0.5, 0.8))
@@ -164,15 +167,13 @@ acc_s <- acc_sep %>%
          LL_dist = separation * 2) %>%
   merge(acc_ml) %>% 
   merge(acc_ll) %>% 
-  mutate(accuracy_bias = (ML_acc * 0.8) + (LL_acc * 0.2),
-         accuracy_symmetric = (ML_acc * 0.5) + (LL_acc * 0.5)) %>% 
+  mutate(bias = (ML_acc * 0.8) + (LL_acc * 0.2),
+         symmetric = (ML_acc * 0.5) + (LL_acc * 0.5)) %>% 
+  select(-accuracy) %>% 
   # select(participant, separation, accuracy_bias, accuracy_symmetric) %>% 
-  gather(c(accuracy_bias, accuracy_symmetric),
+  gather(c(bias, symmetric),
          key = "bias_type", 
          value = "accuracy") %>% 
-  separate(bias_type, 
-           c("remove", "bias_type"),
-           sep = "_") %>% 
   mutate(acc_type = "Side") %>% 
   select(participant, separation, accuracy, acc_type, bias_type)
 
@@ -189,6 +190,7 @@ checking <- acc_all %>%
   mutate(n = n()) %>% 
   summarise(prop = sum(opt_side)/unique(n))
 
+#### plot amount of time participants should have fixated the side ####
 # plot to have a look 
 checking %>% 
   ggplot(aes(participant, prop,
@@ -198,16 +200,23 @@ checking %>%
   see::scale_fill_flat() + 
   scale_y_continuous("Proportion of Distances participant should fixate the side box")
   
+
+#### plot difference between the strategies ####
 # plot diff in strat over distance 
 acc_all %>% 
   mutate(diff = Side - Centre) %>% 
   ggplot(aes(separation, diff, colour = bias_type)) + 
   geom_line() + 
+  geom_ribbon(aes(ymax = diff, ymin = 0,
+                  fill = bias_type),
+              alpha = .3) +
   facet_wrap(~participant) + 
   see::scale_color_flat() +
-  geom_hline(yintercept = 0,
-             linetype = "dashed",
-             colour = "white") + 
+  see::scale_fill_flat() +
+  theme_bw() +
+  # geom_hline(yintercept = 0,
+  #            linetype = "dashed",
+  #            colour = "black") + 
   scale_y_continuous("Side - Centre")
    
 #### Sort out Expected and Optimal accuracy ####
@@ -243,7 +252,7 @@ far_acc <- acc_c %>%
   distinct()
 
 new_acc_measures <- df_part2 %>% 
-  select(participant, lcr, standard_boxes, bias_type, bias_left, separation, fixated_box, accuracy) %>% 
+  select(participant, block, trial, lcr, standard_boxes, bias_type, bias_left, separation, fixated_box, accuracy) %>% 
   mutate(l_dist = ifelse(fixated_box == 1, separation, 
                          ifelse(fixated_box == 2, 1, 2*separation)),
          r_dist = ifelse(fixated_box == 1, separation, 
@@ -263,6 +272,8 @@ new_acc_measures <- df_part2 %>%
          Side_nopt = (fix_acc * pmin(bias_left, ll_bias)) + (far_acc * (pmax(bias_left, ll_bias))),
          Optimal = pmax(Side_opt, Centre))%>% 
   select(participant,
+         block,
+         trial,
          lcr,
          standard_boxes,
          separation, 
@@ -274,6 +285,7 @@ new_acc_measures <- df_part2 %>%
          Side_nopt,
          Optimal)
 
+#### plot each participant and their expected acc against the centre strat ####
 # overall plot
 plt_check <- new_acc_measures %>% 
   group_by(participant, bias_type, separation) %>% 
@@ -289,14 +301,17 @@ plt_check <- new_acc_measures %>%
   ggplot(aes(separation, diff_EO, colour = bias_type)) + 
   geom_line() + 
   see::scale_colour_flat() + 
-  facet_wrap(~participant) + 
-  theme_bw() + 
+  theme_bw() +
+  facet_wrap(~participant) +
+  # facet_wrap(participant ~ bias_type) + 
+  # theme(strip.text.x = element_blank()) +
   geom_line(aes(separation, diff_CO, colour = bias_type),
             linetype = "dashed") + 
   scale_y_continuous("Expected/Optimal") + 
   scale_x_continuous("Delta (pixels)")
 plt_check
 
+#### similar to above, but comparing side vs centre strats ####
 # plot side vs. centre 
 plt_sc <- plt_check[["data"]] %>% 
   gather(c(Centre, Side),
@@ -305,10 +320,11 @@ plt_sc <- plt_check[["data"]] %>%
   ggplot(aes(separation, acc, 
              colour = strat)) + 
   geom_line(aes(linetype = bias_type)) + 
-  facet_wrap(~participant) + 
-  guides(linetype = F)
+  facet_wrap(~participant)# + 
+  #guides(linetype = F)
 plt_sc
 
+#### overal box plots for accuracy in the "close" and "far" distances ####
 # now take the above data and we can plot something like the boxplots from before 
 plt_box_acc <- new_acc_measures %>% 
   mutate(dist_type = ifelse(Centre > Side_opt, "close", "far")) %>% 
@@ -332,6 +348,7 @@ plt_box_acc <- new_acc_measures %>%
   scale_x_discrete("Distance Type")
 plt_box_acc
 
+#### line plots with shaded area for region of accuracy for side and centre strats ####
 # use this one, need to rescale it so 0 is the minimum accuracy and 1 is maximum
 test <- new_acc_measures %>% 
   # filter(separation != 640) %>% 
@@ -363,8 +380,8 @@ test <- new_acc_measures %>%
 test
 
 #### recreate fixation prop plots with more accurate switch point ####
-# first try without dist_type since that's confusing 
-df_part2 %>% 
+# relabel data for appropriate most/least likely box fixations 
+df_fixed_boxtype <- df_part2 %>% 
   group_by(participant, bias_type, standard_boxes, lcr) %>% 
   summarise(n = n()) %>% 
   ungroup() %>%
@@ -386,13 +403,18 @@ df_part2 %>%
   merge(df_part2) %>% 
   mutate(st_box = ifelse(bias_type == "Biased", standard_boxes,
                          ifelse(lcr == 0, "centre",
-                                ifelse(lcr == most, "most likely", "least likely")))) %>% 
+                                ifelse(lcr == most, "most likely", "least likely"))),
+         
+         bias_type = ifelse(bias_type == "biased", "Biased", "Symmetric")) %>% 
   ungroup() %>% 
-  group_by(participant, bias_type) %>%
   mutate(centre = ifelse(st_box == "centre", 1, 0),
          ML = ifelse(st_box == "most likely", 1, 0),
          LL = ifelse(st_box == "least likely", 1, 0),
-         n = n()) %>%
+         n = n())
+
+# first try without dist_type since that's confusing 
+plt_fix_box <- df_fixed_boxtype %>%
+  group_by(participant, bias_type) %>% 
   summarise(centre = mean(centre),
             ML = mean(ML),
             LL = mean(LL)) %>% 
@@ -412,40 +434,83 @@ df_part2 %>%
   scale_y_continuous(element_blank(), 
                      breaks = seq(0,1,.2), 
                      labels = scales::percent_format(accuracy = 1)) +
-  see::scale_color_flat() + 
-  see::scale_fill_flat() +
+  see::scale_color_flat(name = "Condition") + 
+  see::scale_fill_flat(name = "Condition") +
   facet_wrap(~prop_type)
+plt_fix_box
 
-# labels should reflect participants' own biases in the "symmetric" condition 
+# # save 
+# ggsave("../../Figures/Experiment_4_Prob/fixprop_minus_dist_type.png",
+#        width = 5.6,
+#        heigh = 3.5)
+
+# histogram version?
+plt_fix_box[["data"]] %>%
+  group_by(prop_type, bias_type) %>%
+  mutate(med_prop = median(proportion)) %>%
+  ggplot(aes(proportion,
+             fill = bias_type,
+             colour = bias_type)) + 
+  geom_histogram(#aes(y = ..density..),
+                 position = "dodge",
+                 alpha = .3,
+                 binwidth = .05) + 
+  # geom_vline(aes(xintercept = med_prop),
+  #            linetype = "dashed") + 
+  geom_density(alpha = .1) +
+  facet_wrap(~prop_type) + 
+  theme_bw() + 
+  scale_x_continuous("Proporition of fixations", 
+                     breaks = seq(0,1,.2)) +
+  see::scale_color_flat(name = "Condition") + 
+  see::scale_fill_flat(name = "Condition")
+
 # get dist type as well 
-new_df <- new_acc_measures %>%
-  mutate(dist_type = ifelse(Centre > Side_opt, "close", "far")) %>% 
-  select(participant, bias_type, lcr, standard_boxes, dist_type) %>%
-  group_by(participant, bias_type, lcr, standard_boxes, dist_type) %>%
-  summarise(n = n()) %>% 
-  ungroup() %>%
-  complete(lcr,
-           nesting(participant, bias_type, standard_boxes, dist_type),
-           fill = list(n = 0)) %>% 
-  ungroup() %>%
-  group_by(participant, bias_type, dist_type) %>%
-  spread(lcr, n) %>% 
-  mutate(most = ifelse(sum(`-1`) > sum(`1`), -1, 1),
-         least = ifelse(sum(`-1`) < sum(`1`), -1, 1),
-         # need to make sure that the biased group does not change 
-         # will need to do this in the main df 
-         lcr2 = ifelse(standard_boxes == "centre", 0,
-                       ifelse(standard_boxes == "most likely", most, least)),
-         n = ifelse(lcr2 == 0, max(`0`),
-                    ifelse(lcr2 == 1, max(`1`), max(`-1`)))) %>% 
-  select(participant, bias_type, standard_boxes, lcr2, most, least, dist_type) %>% 
-  merge(new_acc_measures) %>% 
-  mutate(st_box = ifelse(bias_type == "Biased", standard_boxes,
-                         ifelse(lcr == 0, "centre",
-                                ifelse(lcr == most, "most likely", "least likely"))))
+# this doesn't work just yet 
+# duplicates data too much data... 
+# TODO need a data frame labelling each box in a column (I know what that means...)
+# temp_df <- new_acc_measures %>% 
+#   group_by(participant, standard_boxes, lcr) %>%
+#   summarise(n = n()) %>% 
+#   ungroup() %>% 
+#   complete(lcr, 
+#            nesting(participant)) %>% 
+#   mutate(standard_boxes = ifelse(lcr == 0, "centre", standard_boxes)) %>% 
+#   select(-n)
+# 
+# # Still doesn't work... 
+# new_df <- new_acc_measures %>%
+#   mutate(dist_type = ifelse(Centre > Side_opt, "close", "far")) %>% 
+#   select(participant, bias_type, lcr, standard_boxes, dist_type) %>%
+#   group_by(participant, bias_type, lcr, dist_type) %>%
+#   summarise(n = n()) %>% 
+#   ungroup() %>%
+#   complete(dist_type, 
+#            nesting(participant, bias_type)) %>% 
+#   complete(lcr, 
+#            nesting(participant, bias_type, dist_type),
+#            fill = list(n = 0)) %>% 
+#   merge(temp_df) %>%
+#   group_by(participant, bias_type, dist_type) %>%
+#   spread(lcr, n) %>% 
+#   replace(is.na(.), 0) %>% 
+#   mutate(most = ifelse(sum(`-1`) > sum(`1`), -1, 1),
+#          least = ifelse(sum(`-1`) < sum(`1`), -1, 1),
+#          # need to make sure that the biased group does not change 
+#          # will need to do this in the main df 
+#          lcr2 = ifelse(standard_boxes == "centre", 0,
+#                        ifelse(standard_boxes == "most likely", most, least)),
+#          n = ifelse(lcr2 == 0, max(`0`),
+#                     ifelse(lcr2 == 1, max(`1`), max(`-1`)))) %>% 
+#   select(participant, bias_type, standard_boxes, lcr2, most, least, dist_type) %>% 
+#   merge(new_acc_measures) %>% 
+#   mutate(st_box = ifelse(bias_type == "Biased", standard_boxes,
+#                          ifelse(lcr == 0, "centre",
+#                                 ifelse(lcr == most, "most likely", "least likely")))) %>% 
+#   distinct()
 
 
-
+#### Try some scatter plots ####
 # sactter 
 new_acc_measures %>%
   group_by(participant, separation, bias_type) %>% 
@@ -477,8 +542,26 @@ new_acc_measures %>%
 
 # above looks nice, but maybe we want to look at how far they are from the line? 
 
-# with separation as a factor 
+# try doing a historgram plot? 
 new_acc_measures %>% 
+  group_by(participant, bias_type) %>% 
+  mutate(side_fix = ifelse(lcr != 0, 1, 0)) %>%
+  summarise(Actual = mean(accuracy),
+            Expected = mean(Expected), 
+            Optimal = mean(Optimal),
+            side_prop = sum(side_fix)/n()) %>%
+  mutate(diff_EdO = Expected/Optimal) %>%
+  ggplot(aes(diff_EdO,
+             fill = bias_type,
+             colour = bias_type)) + 
+  geom_histogram(alpha = .3, 
+                 position = "dodge",
+                 binwidth = .05,
+                 aes(y = ..density..)) + 
+  geom_density(alpha = .1)
+
+# with separation as a factor 
+plt_sep_factor <- new_acc_measures %>% 
   group_by(participant, bias_type) %>% 
   mutate(side_fix = ifelse(lcr != 0, 1, 0),
          sep_factor = as.numeric(as.factor(separation))) %>%
@@ -488,8 +571,11 @@ new_acc_measures %>%
             Expected = mean(Expected), 
             Optimal = mean(Optimal),
             side_prop = sum(side_fix)/n()) %>% 
+  mutate(diff_EdO = Expected/Optimal) %>% 
   # plot change over separation 
-  ggplot(aes(sep_factor, Expected, 
+  ggplot(aes(sep_factor,
+             # Expected,
+             diff_EdO, 
              size = side_prop,
              colour = bias_type)) + 
              # colour = side_prop,
@@ -507,6 +593,7 @@ new_acc_measures %>%
   # #           angle = 45) + 
   # geom_abline(intercept = 0, slope = 1) + 
   # facet_grid(bias_type ~ sep_factor)
+plt_sep_factor
 
 # box plots again 
 new_acc_measures %>%
@@ -531,3 +618,74 @@ new_acc_measures %>%
   see::scale_color_flat() + 
   facet_wrap(~bias_type)
 
+#### Try stacking bars for each separation and by condition ####
+# just do side centre for now 
+# needs some work... 
+plt_stacked_bars <- plt_sep_factor[["data"]] %>% 
+  mutate(centre = 1- side_prop,
+         side = side_prop) %>% 
+  gather(c(centre, side),
+         key = "prop_type",
+         value = "proportion") %>%
+  ggplot(aes(sep_factor, proportion,
+             colour = prop_type,
+             fill = prop_type)) + 
+  geom_bar(stat = "identity",
+           alpha = .3) + 
+  facet_wrap(participant ~ bias_type) + 
+  scale_x_continuous(breaks = seq(1,9,1)) + 
+  theme_bw() + 
+  theme(strip.text.x = element_blank())
+plt_stacked_bars
+
+# try again with box type added in
+plt_stacked_bars_bt <- df_fixed_boxtype %>% 
+  select(participant, bias_type, separation, st_box) %>%
+  group_by(participant, bias_type) %>%
+  mutate(sep_factor = as.numeric(as.factor(separation)),
+         sep_factor = ifelse(separation == 640, 10, sep_factor)) %>% 
+  ungroup() %>% 
+  group_by(participant, bias_type, st_box, sep_factor) %>% 
+  summarise(n = n()) %>% 
+  ungroup() %>% 
+  complete(sep_factor,
+           nesting(participant, bias_type, st_box)) %>% 
+  complete(st_box,
+           nesting(participant, bias_type, sep_factor)) %>% 
+  mutate(n = ifelse(is.na(n), 0, n),
+         bias_box = paste(bias_type, st_box)) %>% 
+  # ungroup() %>% 
+  group_by(participant, bias_type, sep_factor) %>% 
+  mutate(total_n = sum(n),
+         prop = n/total_n,
+         st_box = factor(st_box, c("least likely", "centre", "most likely"),
+                         labels = c("Leasy Likely", "Centre", "Most Likely"))) %>% 
+  ungroup() %>%
+  mutate(participant = as.numeric(participant)) %>%
+  ggplot(aes(sep_factor, 
+             prop,
+             colour = st_box,
+             fill = st_box)) + 
+  geom_bar(stat = "identity",
+           alpha = .3) + 
+  scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,10),
+                     labels = c("1","2","3","4","5","6","7","8","LP")) + 
+  see::scale_fill_flat() + 
+  see::scale_colour_flat() +
+  scale_y_continuous(breaks = c(0, .5, 1),
+                     labels = scales::percent_format(accuracy = 1)) +
+  # theme(strip.text.x = element_blank()) +
+  # facet_wrap(participant ~ bias_type, ncol = 8)
+  facet_grid(participant ~ bias_type)
+plt_stacked_bars_bt
+
+# particiapnt 12 only has 8 separations... 
+# check this 
+# df_part2 %>%
+#   group_by(participant, separation) %>%
+#   summarise(n = n()) %>%
+#   ggplot(aes(separation, n)) +
+#   geom_point() +
+#   facet_wrap(~participant)
+
+# looks 12 had 2 lots of the closest separation we hardcoded
