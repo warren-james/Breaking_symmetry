@@ -311,6 +311,64 @@ plt_check <- new_acc_measures %>%
   scale_x_continuous("Delta (pixels)")
 plt_check
 
+#### Plot region of worst performance ####
+# region of worst performance and expected accuracy 
+df_regions <- new_acc_measures %>%
+  group_by(participant) %>% 
+  mutate(sep_factor = as.numeric(as.factor(separation))) %>%
+  group_by(participant, sep_factor, bias_type) %>% 
+  summarise(Expected = mean(Expected),
+            Centre = mean(Centre),
+            Side_opt = mean(Side_opt),
+            Side_nopt = mean(Side_nopt)) %>% 
+  ungroup() %>% 
+  group_by(sep_factor, bias_type) %>%
+  mutate(Best = pmax(Expected, Centre, Side_opt, Side_nopt),
+         Worst = pmin(Expected, Centre, Side_opt, Side_nopt),
+         ymin_Worst = min(Worst),
+         ymax_Worst = max(Worst),
+         ymin_Best = min(Best),
+         ymax_Best = max(Best)) 
+
+plt_lines_region <- df_regions %>% 
+  ggplot(aes(sep_factor, Expected)) + 
+  geom_ribbon(aes(ymin = ymin_Worst,
+                  ymax = ymax_Worst,
+                  fill = "red"),
+              alpha = .3) + 
+  geom_ribbon(aes(ymin = ymin_Best,
+                  ymax = ymax_Best,
+                  fill = "green"),
+              alpha = .3) +
+  geom_line(aes(group = participant)) +
+  # see::scale_color_pizza_d() +
+  # see::scale_fill_pizza() +
+  facet_wrap(~bias_type) + 
+  guides(fill = F) +
+  theme_bw()
+plt_lines_region
+
+# gather the best and worst regions
+plt_lines_region.2 <- df_regions %>% 
+  select(-Best, -Worst) %>%
+  gather(c(ymin_Worst:ymax_Best),
+         key = "test",
+         value = "val") %>% 
+  separate(test, 
+           into = c("y_type", "BW"),
+           sep = "_") %>% 
+  spread(y_type, val) %>% 
+  ggplot(aes(sep_factor, Expected)) + 
+  geom_line(aes(group = participant)) + 
+  geom_ribbon(aes(ymin = ymin, 
+                  ymax = ymax,
+                  fill = BW),
+              alpha = .1) + 
+  facet_wrap(~bias_type) +
+  scale_fill_brewer() +
+  theme_bw()
+  
+  
 #### similar to above, but comparing side vs centre strats ####
 # plot side vs. centre 
 plt_sc <- plt_check[["data"]] %>% 
@@ -409,8 +467,7 @@ df_fixed_boxtype <- df_part2 %>%
   ungroup() %>% 
   mutate(centre = ifelse(st_box == "centre", 1, 0),
          ML = ifelse(st_box == "most likely", 1, 0),
-         LL = ifelse(st_box == "least likely", 1, 0),
-         n = n())
+         LL = ifelse(st_box == "least likely", 1, 0))
 
 # first try without dist_type since that's confusing 
 plt_fix_box <- df_fixed_boxtype %>%
@@ -689,3 +746,60 @@ plt_stacked_bars_bt
 #   facet_wrap(~participant)
 
 # looks 12 had 2 lots of the closest separation we hardcoded
+
+#### same strat, different condition ####
+# how would participant performance look if they had behaved the way they did 
+# in the other condition... 
+# hopefully that makes sense... Just use sym strat with bias condition and vice versa 
+
+# first we want a dataset that's sensible 
+df_swapstrat <- df_fixed_boxtype %>% 
+  select(participant, bias_type, separation, bias_left,
+         accuracy, st_box) %>% 
+  mutate(ML_dist = ifelse(st_box == "centre", separation,
+                          ifelse(st_box == "most likely", 1, separation * 2)),
+         LL_dist = ifelse(ML_dist == separation, separation,
+                          ifelse(ML_dist == 1, separation * 2, 1))) %>% 
+  merge(acc_ll) %>% 
+  merge(acc_ml) %>% 
+  rowwise() %>% 
+  mutate(maxchance_standard = ifelse(bias_type == "Biased", 0.8, 0.5),
+         maxchance_swapped = ifelse(maxchance_standard == 0.8, 0.5, 0.8),
+         biastype_standard = bias_type,
+         biastype_swapped = ifelse(bias_type == "Biased", "Symmetric", "Biased"),
+         Expected_standard = (ML_acc * maxchance_standard) + (LL_acc * (1-maxchance_standard)),
+         Expected_swapped = (ML_acc * maxchance_swapped) + (LL_acc * (1-maxchance_swapped))) %>% 
+  ungroup()
+
+# a scatter plot for now 
+df_swapstrat %>% 
+  group_by(participant, bias_type) %>% 
+  summarise(Actual = mean(accuracy),
+            Expected_swapped = mean(Expected_swapped),
+            Expected_standard = mean(Expected_standard)) %>% 
+  ggplot(aes(Expected_standard, Expected_swapped,
+             colour = bias_type)) + 
+  geom_point() + 
+  geom_abline(intercept = 0, slope = 1)
+
+
+# now how about some distributions? 
+df_swapstrat %>% 
+  group_by(participant, bias_type) %>% 
+  summarise(Expected_swapped = mean(Expected_swapped),
+            Expected_standard = mean(Expected_standard)) %>%
+  gather(c(Expected_standard, Expected_swapped),
+         key = "Expected_type",
+         value = "Expected_acc") %>% 
+  separate(Expected_type, 
+           into = c("remove", "Expected_type"),
+           sep = "_") %>%
+  ggplot(aes(Expected_acc,
+             colour = Expected_type,
+             fill = Expected_type)) + 
+  geom_density(alpha = .1) + 
+  geom_histogram(aes(y = ..density..),
+                 position = "dodge") + 
+  facet_wrap(~bias_type) + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat()
