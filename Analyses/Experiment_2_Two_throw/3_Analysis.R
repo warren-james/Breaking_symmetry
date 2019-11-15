@@ -154,7 +154,7 @@ plt4 = plt4 + facet_wrap(~throws)
 
 #### Do plt3 but with Delta metres as the x-axis ####
 # read in new data...
-dat1 = read.csv("Level3_data_OneThrow.csv", header = TRUE, stringsAsFactors=FALSE) 
+dat1 = read.csv("data/Level3_data_OneThrow.csv", header = TRUE, stringsAsFactors=FALSE) 
 
 
 #### tidy up the data ####
@@ -219,7 +219,7 @@ dat1$abspos = with(dat1, abs(Position/HoopDelta))
 
 
 #### now for two throws ####
-dat2 = read.csv("Level3_data_TwoThrow.csv", header = TRUE, stringsAsFactors=FALSE) 
+dat2 = read.csv("data/Level3_data_TwoThrow.csv", header = TRUE, stringsAsFactors=FALSE) 
 
 # colours
 dat2$Colour[dat2$Colour == "Blue"] <- "blue"
@@ -288,7 +288,7 @@ dat2$abspos = with(dat2, abs(Position/HoopDelta))
 
 #### get switch slab ####
 
-s1dat = read.csv("Part1_session_data.csv")
+s1dat = read.csv("data/Part1_session_data.csv")
 s1dat$trials = 12
 s1dat$acc = s1dat$Acc/s1dat$trials
 s1dat$off_set = log((1-0.01)/0.01)	
@@ -348,7 +348,3 @@ plt5 = plt5 + scale_x_continuous(name="Delta (metres)")
 plt5 = plt5 + labs(colour = "No. of throws")
 plt5 = plt5 + theme_bw()
 plt5 = plt5 + facet_wrap(~Participant, nrow = 3)
-
-
-
-

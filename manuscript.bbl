@@ -1,59 +1,6 @@
 \begin{thebibliography}{}
 
 \bibitem [\protect \citeauthoryear {%
-Ayton%
-\ \BBA {} Fischer%
-}{%
-Ayton%
-\ \BBA {} Fischer%
-}{%
-{\protect \APACyear {2004}}%
-}]{%
-Ayton2004}
-\APACinsertmetastar {%
-Ayton2004}%
-\begin{APACrefauthors}%
-Ayton, P.%
-\BCBT {}\ \BBA {} Fischer, I.%
-\end{APACrefauthors}%
-\unskip\
-\newblock
-\APACrefYearMonthDay{2004}{}{}.
-\newblock
-{\BBOQ}\APACrefatitle {The hot hand fallacy and the gambler's fallacy: Two
-  faces of subjective randomness?} {The hot hand fallacy and the gambler's
-  fallacy: Two faces of subjective randomness?}{\BBCQ}
-\newblock
-\APACjournalVolNumPages{Memory {\&} Cognition}{32}{8}{1369--1378}.
-\PrintBackRefs{\CurrentBib}
-
-\bibitem [\protect \citeauthoryear {%
-Bar-Hillel%
-\ \BBA {} Wagenaar%
-}{%
-Bar-Hillel%
-\ \BBA {} Wagenaar%
-}{%
-{\protect \APACyear {1991}}%
-}]{%
-BARHILLEL1991428}
-\APACinsertmetastar {%
-BARHILLEL1991428}%
-\begin{APACrefauthors}%
-Bar-Hillel, M.%
-\BCBT {}\ \BBA {} Wagenaar, W\BPBI A.%
-\end{APACrefauthors}%
-\unskip\
-\newblock
-\APACrefYearMonthDay{1991}{}{}.
-\newblock
-{\BBOQ}\APACrefatitle {The perception of randomness} {The perception of
-  randomness}.{\BBCQ}
-\newblock
-\APACjournalVolNumPages{Advances in Applied Mathematics}{12}{4}{428 - 454}.
-\PrintBackRefs{\CurrentBib}
-
-\bibitem [\protect \citeauthoryear {%
 Bossaerts%
 \ \BBA {} Murawski%
 }{%
@@ -106,34 +53,88 @@ Brainard, D\BPBI H.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
-Chang%
-\ \protect \BOthers {.}}{%
-Chang%
-\ \protect \BOthers {.}}{%
-{\protect \APACyear {2014}}%
+Bürkner%
+}{%
+Bürkner%
+}{%
+{\protect \APACyear {2017}}%
 }]{%
-chang2014self}
+brms2017}
 \APACinsertmetastar {%
-chang2014self}%
+brms2017}%
 \begin{APACrefauthors}%
-Chang, Y\BPBI K.%
-, Ho, L\BPBI A.%
-, Lu, F\BPBI J\BPBI H.%
-, Ou, C\BPBI C.%
-, Song, T\BPBI F.%
-\BCBL {}\ \BBA {} Gill, D\BPBI L.%
+Bürkner, P\BHBI C.%
 \end{APACrefauthors}%
 \unskip\
 \newblock
-\APACrefYearMonthDay{2014}{}{}.
+\APACrefYearMonthDay{2017}{}{}.
 \newblock
-{\BBOQ}\APACrefatitle {Self-talk and softball performance: The role of
-  self-talk nature, motor task characteristics, and self-efficacy in novice
-  softball players} {Self-talk and softball performance: The role of self-talk
-  nature, motor task characteristics, and self-efficacy in novice softball
-  players}.{\BBCQ}
+{\BBOQ}\APACrefatitle {{brms}: An {R} Package for {Bayesian} Multilevel Models
+  Using {Stan}} {{brms}: An {R} package for {Bayesian} multilevel models using
+  {Stan}}.{\BBCQ}
 \newblock
-\APACjournalVolNumPages{Psychology of Sport and Exercise}{15}{1}{139--145}.
+\APACjournalVolNumPages{Journal of Statistical Software}{80}{1}{1--28}.
+\newblock
+\begin{APACrefDOI} \doi{10.18637/jss.v080.i01} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Bürkner%
+}{%
+Bürkner%
+}{%
+{\protect \APACyear {2018}}%
+}]{%
+brms2018}
+\APACinsertmetastar {%
+brms2018}%
+\begin{APACrefauthors}%
+Bürkner, P\BHBI C.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2018}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Advanced {Bayesian} Multilevel Modeling with the {R}
+  Package {brms}} {Advanced {Bayesian} multilevel modeling with the {R} package
+  {brms}}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{The R Journal}{10}{1}{395--411}.
+\newblock
+\begin{APACrefDOI} \doi{10.32614/RJ-2018-017} \end{APACrefDOI}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Camerer%
+\ \BBA {} Hogarth%
+}{%
+Camerer%
+\ \BBA {} Hogarth%
+}{%
+{\protect \APACyear {1999}}%
+}]{%
+Camerer1999}
+\APACinsertmetastar {%
+Camerer1999}%
+\begin{APACrefauthors}%
+Camerer, C\BPBI F.%
+\BCBT {}\ \BBA {} Hogarth, R\BPBI M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1999}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {The Effects of Financial Incentives in Experiments: A
+  Review and Capital-Labor-Production Framework} {The effects of financial
+  incentives in experiments: A review and capital-labor-production
+  framework}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of Risk and Uncertainty}{19}{1}{7--42}.
+\newblock
+\begin{APACrefURL} \url{https://doi.org/10.1023/A:1007850605129}
+  \end{APACrefURL}
+\newblock
+\begin{APACrefDOI} \doi{10.1023/A:1007850605129} \end{APACrefDOI}
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -321,35 +322,6 @@ Goodnow, J\BPBI J.%
   situations}.{\BBCQ}
 \newblock
 \APACjournalVolNumPages{The American Journal of Psychology}{68}{1}{106--116}.
-\PrintBackRefs{\CurrentBib}
-
-\bibitem [\protect \citeauthoryear {%
-Griffiths%
-, Daniels%
-, Austerweil%
-\BCBL {}\ \BBA {} Tenenbaum%
-}{%
-Griffiths%
-\ \protect \BOthers {.}}{%
-{\protect \APACyear {2018}}%
-}]{%
-GRIFFITHS201885}
-\APACinsertmetastar {%
-GRIFFITHS201885}%
-\begin{APACrefauthors}%
-Griffiths, T\BPBI L.%
-, Daniels, D.%
-, Austerweil, J\BPBI L.%
-\BCBL {}\ \BBA {} Tenenbaum, J\BPBI B.%
-\end{APACrefauthors}%
-\unskip\
-\newblock
-\APACrefYearMonthDay{2018}{}{}.
-\newblock
-{\BBOQ}\APACrefatitle {Subjective randomness as statistical inference}
-  {Subjective randomness as statistical inference}.{\BBCQ}
-\newblock
-\APACjournalVolNumPages{Cognitive Psychology}{103}{}{85 - 109}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -655,33 +627,6 @@ Koehler, D.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
-Lopes%
-\ \BBA {} Oden%
-}{%
-Lopes%
-\ \BBA {} Oden%
-}{%
-{\protect \APACyear {1987}}%
-}]{%
-lopes1987distinguishing}
-\APACinsertmetastar {%
-lopes1987distinguishing}%
-\begin{APACrefauthors}%
-Lopes, L\BPBI L.%
-\BCBT {}\ \BBA {} Oden, G\BPBI C.%
-\end{APACrefauthors}%
-\unskip\
-\newblock
-\APACrefYearMonthDay{1987}{}{}.
-\newblock
-{\BBOQ}\APACrefatitle {Distinguishing between random and nonrandom events.}
-  {Distinguishing between random and nonrandom events.}{\BBCQ}
-\newblock
-\APACjournalVolNumPages{Journal of Experimental Psychology: Learning, Memory,
-  and Cognition}{13}{3}{392}.
-\PrintBackRefs{\CurrentBib}
-
-\bibitem [\protect \citeauthoryear {%
 Mongin%
 }{%
 Mongin%
@@ -779,6 +724,32 @@ Pelli, D\BPBI G.%
   psychophysics: Transforming numbers into movies}.{\BBCQ}
 \newblock
 \APACjournalVolNumPages{Spatial vision}{10}{4}{437--442}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Phillips%
+\ \BBA {} Edwards%
+}{%
+Phillips%
+\ \BBA {} Edwards%
+}{%
+{\protect \APACyear {1966}}%
+}]{%
+phillips1966conservatism}
+\APACinsertmetastar {%
+phillips1966conservatism}%
+\begin{APACrefauthors}%
+Phillips, L\BPBI D.%
+\BCBT {}\ \BBA {} Edwards, W.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1966}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Conservatism in a simple probability inference task.}
+  {Conservatism in a simple probability inference task.}{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of experimental psychology}{72}{3}{346}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%

@@ -78,8 +78,8 @@ for (row in 1:nrow(df_part2))
 rm(tested_hoops,slabs_to_test,row)
 
 # add in gamble type 
-df_part2$Gamble_Type <- "Equal"
-df_part2$Gamble_Type[df_part2$Left_Gamble != 25] <- "Unequal"
+df_part2$Gamble_Type <- ifelse(df_part2$Left_Gamble == 25, "Equal", "Unequal")
+
 
 # get norm_dist 
 df_part2$Norm_Dist <- abs(df_part2$Subject_Position/df_part2$HoopDelta)

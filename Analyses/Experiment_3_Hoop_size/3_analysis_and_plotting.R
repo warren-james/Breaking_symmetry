@@ -7,9 +7,31 @@
 #### Load in the libraries ####
 library(tidyverse)
 library(reshape2) # might not need this one?
+library(ggthemes)
 
 # set options
 options(digits = 4)
+
+#### getting sqaured dist from switch and centre ####
+load("scratch/df_part2_norm")
+
+df_dist <- norm_dat %>% 
+  mutate(dist_zero = subject_position^2,
+         dist_centre = ((subject_position - shift)^2),
+         baseline = shift^2) %>%
+  # mutate(dist_zero = norm_dist^2,
+  #        dist_centre = ((subject_position - shift)/hoop_pos)^2,
+  #        baseline = (shift/hoop_pos)^2) %>%
+  group_by(participant) %>% 
+  summarise(zero = mean(dist_zero),
+            acc = mean(dist_centre),
+            baseline = mean(baseline)) %>%
+  gather(zero:baseline,
+         key = "distance_from",
+         value = "squared_distance") %>% 
+  ggplot(aes(distance_from, squared_distance)) + 
+  geom_boxplot()
+df_dist
 
 #### load in wide datasets ####
 # setup colnames
@@ -140,27 +162,27 @@ rm(Act_pos, Opt_pos)
 # Or line plots of average accuracy accross all participants?
 
 #### Plots: Accuracy ####
-temp <- group_by(Accuracy_long, type, standard_sep)
-plt_dat_acc <- summarise(temp, mean_acc = mean(Mean_acc),
-                               sd_acc = sd(Mean_acc), 
-                               N = length(Mean_acc),
-                               se = sd_acc/sqrt(N))
+plt_acc <- Accuracy_long %>%
+  group_by(type, standard_sep) %>%
+  summarise(mean_acc = mean(Mean_acc),
+            sd_acc = sd(Mean_acc),
+            N = length(Mean_acc),
+            se = sd_acc/sqrt(N)) %>%
+  ggplot(aes(standard_sep, mean_acc, colour = type)) +
+  geom_point() + 
+  geom_errorbar(aes(ymin = mean_acc - se,
+                    ymax = mean_acc + se)) +
+  scale_y_continuous(limits = c(0,1),
+                     breaks = c(0,0.25,0.5,0.75,1)) + 
+  scale_x_continuous(limits = c(-2.5,3.5),
+                     breaks = seq(-2,3, by = 1)) + 
+  theme_bw() + 
+  ggthemes::scale_colour_ptol() 
+plt_acc$labels$x = "Standardised Separation"
+plt_acc$labels$y = "Mean Accuracy"
+plt_acc$labels$colour = "Type"
+plt_acc 
 
-# tidy
-rm(temp)
-
-# make plot 
-plt_acc <- ggplot(plt_dat_acc, aes(standard_sep, mean_acc, colour = type))
-plt_acc <- plt_acc + geom_point()
-plt_acc <- plt_acc + geom_errorbar(aes(ymin = mean_acc - se,
-                                       ymax = mean_acc + se))
-plt_acc <- plt_acc + scale_y_continuous(limits = c(0,1),
-                                        breaks = c(0,0.25,0.5,0.75,1))
-plt_acc <- plt_acc + scale_x_continuous(limits = c(-2.5,3.5),
-                                      breaks = seq(-2,3, by = 1))
-plt_acc <- plt_acc + labs(x = "Standardised Separation",
-                          y = "Mean Accuracy",
-                          colour = "Type")
 #plt_acc <- plt_acc+ ggtitle("Average Accuracy for each hoop separation compared to
 #            expected accuracy under the optimal strategy")
 #ggsave("plots/Session_2_plot.pdf",
@@ -179,6 +201,26 @@ plt_dat_pos <- summarise(temp, mean_pos = mean(Mean_pos),
 rm(temp)
 
 # make plot 
+# plt_pos <- Position_long %>%
+#   group_by(type, standard_sep) %>%
+#   summarise(mean_pos = mean(Mean_pos),
+#             sd_pos = sd(Mean_pos),
+#             N = length(Mean_pos),
+#             se = sd/sqrt(N)) %>%
+#   ggplot(aes(standard_sep-3, mean_pos, colour = type)) + 
+#   geom_point() + 
+#   geom_errorbar(aes(ymin = mean_pos - se,
+#                     ymax = mean_pos + se)) + 
+#   scale_y_continuous(limits = c(-1,1),
+#                      breaks = seq(-1,1,.25)) + 
+#   scale_x_continuous(limits = c(-2.5,3.5),
+#                      breaks = seq(-2,3,1)) + 
+#   ggtitle("Average standing position across hoop separations
+#            compared to optimal standing positions") 
+# plt_pos$labels$x = "Standardised Separation"
+# plt_pos$labels$y = "Mean Standing Position (normalised)"
+# plt_pos$labels$colour = "Type"
+# plt_pos
 plt_pos <- ggplot(plt_dat_pos, aes((standard_sep-3), mean_pos, colour = type))
 plt_pos <- plt_pos + geom_point()
 plt_pos <- plt_pos + geom_errorbar(aes(ymin = mean_pos - se,

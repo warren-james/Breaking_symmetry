@@ -100,6 +100,9 @@ rm(a,i,q,x,z)
 # add in large pos 
 dat$large_pos <- dat$small_pos*-1
 
+# save
+save(dat, file = "scratch/df_part2_raw")
+
 #### load in data from part 1 ####
 # part1 acc measures
 load("temp/beanbagdat")
@@ -268,6 +271,8 @@ norm_dat <- norm_dat[,c("participant",
 # tidy 
 rm(temp_avg, temp_avg_small, temp_small)
 
+# save 
+save(norm_dat, file = "scratch/df_part2_norm")
 
 #### get standing position for equal accuracy ####
 norm_dat$equacc <- norm_dist(norm_dat$shift, norm_dat$hoop_pos)
@@ -282,17 +287,30 @@ norm_dat$metres <- norm_dat$hoop_pos*Hoop_size
 
 #### make plot of opt swithing poing by standing position ####
 # still need to calculate their opt standing positions
+# plt_dat <- norm_dat %>%
+#   mutate(participant = as.numeric(participant)) %>%
+#   select(participant,
+#          trial,
+#          hoop_pos,
+#          norm_dist,
+#          equacc,
+#          optpos) %>%
+#   gather(norm_dist:optpos,
+#          key = "point_type", 
+#          value = "norm_dist")
+# 
+# plt_acc <- plt_dat %>%
+#   filter(point_type == "norm_dist") %>%
+#   ggplot(aes(hoop_pos*Hoop_size, norm_dist)) + 
+#   geom_point(alpha = 0.3) + 
+#   theme_bw() work in progress here ....
+
 temp_plt_dat <- norm_dat
 temp_plt_dat$participant <- as.numeric(temp_plt_dat$participant)
 
 plt <- ggplot(temp_plt_dat, aes(metres, norm_dist))
 plt <- plt + geom_point(alpha = 0.3)
-#plt <- plt + geom_jitter(width = 0.3, height = 0.0)
 plt <- plt + theme_bw()
-# plt <- plt + geom_line(aes(hoop_pos, equacc, colour = "Equal Accuracy"), size = 1.2, alpha = 0.7)
-# plt <- plt + geom_line(aes(hoop_pos, optpos, colour = "Optimal"), size = 1.2, alpha = 0.7)
-# plt <- plt + geom_point(aes(hoop_pos, optpos, colour = "Optimal"))
-# plt <- plt + geom_point(aes(hoop_pos, equacc, colour = "Equal Accuracy"))
 plt <- plt + geom_line(aes(metres, equacc,
                            colour = "Equal Accuracy"),
                        size = 1.2,
@@ -313,7 +331,8 @@ plt <- plt + scale_x_continuous(name="Delta (Metres)" ,
 plt <- plt + geom_hline(yintercept = 0)
 plt <- plt + facet_wrap(~participant, ncol = 7)
 plt <- plt + theme(legend.position = "bottom",
-                   strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm")))
+                   strip.text.x = element_blank())
+                   #strip.text.x = element_text(margin = margin(0.01,0,0.01,0, "mm")))
 
 # Change legend title 
 plt$labels$colour <- "Line Type"
@@ -424,7 +443,7 @@ t.test(prop ~ stpos_type, data = bias_sides_2)
 # shows it significant
 # but this is a bad way to do it and you know that....
 
-#### GLMER time bois and girls ####
+#### GLMER ####
 # setup the data
 glm_dat <- dat[dat$subject_position != 0,]
 
@@ -661,6 +680,21 @@ plt
 # tidy 
 rm(plt)
 
+#### new version of above plot ####
+plt <- plt_data %>%
+  filter(Acc_type == "Optimal" | Acc_type == "Expected") %>%
+  ggplot(aes(hoop_pos*Hoop_size, Accuracy, colour = Acc_type)) + 
+  geom_line() + 
+  theme_bw() + 
+  theme(legend.position = "bottom",
+        strip.text.x = element_blank()) + 
+  ggthemes::scale_colour_ptol() + 
+  facet_wrap(~participant, ncol = 7)
+plt$labels$x <- "Detla (Metres)"
+plt$labels$colour <- "Type"
+plt
+
+
 #### plot Accuracy types with regions instead ####
 # setup dataframes
 plt_dat_Optimal <- plt_data[plt_data$Acc_type == "Optimal",]
@@ -669,6 +703,21 @@ plt_dat_Centre <- plt_data[plt_data$Acc_type == "Centre (Distance)",]
 
 
 # make plot
+# plt <- plt_data %>%
+#   ggplot(aes(hoop_pos*Hoop_size, 
+#              Accuracy)) + 
+#   theme_bw() + 
+#   geom_area(data = plt_dat_Optimal,
+#             aes(hoop_pos*Hoop_size,
+#                 Accuracy),
+#             fill = "blue",
+#             alpha = 0.3) + 
+#   geom_area(data = plt_dat_Centre,
+#             aes(hoop_pos*Hoop_size,
+#                 Accuracy),
+#             fill = "red",
+#             alpha = 0.3) + 
+  
 plt <- ggplot(plt_data, aes(hoop_pos*Hoop_size, 
                             Accuracy))
 plt <- plt + theme_bw()
