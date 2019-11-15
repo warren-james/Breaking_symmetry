@@ -350,6 +350,8 @@ plt_lines_region
 
 # gather the best and worst regions
 plt_lines_region.2 <- df_regions %>% 
+  ungroup() %>%
+  mutate(bias_type = ifelse(bias_type == "biased", "Biased", "Symmetric")) %>%
   select(-Best, -Worst) %>%
   gather(c(ymin_Worst:ymax_Best),
          key = "test",
@@ -359,15 +361,18 @@ plt_lines_region.2 <- df_regions %>%
            sep = "_") %>% 
   spread(y_type, val) %>% 
   ggplot(aes(sep_factor, Expected)) + 
-  geom_line(aes(group = participant)) + 
   geom_ribbon(aes(ymin = ymin, 
                   ymax = ymax,
                   fill = BW),
-              alpha = .1) + 
+              alpha = .4) + 
+  geom_line(aes(group = participant)) + 
   facet_wrap(~bias_type) +
-  scale_fill_brewer() +
-  theme_bw()
-  
+  scale_fill_brewer(palette = 4) +
+  scale_x_continuous("Standardised Separation", breaks = seq(1, 9, 1)) +
+  scale_y_continuous("Expected Accuracy", labels = scales::percent_format(accuracy = 1)) +
+  theme_bw() + 
+  guides(fill = F)
+plt_lines_region.2
   
 #### similar to above, but comparing side vs centre strats ####
 # plot side vs. centre 
