@@ -331,6 +331,9 @@ df_regions <- new_acc_measures %>%
          ymax_Best = max(Best)) 
 
 plt_lines_region <- df_regions %>% 
+  ungroup() %>% 
+  mutate(bias_type = ifelse(bias_type == "biased", "Biased", "Symmetric"),
+         sep_factor = as.numeric(sep_factor)/as.numeric(max(sep_factor))) %>%
   ggplot(aes(sep_factor, Expected)) + 
   geom_ribbon(aes(ymin = ymin_Worst,
                   ymax = ymax_Worst,
@@ -341,12 +344,20 @@ plt_lines_region <- df_regions %>%
                   fill = "green"),
               alpha = .3) +
   geom_line(aes(group = participant)) +
+  scale_y_continuous("Expected Accuracy") +
+  scale_x_continuous("Normalised Delta") +
   # see::scale_color_pizza_d() +
   # see::scale_fill_pizza() +
   facet_wrap(~bias_type) + 
   guides(fill = F) +
   theme_bw()
 plt_lines_region
+
+
+# # save 
+# ggsave("../../Figures/Experiment_4_Prob/region_performance.png",
+#        width = 5.6,
+#        heigh = 3.5)
 
 # gather the best and worst regions
 plt_lines_region.2 <- df_regions %>% 

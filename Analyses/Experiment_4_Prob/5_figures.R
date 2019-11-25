@@ -9,6 +9,7 @@ library(tidyverse)
 #### Load data ####
 load("scratch/new_data/df_part2")
 load("scratch/new_data/AccMea")
+load("scratch/new_data/acc_sep")
 
 #### Processing ####
 df_part2 <- df_part2 %>% 
@@ -16,6 +17,7 @@ df_part2 <- df_part2 %>%
                             "Close", "Far"),
          bias_type = ifelse(bias_type == "biased", "Biased", "Symmetric")) %>% 
   select(participant,
+         trial,
          block,
          bias_type,
          bias_left,
@@ -23,6 +25,7 @@ df_part2 <- df_part2 %>%
          dist_type,
          Switching_point,
          lcr,
+         fixated_box,
          standard_boxes,
          accuracy)
 
@@ -137,65 +140,6 @@ df_part2 %>%
   geom_boxplot() + 
   see::scale_fill_flat()
 
-
-#### Fit beta dist to proportions ####
-# might want to try fitting a binomial instead... might look nicer?
-# and a better representation of the data 
-data_fitting <- plt_fix[["data"]] %>% 
-  ungroup() %>% 
-  mutate(proportion = (proportion + 1e-5)*(1-1e-4)) %>% 
-  group_by(bias_type, prop_type) %>% 
-  summarise(ests = list(fitdistrplus::fitdist(proportion,
-                                              "beta")$estimate)) %>% 
-  unnest %>% 
-  mutate(params = rep(c("a","b"), length(ests)/2)) %>% 
-  spread(key = params, 
-         value = ests)
-
-x_vals <- seq(.01,.99,.01)
-a <- data_fitting$a
-b <- data_fitting$b
-bias <- unique(data_fitting$bias_type)
-prop <- unique(data_fitting$prop_type)
-
-data_line <- tibble(bias_type = rep(bias, each = length(x_vals)*3),
-                    prop_type = rep(rep(prop, each = length(x_vals)),2),
-                    a = rep(a, each = length(x_vals)),
-                    b = rep(b, each = length(x_vals)),
-                    x = rep(x_vals, (length(bias)*length(prop))),
-                    density = dbeta(x, a, b))
-
-# make a plot 
-plt_fix[["data"]] %>% 
-  ggplot(aes(proportion,
-             fill = bias_type,
-             colour = bias_type)) + 
-  geom_histogram(binwidth = .1,
-                 alpha = .3,
-                 aes(y = ..density..),
-                 position = "dodge") + 
-  geom_line(data = data_line, 
-            aes(x, density)) + 
-  facet_wrap(~prop_type)
-
-##### Accuracy plots ####  
-AccMea %>% 
-  filter(separation != 640) %>%
-  group_by(participant, condition, separation) %>% 
-  spread(Pred_type, 
-         Acc) %>% 
-  gather(c(Actual, Optimal, Expected),
-         key = "Acc_type",
-         value = "Acc") %>% 
-  ungroup() %>%
-  mutate(separation = separation/switch_point) %>%
-  ggplot(aes(separation, Acc, colour = Acc_type)) + 
-  geom_path(aes(group = interaction(participant, Acc_type)),
-            alpha = 1) + 
-  facet_wrap(~condition, scales = "free") + 
-  scale_colour_viridis_d()
-
-
 #### Sort out region plot ####
 plt_region <- AccMea %>% 
   filter(Pred_type != "Expected",
@@ -246,58 +190,197 @@ plt$labels$x <- "Distance relative to switch point"
 plt$labels$colour <- "Condition"
 plt
 
-plt + facet_wrap(~participant)
+# show by participant
+# plt + facet_wrap(~participant)
 
+#### Region of worst and best performance ####
+# some pre processing 
+df_part2 <- df_part2 %>% 
+  mutate(max_chance = ifelse(bias_type == "symmetric", 0.5, 0.8))
 
+# dists for each participant 
+c_dist <- df_part2 %>% 
+  select(participant, bias_type, separation, max_chance) %>% 
+  group_by(participant, bias_type, max_chance) %>% 
+  distinct(separation)
 
-# Opt - Exp
-plt <- AccMea %>% 
-  filter(separation != 640) %>% 
-  group_by(participant, condition, separation) %>% 
-  spread(Pred_type, 
-         Acc) %>% 
+# get acc for this strat
+c_acc <- merge(c_dist, acc_sep) %>% 
+  mutate(acc_type = "Centre")
+
+# side strat version 
+s_dist <- c_dist %>% 
   ungroup() %>% 
-  mutate(Diff = Expected - Optimal,
-         separation = separation/switch_point) %>% 
-  ggplot(aes(separation, Diff, colour = condition)) + 
-  geom_hline(yintercept = 0, colour = "white") + 
-  geom_vline(xintercept = 1, colour = "white") + 
-  geom_path(aes(group = interaction(condition, participant)), 
-            alpha = 1) + 
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
-  see::scale_colour_flat() + 
-  see::theme_blackboard()
-plt$labels$y <- "Difference (Expected - Optimal)"
-plt$labels$x <- "Distance relative to switch point"
-plt
+  mutate(ML_dist = 1,
+         LL_dist = separation * 2)
+
+ml_acc <- acc_sep %>% 
+  mutate(ML_dist = separation,
+         ML_acc = accuracy) %>% 
+  select(-separation,
+         -accuracy)
+ll_acc <- acc_sep %>% 
+  mutate(LL_dist = separation,
+         LL_acc = accuracy) %>% 
+  select(-separation,
+         -accuracy)
+
+s_acc <- merge(s_dist, ml_acc) %>% 
+  merge(ll_acc) %>% 
+  mutate(acc_type = "Side",
+         accuracy = (ML_acc * max_chance) + (LL_acc * (1 - max_chance))) %>% 
+  select(separation, participant, bias_type, max_chance, accuracy, acc_type)
+
+acc_c <- acc_sep %>% 
+  rbind(acc_sep) %>%
+  mutate(acc_type = "Centre") %>%
+  mutate(bias_type = rep(c("symmetric", "bias"), each = length(acc_sep$separation)))
+
+acc_ml <- acc_sep %>% 
+  mutate(ML_dist = separation,
+         ML_acc = accuracy) %>% 
+  select(-separation,
+         -accuracy)
+acc_ll <- acc_sep %>% 
+  mutate(LL_dist = separation,
+         LL_acc = accuracy) %>% 
+  select(-separation,
+         -accuracy)
+
+acc_s <- acc_sep %>% 
+  mutate(ML_dist = 1,
+         LL_dist = separation * 2) %>%
+  merge(acc_ml) %>% 
+  merge(acc_ll) %>% 
+  mutate(bias = (ML_acc * 0.8) + (LL_acc * 0.2),
+         symmetric = (ML_acc * 0.5) + (LL_acc * 0.5)) %>% 
+  select(-accuracy) %>% 
+  # select(participant, separation, accuracy_bias, accuracy_symmetric) %>% 
+  gather(c(bias, symmetric),
+         key = "bias_type", 
+         value = "accuracy") %>% 
+  mutate(acc_type = "Side") %>% 
+  select(participant, separation, accuracy, acc_type, bias_type)
 
 
+# all together
+acc_all <- rbind(acc_c, acc_s) %>% 
+  spread(acc_type, accuracy) %>% 
+  drop_na() %>% 
+  mutate(opt_side = ifelse(Centre > Side, 0, 1))
 
-df_part2 %>% 
-  group_by(participant, bias_type, dist_type) %>% 
-  summarise(acc = mean(accuracy)) %>% 
-  ggplot(aes(dist_type, acc, fill = bias_type)) + 
-  geom_boxplot()
+acc_opt <- acc_all %>% 
+  mutate(Optimal = pmax(Centre, Side)) %>% 
+  select(participant, separation, Optimal) %>% 
+  distinct()
 
-# difference of actual and optimal 
-AccMea %>%  
-  spread(Pred_type, 
-         Acc) %>%
-  mutate(dist_type = ifelse(separation < switch_point, "Close", "Far"),
-         Diff_Opt_m_Acc = Optimal - Actual,
-         Diff_Opt_m_Exp = Optimal - Expected,
-         Diff_Opt_d_Exp = Expected/Optimal) %>%
-  group_by(participant, condition, dist_type) %>%
-  summarise(Diff_Opt_m_Acc = mean(Diff_Opt_m_Acc),
-            Diff_Opt_m_Exp = mean(Diff_Opt_m_Exp),
-            Diff_Opt_d_Exp = mean(Diff_Opt_d_Exp)) %>% 
-  ggplot(aes(dist_type, Diff_Opt_d_Exp,
-             fill = condition,
-             colour = condition)) + 
-  geom_boxplot(alpha = .3) + 
-  see::scale_color_flat() + 
-  see::scale_fill_flat() + 
-  theme_bw() + 
-  scale_x_discrete("Distance Type") + 
-  scale_y_continuous("Expected Accuracy / Optimal Accuracy")
-  
+r_acc <- acc_c %>%
+  mutate(r_dist = separation,
+         r_acc = accuracy) %>% 
+  select(participant, r_dist, r_acc) %>% 
+  distinct()
+l_acc <- acc_c %>%
+  mutate(l_dist = separation,
+         l_acc = accuracy) %>% 
+  select(participant, l_dist, l_acc) %>%
+  distinct()
+c_acc <- acc_c %>% 
+  mutate(c_dist = separation, 
+         c_acc = accuracy) %>% 
+  select(participant, c_dist, c_acc) %>% 
+  distinct()
+fix_acc <- acc_c %>% 
+  mutate(fix_dist = separation,
+         fix_acc = accuracy) %>% 
+  select(participant, fix_dist, fix_acc) %>% 
+  distinct()
+far_acc <- acc_c %>% 
+  mutate(far_dist = separation,
+         far_acc = accuracy) %>%
+  select(participant, far_dist, far_acc) %>% 
+  distinct()
+
+new_acc_measures <- df_part2 %>% 
+  select(participant, block, trial, lcr, standard_boxes, bias_type, bias_left, separation, fixated_box, accuracy) %>% 
+  mutate(l_dist = ifelse(fixated_box == 1, separation, 
+                         ifelse(fixated_box == 2, 1, 2*separation)),
+         r_dist = ifelse(fixated_box == 1, separation, 
+                         ifelse(fixated_box == 3, 1, 2*separation)),
+         c_dist = separation,
+         fix_dist = 1,
+         far_dist = separation * 2,
+         ll_bias = 1 - bias_left) %>% 
+  merge(l_acc) %>% 
+  merge(r_acc) %>% 
+  merge(c_acc) %>%
+  merge(far_acc) %>%
+  merge(fix_acc) %>% 
+  mutate(Expected = (l_acc * bias_left) + (r_acc * ll_bias),
+         Centre = (c_acc * bias_left) + (c_acc * ll_bias),
+         Side_opt = (fix_acc * pmax(bias_left, ll_bias)) + (far_acc * (pmin(bias_left, ll_bias))),
+         Side_nopt = (fix_acc * pmin(bias_left, ll_bias)) + (far_acc * (pmax(bias_left, ll_bias))),
+         Optimal = pmax(Side_opt, Centre))%>% 
+  select(participant,
+         block,
+         trial,
+         lcr,
+         standard_boxes,
+         separation, 
+         bias_type, 
+         accuracy, 
+         Expected,
+         Centre,
+         Side_opt,
+         Side_nopt,
+         Optimal)
+
+# tidy 
+rm(acc_s, acc_c, acc_opt, acc_ll, acc_ml, acc_all)
+# tidy... a clever way? 
+# test <- "acc" %in% list(ls())
+
+df_regions <- new_acc_measures %>%
+  group_by(participant) %>% 
+  mutate(sep_factor = as.numeric(as.factor(separation))) %>%
+  group_by(participant, sep_factor, bias_type) %>% 
+  summarise(Expected = mean(Expected),
+            Centre = mean(Centre),
+            Side_opt = mean(Side_opt),
+            Side_nopt = mean(Side_nopt)) %>% 
+  ungroup() %>% 
+  group_by(sep_factor, bias_type) %>%
+  mutate(Best = pmax(Expected, Centre, Side_opt, Side_nopt),
+         Worst = pmin(Expected, Centre, Side_opt, Side_nopt),
+         ymin_Worst = min(Worst),
+         ymax_Worst = max(Worst),
+         ymin_Best = min(Best),
+         ymax_Best = max(Best)) 
+
+plt_lines_region <- df_regions %>% 
+  ungroup() %>% 
+  mutate(#bias_type = ifelse(bias_type == "biased", "Biased", "Symmetric"),
+         sep_factor = as.numeric(sep_factor)/as.numeric(max(sep_factor))) %>%
+  ggplot(aes(sep_factor, Expected)) + 
+  geom_ribbon(aes(ymin = ymin_Worst,
+                  ymax = ymax_Worst,
+                  fill = "red"),
+              alpha = .3) + 
+  geom_ribbon(aes(ymin = ymin_Best,
+                  ymax = ymax_Best,
+                  fill = "green"),
+              alpha = .3) +
+  geom_line(aes(group = participant)) +
+  scale_y_continuous("Expected Accuracy") +
+  scale_x_continuous("Normalised Delta") +
+  # see::scale_color_pizza_d() +
+  # see::scale_fill_pizza() +
+  facet_wrap(~bias_type) + 
+  guides(fill = F) +
+  theme_bw()
+plt_lines_region
+
+
+# # save 
+# ggsave("../../Figures/Experiment_4_Prob/region_performance.png",
+#        width = 5.6,
+#        heigh = 3.5)
