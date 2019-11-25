@@ -7,99 +7,99 @@ load("scratch/new_data/acc_sep")
 load("scratch/new_data/df_part2")
 load("scratch/new_data/AccMea")
 
-#### revisiting at part 1 ####
+#### revisiting part 1 ####
 # no need to do this, but at least we know now 
 # try working out new version of acc_sep with a set value of 100% for the closest separation and see what changes... 
-load("scratch/new_data/Part_1_data_nar")
-# to be added 
-df_close <- tibble(participant = rep(unique(df$participant), each = 12),
-                   separation = rep(1, length(participant)),
-                   accuracy = rep(1, length(participant)))
-
-df_test <- df %>%
-  as_tibble() %>% 
-  select(participant, separation, accuracy) %>% 
-  bind_rows(df_close)
-
-df_summ <- df %>% 
-  group_by(participant, separation) %>% 
-  summarise(acc = mean(accuracy))
-
-# run model 
-m_extra <- glm(accuracy ~ separation:participant, 
-               data = df_test, 
-               family = binomial(mafc.probit(10)))
-m_orig <- glm(accuracy ~ separation:participant, 
-              data = df, 
-              family = binomial(mafc.logit(10)))
-
-# get df for diff between model estimates 
-seps <- seq(1, 500, 1)
-df_est <- tibble(participant = rep(unique(df$participant), each = length(seps)),
-                 separation = rep(seps, length(unique(participant))),
-                 p = as.numeric(predict(m_orig,
-                                        data.frame(separation = separation,
-                                                   participant = participant),
-                                        type = "response")),
-                 type = "Original") %>% 
-  bind_rows(tibble(participant = rep(unique(df$participant), each = length(seps)),
-                   separation = rep(seps, length(unique(participant))),
-                   p = as.numeric(predict(m_extra,
-                                          data.frame(separation = separation,
-                                                     participant = participant),
-                                          type = "response")),
-                   type = "Extra")) %>% 
-  spread(type, p) %>% 
-  mutate(diff = Extra - Original) %>% 
-  # creates a plot of the difference,
-  # empty shaded region shows the size of the difference 
-  # nothing showing means they were the same
-  ggplot(aes(separation, Extra)) + 
-  geom_ribbon(aes(ymin = Extra,
-                  ymax = Original)) + 
-  facet_wrap(~participant)
-  # # Makes a line plot of the data
-  # ggplot(aes(Extra, Original)) +
-  # geom_point(size = .1) +
-  # geom_abline(intercept = 0,
-  #             slope = 1) +
-  # facet_wrap(~participant)
-  # # plots the difference
-  # ggplot(aes(separation, diff)) + 
-  # geom_line() + 
-  # facet_wrap(~participant)
-df_est 
-
-cor.test(df_est[["data"]]$Original, df_est[["data"]]$Extra)
-
-# make quick plt 
-df_test %>% 
-  group_by(participant, separation) %>% 
-  summarise(acc = mean(accuracy)) %>% 
-  ggplot(aes(separation, acc)) + 
-  geom_point() + 
-  geom_smooth(method = "glm",
-              method.args = list(family = binomial(mafc.logit(10))),
-              se = F) + 
-  geom_smooth(data = df_summ,
-              aes(separation, acc),
-              method = "glm", 
-              method.args = list(family = binomial(mafc.logit(10))),
-              se = F,
-              colour = "red") +
-  facet_wrap(~participant)
-
-df %>% 
-  group_by(participant, separation) %>% 
-  summarise(acc = mean(accuracy)) %>% 
-  ggplot(aes(separation, acc)) + 
-  geom_point() + 
-  geom_smooth(method = "glm",
-              method.args = list(family = binomial(mafc.logit(10))),
-              se = F,
-              fullrange = T) + 
-  scale_x_continuous(limits = c(1, 460)) + 
-  facet_wrap(~participant)
+# load("scratch/new_data/Part_1_data_nar")
+# # to be added 
+# df_close <- tibble(participant = rep(unique(df$participant), each = 12),
+#                    separation = rep(1, length(participant)),
+#                    accuracy = rep(1, length(participant)))
+# 
+# df_test <- df %>%
+#   as_tibble() %>% 
+#   select(participant, separation, accuracy) %>% 
+#   bind_rows(df_close)
+# 
+# df_summ <- df %>% 
+#   group_by(participant, separation) %>% 
+#   summarise(acc = mean(accuracy))
+# 
+# # run model 
+# m_extra <- glm(accuracy ~ separation:participant, 
+#                data = df_test, 
+#                family = binomial(mafc.probit(10)))
+# m_orig <- glm(accuracy ~ separation:participant, 
+#               data = df, 
+#               family = binomial(mafc.logit(10)))
+# 
+# # get df for diff between model estimates 
+# seps <- seq(1, 500, 1)
+# df_est <- tibble(participant = rep(unique(df$participant), each = length(seps)),
+#                  separation = rep(seps, length(unique(participant))),
+#                  p = as.numeric(predict(m_orig,
+#                                         data.frame(separation = separation,
+#                                                    participant = participant),
+#                                         type = "response")),
+#                  type = "Original") %>% 
+#   bind_rows(tibble(participant = rep(unique(df$participant), each = length(seps)),
+#                    separation = rep(seps, length(unique(participant))),
+#                    p = as.numeric(predict(m_extra,
+#                                           data.frame(separation = separation,
+#                                                      participant = participant),
+#                                           type = "response")),
+#                    type = "Extra")) %>% 
+#   spread(type, p) %>% 
+#   mutate(diff = Extra - Original) %>% 
+#   # creates a plot of the difference,
+#   # empty shaded region shows the size of the difference 
+#   # nothing showing means they were the same
+#   ggplot(aes(separation, Extra)) + 
+#   geom_ribbon(aes(ymin = Extra,
+#                   ymax = Original)) + 
+#   facet_wrap(~participant)
+#   # # Makes a line plot of the data
+#   # ggplot(aes(Extra, Original)) +
+#   # geom_point(size = .1) +
+#   # geom_abline(intercept = 0,
+#   #             slope = 1) +
+#   # facet_wrap(~participant)
+#   # # plots the difference
+#   # ggplot(aes(separation, diff)) + 
+#   # geom_line() + 
+#   # facet_wrap(~participant)
+# df_est 
+# 
+# cor.test(df_est[["data"]]$Original, df_est[["data"]]$Extra)
+# 
+# # make quick plt 
+# df_test %>% 
+#   group_by(participant, separation) %>% 
+#   summarise(acc = mean(accuracy)) %>% 
+#   ggplot(aes(separation, acc)) + 
+#   geom_point() + 
+#   geom_smooth(method = "glm",
+#               method.args = list(family = binomial(mafc.logit(10))),
+#               se = F) + 
+#   geom_smooth(data = df_summ,
+#               aes(separation, acc),
+#               method = "glm", 
+#               method.args = list(family = binomial(mafc.logit(10))),
+#               se = F,
+#               colour = "red") +
+#   facet_wrap(~participant)
+# 
+# df %>% 
+#   group_by(participant, separation) %>% 
+#   summarise(acc = mean(accuracy)) %>% 
+#   ggplot(aes(separation, acc)) + 
+#   geom_point() + 
+#   geom_smooth(method = "glm",
+#               method.args = list(family = binomial(mafc.logit(10))),
+#               se = F,
+#               fullrange = T) + 
+#   scale_x_continuous(limits = c(1, 460)) + 
+#   facet_wrap(~participant)
 
 #### pre process the data ####
 # quick pre-process 
@@ -808,3 +808,42 @@ df_swapstrat %>%
   facet_wrap(~bias_type) + 
   see::scale_color_flat() + 
   see::scale_fill_flat()
+
+
+#### ANALYSIS ####
+#### Frequentist ####
+# library 
+library(lme4)
+
+#### binomial model of fixations to most likely side ####
+# ignore separation for now 
+
+# data for the models 
+df_model <- df_fixed_boxtype %>% 
+  select(participant, bias_type, separation, st_box, accuracy) %>% 
+  mutate(Ml_fix = ifelse(st_box == "most likely", 1, 0),
+         C_fix = ifelse(st_box == "centre", 1, 0))
+
+# run model for fixations to most likely by condition 
+# might also want to include random effect of bias type rather than just intercept 
+# results are pretty similar, but not identical (no change in interpretation though)
+m_fix_like <- glmer(Ml_fix ~ bias_type + (1|participant), # (bias_type|participant)
+                    data = df_model,
+                    family = "binomial")
+
+# centre vs side 
+m_fix_centre <- glmer(C_fix ~ bias_type + (1|participant),
+                      data = df_model,
+                      family = "binomial")
+
+#### Bayesian ####
+# go simple for now 
+library(brms)
+
+# replicate above in brms 
+# assume flat priors... bad, but who cares for now
+m_fix_like_b <- brm(Ml_fix ~ bias_type + (1|participant),
+                    data = df_model,
+                    chains = 1, 
+                    iter = 2000,
+                    warmup = 1000)

@@ -6,7 +6,7 @@ n_conditions <- 2
 
 sigma_person <- 0.2
 
-n_itr <- 2
+n_itr <- 10
 
 probs <- c(0.45, 0.55)
 
@@ -22,8 +22,8 @@ sim_data <- function(n_people, n_trial, n_conditions)
 			p_person = probs[condition] + rep(rnorm(n_people, 0, sigma_person), each = n_trial, n_conditions),
 			response = if_else(runif(n_rows) < p_person, 1, 0)) %>%
 		mutate(
-			condition = as_factor(condition),
-			person = as_factor(person))
+			condition = as.factor(condition),
+			person = as.factor(person))
 
 	return(fake_data)
 }
@@ -74,10 +74,10 @@ for (np in n_peeps)
 	print(paste("running simlations for n = ", np, " people", sep = ""))
 	for (trl in n_trls)
 	{
-		d <- bind_rows(d, itr_sim(np, trl))
+		d <- bind_rows(d, itr_sim(np, trl, n_itr))
 	}
 }
 
-ggplot(d, aes(x = n_people, y = power, colour = as_factor(n_trial))) + 
+ggplot(d, aes(x = n_people, y = power, colour = as.factor(n_trial))) + 
 	geom_point() + geom_smooth()
 
