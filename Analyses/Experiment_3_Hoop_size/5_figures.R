@@ -70,6 +70,16 @@ plt_dst <- norm_dat %>%
   see::scale_fill_flat()
 plt_dst
 
+# now do overall instead of by separation 
+plt_dst_overall <- norm_dat %>% 
+  ggplot(aes(norm_dist)) + 
+  geom_histogram() + 
+  scale_x_continuous(breaks = c(-1, 0, 1),
+                     labels = c("Big", "Centre", "Small")) + 
+  theme_bw() + 
+  theme(axis.title.x = element_blank())
+plt_dst_overall
+
 # new plot, looks kind of cool
 # mean is a solid line, median is dashed
 plt_dst2 <- norm_dat %>% 
@@ -105,13 +115,23 @@ plt_box <- norm_dat %>%
   geom_boxplot(aes(fill = slab_measures,
                    colour = slab_measures),
                alpha = .3) + 
+  scale_y_continuous(labels = c("Big", "Centre", "Small"),
+                     breaks = c(-1, 0, 1)) +
   theme_bw() + 
   see::scale_color_flat() + 
-  see::scale_fill_flat() 
+  see::scale_fill_flat() + 
+  theme(legend.position = "none",
+        axis.title.y = element_blank(),
+        axis.title.x = element_blank()) 
   # see::theme_abyss() +
   # see::scale_color_pizza() + 
   # see::scale_fill_pizza()
 plt_box
+
+# save 
+ggsave("../../Figures/Experiment_3_Hoop_size/box_position.png",
+       width = 5.6,
+       height = 3.5)
 
 #### Fitting a distribution ####
 # need to rescale things for a beta distribution 
