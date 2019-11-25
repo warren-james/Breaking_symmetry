@@ -306,4 +306,7 @@ sq_dat_norm %>%
   see::scale_fill_flat() + 
   theme_bw() 
   
-
+#### Expected Acc ####
+# need to work out Expected acc and the regions for 
+# worst performance and best performance...
+# shouldn't be too hard to do... 
