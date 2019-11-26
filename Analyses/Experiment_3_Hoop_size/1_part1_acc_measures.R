@@ -59,7 +59,7 @@ plt <- beanbagdat %>%
               method.args = list(family = "binomial"),
               aes(y = p),
               fullrange = T, se = F) + 
-  theme(legend.position = "bottom") + 
+  theme(legend.position = "bottom") 
   
 plt <- ggplot(beanbagdat, aes(x=slab*Hoop_size,
                               y=acc,
@@ -93,7 +93,7 @@ plt
 # You will also want to change the breaks() argument to reflect it being metres
 
 # save beanbagdat for part 2 
-save(beanbagdat, file = "temp/beanbagdat")
+save(beanbagdat, file = "scratch/beanbagdat")
 
 #### extract slabs to test for both sizes ####
 slabs_to_test = data.frame(participant=character(),
@@ -103,12 +103,12 @@ slabs_to_test = data.frame(participant=character(),
                            slab90=numeric())
 
 
-for (x in levels(beanbagdat$participant)){
+for (x in unique(beanbagdat$participant)){
   
   for (i in levels(beanbagdat$hoop_size))
     {
       ss = beanbagdat[beanbagdat$participant==x & beanbagdat$hoop_size==i,]
-      m = glm(data=ss, cbind(inhoop, trials-inhoop)~slab+0,
+      m = glm(data=ss, cbind(inhoop, 18-inhoop)~slab+0,
               offset=ss$off_set, binomial)
       p = predict(m, data.frame(slab=seq(1:30)), type="response")
       p = as.numeric(p)

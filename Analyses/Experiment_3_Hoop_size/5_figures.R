@@ -129,9 +129,9 @@ plt_box <- norm_dat %>%
 plt_box
 
 # save 
-ggsave("../../Figures/Experiment_3_Hoop_size/box_position.png",
-       width = 5.6,
-       height = 3.5)
+# ggsave("../../Figures/Experiment_3_Hoop_size/box_position.png",
+#        width = 5.6,
+#        height = 3.5)
 
 #### Fitting a distribution ####
 # need to rescale things for a beta distribution 
@@ -201,9 +201,9 @@ norm_dat %>%
   # stat_bin(binwidth= .1, geom="text", aes(label=..count..))
 
 # save 
-ggsave("../../Figures/Experiment_3_Hoop_size/histogram_beta_fit.png",
-       width = 5.6,
-       height = 5)
+# ggsave("../../Figures/Experiment_3_Hoop_size/histogram_beta_fit.png",
+#        width = 5.6,
+#        height = 5)
 
 # look at the mean and precision
 data_lines %>%
@@ -310,3 +310,145 @@ sq_dat_norm %>%
 # need to work out Expected acc and the regions for 
 # worst performance and best performance...
 # shouldn't be too hard to do... 
+load("scratch/beanbagdat")
+
+# get predictions for accuracy 
+m = glm(data=beanbagdat, acc~slab:hoop_size:participant, binomial)
+
+# setting up dataframe
+participants <- unique(beanbagdat$participant)
+slabs <- seq(0, max(norm_dat$hoop_pos*2), .5)
+hoop_sizes <- unique(beanbagdat$hoop_size)
+acc_sep = tibble(participant = rep(participants, each = length(slabs) * length(hoop_sizes)),
+                 slab = rep(slabs, length(participants) * length(hoop_sizes)),
+                 hoop_size = rep(rep(hoop_sizes, each = length(slabs)), length(participants)))
+#tidy
+rm(participants, slabs, hoop_sizes)
+# add in prediction
+acc_sep <- acc_sep %>% 
+  group_by(participant, hoop_size, slab) %>%
+  mutate(p = as.numeric(predict(m, data.frame(participant = participant,
+                                              slab = slab,
+                                              hoop_size = hoop_size),
+                                type = "response")[1])) %>% 
+  ungroup() 
+
+acc_small <- acc_sep %>% 
+  filter(hoop_size == "small")
+acc_large <- acc_sep %>% 
+  filter(hoop_size == "large")
+
+# getting expected, side(both), and centre acc
+# expected
+acc_small_exp <- acc_small %>% 
+  mutate(small_dist = slab,
+         small_exp_acc = p) %>% 
+  select(participant, small_dist, small_exp_acc)
+acc_large_exp <- acc_large %>% 
+  mutate(large_dist = slab,
+         large_exp_acc = p) %>% 
+  select(participant, large_dist, large_exp_acc)
+
+# centre
+acc_small_centre <- acc_small %>% 
+  mutate(c_sd = slab,
+         small_centre_acc = p) %>% 
+  select(participant, small_centre_acc, c_sd)
+acc_large_centre <- acc_large %>% 
+  mutate(c_ld = slab,
+         large_centre_acc = p) %>% 
+  select(participant, large_centre_acc, c_ld)
+
+# side - small 
+acc_small_small <- acc_small %>% 
+  mutate(sf_sd = slab,
+         sf_sd_acc = p) %>% 
+  select(participant, sf_sd, sf_sd_acc)
+
+acc_large_small <- acc_large %>% 
+  mutate(sf_ld = slab,
+         sf_ld_acc = p) %>% 
+  select(participant, sf_ld, sf_ld_acc)
+
+# side - large 
+acc_small_large <- acc_small %>% 
+  mutate(lf_sd = slab,
+         lf_sd_acc = p) %>% 
+  select(participant, lf_sd, lf_sd_acc)
+
+acc_large_large <- acc_large %>% 
+  mutate(lf_ld = slab,
+         lf_ld_acc = p) %>% 
+  select(participant, lf_ld, lf_ld_acc)
+
+# combine all 
+df_acc <- norm_dat %>% 
+  select(participant,trial, subject_position, hoop_pos, small_pos, large_pos, accuracy) %>%
+  mutate(small_dist = abs(small_pos - subject_position),
+         large_dist = abs(large_pos - subject_position),
+         c_sd = hoop_pos, 
+         c_ld = hoop_pos,
+         sf_sd = 0,
+         sf_ld = 2 * hoop_pos,
+         lf_sd = 2 * hoop_pos,
+         lf_ld = 0) %>% 
+  merge(acc_small_exp) %>% 
+  merge(acc_large_exp) %>% 
+  merge(acc_small_centre) %>%
+  merge(acc_large_centre) %>%
+  merge(acc_small_small) %>% 
+  merge(acc_small_large) %>% 
+  merge(acc_large_small) %>% 
+  merge(acc_large_large) %>% 
+  rowwise() %>%
+  mutate(Expected = mean(c(small_exp_acc, large_exp_acc)),
+         Centre = mean(c(small_centre_acc, large_centre_acc)),
+         Side_large = mean(c(lf_sd_acc, lf_ld_acc)),
+         Side_small = mean(c(sf_sd_acc, sf_ld_acc))) %>% 
+  ungroup() %>% 
+  select(participant, subject_position, hoop_pos, accuracy, Expected, Centre, Side_large, Side_small) %>% 
+  group_by(participant) %>% 
+  mutate(norm_dist = subject_position/hoop_pos,
+         slab_measures = factor(hoop_pos, labels = c("~90%", "~50% - 1", "~50%", "~50% + 1", "~50% + 2", "~10%")),
+         Side_large = ifelse(Side_large < .5, .5, Side_large),
+         Side_small = ifelse(Side_small < .5, .5, Side_small)) 
+
+#### Plot accuracy ####
+plt_acc_regions <- df_acc %>% 
+  group_by(participant, slab_measures) %>% 
+  summarise(# Actual = mean(accuracy),
+            Expected = mean(Expected),
+            Centre = mean(Centre),
+            Side_L = mean(Side_large),
+            Side_S = mean(Side_small),
+            Optimal = pmax(Centre, Side_L, Side_S)) %>% 
+  ungroup() %>% 
+  group_by(slab_measures) %>%
+  mutate(sep_factor = as.numeric(slab_measures),
+         Best = pmax(Expected, Centre, Side_S, Side_L),
+         Worst = pmin(Expected, Centre, Side_S, Side_S),
+         ymin_Best = min(Best),
+         ymax_Best = max(Best),
+         ymin_Worst = min(Worst),
+         ymax_Worst = max(Worst)) %>% 
+  ggplot(aes(x = sep_factor, Expected)) + 
+  geom_ribbon(aes(x = sep_factor,
+                  ymin = ymin_Worst,
+                  ymax = ymax_Worst,
+                  fill = "red"),
+              alpha = .3) + 
+  geom_ribbon(aes(x = sep_factor,
+                  ymin = ymin_Best,
+                  ymax = ymax_Best,
+                  fill = "green"),
+              alpha = .3) +
+  geom_line(aes(group = participant)) +
+  scale_y_continuous("Expected Accuracy") +
+  scale_x_continuous("Slab Measures", breaks = c(1:6),
+                     labels = c("~90%", "~50% - 1", "~50%", "~50% + 1", "~50% + 2", "~10%")) +
+  # see::scale_color_pizza_d() +
+  # see::scale_fill_pizza() +
+  guides(fill = F) +
+  theme_bw()
+plt_acc_regions
+
