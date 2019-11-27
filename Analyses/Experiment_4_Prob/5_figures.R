@@ -32,7 +32,7 @@ df_part2 <- df_part2 %>%
 #### NB: Really close... one point isn't working for some reason.... ####
 # Need to work on labels 
 # labels should reflect participants' own biases in the "symmetric" condition 
-check <- df_part2 %>% 
+df_part2_fixed <- df_part2 %>% 
   select(participant, bias_type, lcr, standard_boxes, dist_type) %>%
   group_by(participant, bias_type, lcr, standard_boxes, dist_type) %>%
   summarise(n = n()) %>% 
@@ -57,8 +57,12 @@ check <- df_part2 %>%
                          ifelse(lcr == 0, "centre",
                                 ifelse(lcr == most, "most likely", "least likely"))))
 
+# save this 
+save(df_part2_fixed, file = "scratch/new_data/df_part2_fixed")
+
+
 # make plot of this 
-plt_fix <- check %>% 
+plt_fix <- df_part2_fixed %>% 
   ungroup() %>% 
   group_by(participant, bias_type, dist_type) %>% 
   mutate(centre = ifelse(st_box == "centre", 1, 0),

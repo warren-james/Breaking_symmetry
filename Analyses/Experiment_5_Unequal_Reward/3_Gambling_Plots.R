@@ -216,4 +216,30 @@ plt_dist_prop
 ggsave(file = "../../Figures/Experiment_5_Unequal_Reward/Prop_gambles_dist.png")
 
 
-
+#### Did participants stand closer to the more valuable option? ####
+plt_gamble_side <- df_part2 %>% 
+  filter(Left_Gamble != 25) %>% 
+  mutate(HV_side = ifelse(Right_Gamble == 40, "Right", "Left"),
+         Normalised_dist = Subject_Position/HoopDelta) %>% 
+  # select(Participant, Trial, Normalised_dist, HoopDelta, HV_side) %>% 
+  ggplot(aes(Normalised_dist, Trial,
+             colour = HV_side)) + 
+  geom_point() + 
+  geom_vline(xintercept = 0) + 
+  facet_wrap(~Participant)
+plt_gamble_side
+  
+# Maybe we can look at distance from "best target"
+# Easy for the unequal ones, less so for the equal
+# maybe distance from closest hoop for equal, and distance from hv hoop for unequal?
+df_part2 %>% 
+  mutate(HV_side = ifelse(Gamble_Type == "Equal", "Na", ifelse(Right_Gamble == 40, "Right", "Left")),
+         Normalised_dist = Subject_Position/HoopDelta,
+         HV_pos = ifelse(HV_side == "Na", 0, ifelse(HV_side == "Right", 1, -1)),
+         HV_dist = abs(Normalised_dist - HV_pos),
+         HV_dist = ifelse(HV_pos == 0, abs(1 - abs(Normalised_dist)), HV_dist)) %>% 
+  ggplot(aes(HV_dist,
+             colour = Gamble_Type, 
+             fill = Gamble_Type)) + 
+  geom_histogram(position = "dodge",
+                 alpha = .3)

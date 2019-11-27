@@ -37,14 +37,14 @@ OT <- select(df_part2_OT,
              abspos,
              switchSlab)
 
-TT <- select(df_part2_TT,
-             Participant,
-             Num_throws,
-             Trial.no.,
-             Position,
-             HoopDelta,
-             abspos,
-             switchSlab)
+TT <- df_part2 %>% 
+  select(Participant,
+         Num_throws,
+         Trial.no.,
+         Position,
+         HoopDelta,
+         abspos,
+         switchSlab)
 
 # combine
 df <- rbind(OT,TT)
