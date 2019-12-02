@@ -126,7 +126,7 @@ df_model %>%
 #### Bayesian ####
 #### Ml side ####
 # most complex model we need?
-bm_fix_like_dt <- brm(Ml_fix ~ (bias_type + dist_type)^2 + (dist_type + bias_type|participant),
+bm_fix_like_dt <- brm(Ml_fix ~ (bias_type + dist_type)^2 + (dist_type * bias_type|participant),
                       data = df_model,
                       family = "bernoulli",
                       chains = 1,
@@ -141,12 +141,12 @@ bm_fix_S_dt <- brm(S_fix ~ (bias_type + dist_type)^2 + (dist_type + bias_type|pa
                    iter = 1000,
                    warmup = 500)
 
-df_model$p_b <- predict(bm_fix_S_dt, type = "response")
-df_model$p_b_fe <- predict(bm_fix_S_dt, re.form = NA, type = "response")
+df_model$p_b <- predict(bm_fix_like_dt, type = "response")
+df_model$p_b_fe <- predict(bm_fix_like_dt, re.form = NA, type = "response")
 df_model %>% 
   mutate(participant_num = as.numeric(as.factor(participant))) %>%
   group_by(participant, participant_num, dist_type, bias_type) %>%
-  summarise(Actual = mean(S_fix),
+  summarise(Actual = mean(Ml_fix),
             Predicted = mean(p_b[,1]),
             Predicted_lower = mean(p_b[,3]),
             Predicted_upper = mean(p_b[,4]),
@@ -168,11 +168,11 @@ df_model %>%
   geom_point(aes(y = Predicted),
              fill = "white",
              shape = 21) +
-  geom_ribbon(aes(x = participant_num,
-                  ymin = Predicted_lower,
-                  ymax = Predicted_upper,
-                  fill = dist_type),
-              alpha = .1) + 
+  # geom_ribbon(aes(x = participant_num,
+  #                 ymin = Predicted_lower,
+  #                 ymax = Predicted_upper,
+  #                 fill = dist_type),
+  #             alpha = .1) + 
   geom_hline(aes(yintercept = FE,
                  colour = dist_type),
              linetype = "dashed") +
