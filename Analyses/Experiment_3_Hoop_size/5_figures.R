@@ -133,6 +133,32 @@ plt_box
 #        width = 5.6,
 #        height = 3.5)
 
+# box plot sep measues with overall plot 
+box_sep <- plt_box[["data"]] %>% 
+  select(norm_dist, slab_measures)
+box_over <- plt_dst_overall[["data"]] %>% 
+  select(norm_dist, slab_measures) %>% 
+  mutate(slab_measures = "Overall") %>% 
+  rbind(box_sep) %>% 
+  ggplot(aes(slab_measures, norm_dist)) + 
+  geom_boxplot(aes(fill = slab_measures,
+               colour = slab_measures),
+               alpha = .1) +
+  theme_bw() + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() + 
+  scale_y_continuous(breaks = c(-1, 0, 1),
+                     labels = c("Big", "Centre", "Small")) +
+  theme(legend.position = "none",
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank())
+box_over
+
+# save 
+# ggsave("../../Figures/Experiment_3_Hoop_size/box_position_overall.png",
+#        width = 5.6,
+#        height = 3.5)
+
 #### Fitting a distribution ####
 # need to rescale things for a beta distribution 
 # to fit a beta dist

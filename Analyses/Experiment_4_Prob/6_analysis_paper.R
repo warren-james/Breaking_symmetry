@@ -66,16 +66,32 @@ draw_post <- function(model) {
               mean = mean(prop),
               upper = hdi(prop)[,2],
               med = median(prop))
+  # get hdi difference 
+  hdi_diff_overall <- diff %>%
+    summarise(lower = hdi(diff)[,1],
+              mu = mean(diff),
+              upper = hdi(diff)[,2])
   
+  hdi_diff_dist <- diff %>%
+    group_by(Dist_type) %>% 
+    summarise(lower = hdi(diff)[,1],
+              mu = mean(diff),
+              upper = hdi(diff)[,2])
+  
+  Hdi_list <- list(hdi_diff_dist,
+                   hdi_diff_overall)
   output <- list(draws_df,
                  plt_estimates,
                  diff,
                  plt_diff,
+                 Hdi_list,
                  draws_hdi)
+  
   names(output) <- c("draws_df",
                      "plt_estimates",
                      "difference_df",
                      "plt_difference",
+                     "HDI_Diff",
                      "draws_HDI")
   return(output)
 }
