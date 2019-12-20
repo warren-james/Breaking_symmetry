@@ -3,6 +3,7 @@
 
 #### Library ####
 library(tidyverse)
+library(tidybayes)
 library(lme4)
 library(brms)
 
@@ -45,41 +46,67 @@ draw_post <- function(model) {
     # geom_histogram(position = "dodge") + 
     facet_wrap(~Dist_type)
   # difference 
-  diff <- draws_df %>% 
+  # groups
+  diff_bias <- draws_df %>% 
     mutate(prop = boot::inv.logit(estimate)) %>% 
     select(-estimate) %>%
     spread(Bias_type,
            prop) %>%
     mutate(diff = Bias - Symmetric)
-  plt_diff <- diff %>% 
+  # separation
+  diff_dist <- draws_df %>% 
+    mutate(prop = boot::inv.logit(estimate)) %>%
+    select(-estimate) %>%
+    spread(Dist_type,
+           prop) %>%
+    mutate(diff = Far - Close)
+  
+  # plotting this
+  plt_diff <- diff_bias %>% 
     ggplot(aes(diff, colour = Dist_type,
                fill = Dist_type)) +
     geom_density(alpha = .3)
-  prop_diff <- diff %>% mutate(above0 = ifelse(diff > 0, 1, 0)) %>% 
+  prop_diff <- diff_bias %>%
+    mutate(above0 = ifelse(diff > 0, 1, 0)) %>% 
     group_by(Dist_type) %>% 
     summarise(above0 = mean(above0))
   # get hdi 
   draws_hdi <- draws_df %>%
     mutate(prop = boot::inv.logit(estimate)) %>%
     group_by(Bias_type, Dist_type) %>% 
-    summarise(lower = hdi(prop)[,1],
+    summarise(lower = hdci(prop)[1,1],
               mean = mean(prop),
-              upper = hdi(prop)[,2],
+              upper = hdci(prop)[1,2],
               med = median(prop))
-  # get hdi difference 
-  hdi_diff_overall <- diff %>%
-    summarise(lower = hdi(diff)[,1],
+  # get hdi difference
+  # bias
+  hdi_bias_diff_overall <- diff_bias %>%
+    summarise(lower = hdci(diff)[1,1],
               mu = mean(diff),
-              upper = hdi(diff)[,2])
+              upper = hdci(diff)[1,2])
   
-  hdi_diff_dist <- diff %>%
+  hdi_bias_diff_dist <- diff_bias %>%
     group_by(Dist_type) %>% 
-    summarise(lower = hdi(diff)[,1],
+    summarise(lower = hdci(diff)[1,1],
               mu = mean(diff),
-              upper = hdi(diff)[,2])
+              upper = hdci(diff)[1,2])
   
-  Hdi_list <- list(hdi_diff_dist,
-                   hdi_diff_overall)
+  # dist
+  hdi_dist_diff_overall <- diff_dist %>% 
+    summarise(lower = hdci(diff)[1,1],
+              mu = mean(diff),
+              upper = hdci(diff)[1,2])
+  
+  hdi_dist_diff_bias <- diff_dist %>%  
+    group_by(Bias_type) %>%
+    summarise(lower = hdci(diff)[1,1],
+              mu = mean(diff),
+              upper = hdci(diff)[1,2])
+  
+  Hdi_list <- list(hdi_bias_diff_dist,
+                   hdi_bias_diff_overall,
+                   hdi_dist_diff_overall,
+                   hdi_dist_diff_bias)
   output <- list(draws_df,
                  plt_estimates,
                  diff,
@@ -101,7 +128,7 @@ load("scratch/new_data/df_part2_fixed")
 
 # processing 
 df_model <- df_part2_fixed %>% 
-  filter(separation != 640) %>% # remove furthest point for now
+  # filter(separation != 640) %>% # remove furthest point for now
   select(participant, dist_type, bias_type, separation, st_box, accuracy) %>% 
   mutate(Ml_fix = ifelse(st_box == "most likely", 1, 0),
          S_fix = ifelse(st_box != "centre", 1, 0)) 
@@ -223,9 +250,15 @@ bm_fix_like_dt <- brm(Ml_fix ~ (bias_type + dist_type)^2 + (dist_type * bias_typ
                       chains = 1,
                       iter = 1000,
                       warmup = 500)
+# save this 
+save(bm_fix_like_dt, file = "modelling/BRMS/model_output/bm_fix_like_dt")
 
 # get post
 fix_like_post <- draw_post(bm_fix_like_dt)
+
+# save 
+save(fix_like_post, file = "modelling/BRMS/model_output/bm_fix_like_dt_draws")
+
 # plots
 fix_like_post[2]
 fix_like_post[4]
@@ -233,9 +266,9 @@ fix_like_post[4]
 # hdi of difference 
 as.data.frame(fix_like_post[3]) %>% 
   group_by(Dist_type) %>% 
-  summarise(lower = hdi(diff)[,1],
+  summarise(lower = hdci(diff)[,1],
             mu = mean(diff),
-            upper = hdi(diff)[,2])
+            upper = hdci(diff)[,2])
 
 #### Side ####
 bm_fix_S_dt <- brm(S_fix ~ (bias_type + dist_type)^2 + (dist_type + bias_type|participant), 
@@ -249,9 +282,16 @@ bm_fix_S_dt <- brm(S_fix ~ (bias_type + dist_type)^2 + (dist_type + bias_type|pa
                    chains = 1,
                    iter = 1000,
                    warmup = 500)
+# save this 
+save(bm_fix_S_dt, file = "modelling/BRMS/model_output/bm_fix_S_dt")
 
 # get post
 fix_S_post <- draw_post(bm_fix_S_dt)
+
+# save 
+save(fix_S_post, file = "modelling/BRMS/model_output/bm_fix_S_dt_draws")
+
+
 # plots
 fix_S_post[2]
 fix_S_post[4]

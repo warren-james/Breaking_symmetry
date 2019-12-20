@@ -196,7 +196,13 @@ m1_pos <- brm(abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Partic
               iter = 2000,
               warmup = 1000)
 
+# save 
+save(m1_pos, file = "modelling/model_outputs/m1_pos")
+
 # get draws 
 draws <- draw_post(m1_pos, model_data_pos)
+
+# save 
+save(draws, file = "modelling/model_outputs/m1_pos_draws")
 
 

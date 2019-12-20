@@ -90,9 +90,14 @@ plt_fix <- df_part2_fixed %>%
   facet_wrap(~prop_type) +
   see::scale_fill_flat(name = "Condition") +
   see::scale_color_flat(name = "Condition") + 
-  scale_x_discrete("Delta") + 
-  theme_bw()
+  theme_bw() + 
+  theme(axis.title.x = element_blank())
 plt_fix 
+
+# save this 
+ggsave("../../Figures/Experiment_4_Prob/boxes_prop_CML.png",
+       width = 5.6,
+       height = 3)
 
 # some quick descriptives 
 plt_fix[["data"]] %>% 
@@ -105,12 +110,6 @@ plt_fix[["data"]] %>%
   mutate(Q = rep(c("min","Q1","median","Q3","max"), length(mu)/5)) %>% 
   spread(key = Q, value = quantiles) %>% 
   select(-max, -min, - median)
-
-# check if you want to save 
-# ggsave("../../Figures/Experiment_4_Prob/boxes_prop_CML.png",
-#        width = 5.6,
-#        heigh = 3.5)
-
 
 #### PLOTS ####
 #### centre vs side by switch point ####
@@ -358,31 +357,49 @@ df_regions <- new_acc_measures %>%
          ymin_Worst = min(Worst),
          ymax_Worst = max(Worst),
          ymin_Best = min(Best),
-         ymax_Best = max(Best)) 
+         ymax_Best = max(Best),
+         mu_Best = mean(Best),
+         mu_Worst = mean(Worst)) %>% 
+  select(participant, 
+         sep_factor,
+         bias_type,
+         Expected,
+         ymax_Worst,
+         ymin_Worst,
+         ymax_Best,
+         ymin_Best,
+         mu_Best, 
+         mu_Worst) %>% 
+  gather(ymax_Worst:mu_Worst,
+         key = "param",
+         value = "value") %>% 
+  separate(param, 
+           into = c("param", "type"),
+           sep = "_") %>% 
+  spread(param, value)
 
+# remake the plot 
 plt_lines_region <- df_regions %>% 
-  ungroup() %>% 
-  mutate(#bias_type = ifelse(bias_type == "biased", "Biased", "Symmetric"),
-         sep_factor = as.numeric(sep_factor)/as.numeric(max(sep_factor))) %>%
-  ggplot(aes(sep_factor, Expected)) + 
-  geom_ribbon(aes(ymin = ymin_Worst,
-                  ymax = ymax_Worst,
-                  fill = "red"),
+  ungroup(sep_factor = as.numeric(sep_factor)/as.numeric(max(sep_factor))) %>% 
+  ggplot(aes(sep_factor, Expected)) +
+  geom_ribbon(aes(ymin = ymin, 
+                  ymax = ymax,
+                  fill = type),
               alpha = .3) + 
-  geom_ribbon(aes(ymin = ymin_Best,
-                  ymax = ymax_Best,
-                  fill = "green"),
-              alpha = .3) +
-  geom_line(aes(group = participant)) +
+  geom_line(aes(group = participant),
+            alpha = .5) + 
+  geom_line(aes(sep_factor, mu,
+                colour = type),
+            linetype = "dashed") +
+  facet_wrap(~bias_type) + 
+  theme_bw()+
   scale_y_continuous("Expected Accuracy") +
   scale_x_continuous("Normalised Delta") +
-  # see::scale_color_pizza_d() +
-  # see::scale_fill_pizza() +
-  facet_wrap(~bias_type) + 
-  guides(fill = F) +
-  theme_bw()
-plt_lines_region
-
+  guides(fill = F,
+         colour = F) + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat()
+plt_lines_region  
 
 # # save 
 # ggsave("../../Figures/Experiment_4_Prob/region_performance.png",

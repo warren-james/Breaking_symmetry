@@ -115,10 +115,13 @@ m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant),
           chains = 1,
           iter = 2000,
           warmup = 1000)
+# save
+save(m1, file = "modelling/model_outputs/m1")
 
 # draw from samples 
 draws <- draw_post(m1, model_data)
-
+# save 
+save(draws, file = "modelling/model_outputs/m1_draws")
 
 # plot posterior?
 plt <- model_data %>%
