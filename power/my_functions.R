@@ -8,7 +8,7 @@ sim_data <- function(n_people, n_trial, n_conditions)
     condition = rep(1:n_conditions, each = n_people*n_trial),
     trial  = rep(1:n_trial, each = 1, n_people * n_conditions),
     p_person = probs[condition] + rep(rnorm(n_people, 0, sigma_person), each = n_trial, n_conditions),
-    response = if_else(runif(n_rows) < p_person, 1, 0)) %>%
+    response = rbinom(n_rows, 1, p_person)) %>%
     mutate(
       condition = as.factor(condition),
       person = as.factor(person))
