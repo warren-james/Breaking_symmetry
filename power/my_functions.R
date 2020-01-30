@@ -11,9 +11,16 @@ sim_data <- function(n_people, n_trial, n_conditions)
     person = rep(1:n_people, each = n_trial, n_conditions),
     condition = rep(1:n_conditions, each = n_people*n_trial),
     trial  = rep(1:n_trial, each = 1, n_people * n_conditions),
+    # generate a random interecept for each person
     q_intercept = rep(rnorm(n_people, 0, sigma_person), each = n_trial, n_conditions),
-    q =qs[condition] + q_intercept,
+    # generate a random slope for each person
+    q_slope = rep(rnorm(n_people, 0, sigma_person_condition), each = n_trial, n_conditions),
+    q_slope2 = if_else(condition == 1, q_slope/2, -q_slope/2),
+    # combine to get q for each trial
+    q =qs[condition] + q_intercept + q_slope2,
+    # convert into p
     p = boot::inv.logit(q),
+    # simulate response
     response = rbinom(n_rows, 1, p)) %>%
     mutate(
       condition = as.factor(condition),
