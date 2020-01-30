@@ -2,13 +2,19 @@ sim_data <- function(n_people, n_trial, n_conditions)
 {
   n_rows <- n_people * n_conditions * n_trial
   
+  # apply logit function to change [0, 1] probabilities
+  # into (-inf, inf) log-odds
+  qs <- boot::logit(probs)
+  
   
   fake_data <- tibble(
     person = rep(1:n_people, each = n_trial, n_conditions),
     condition = rep(1:n_conditions, each = n_people*n_trial),
     trial  = rep(1:n_trial, each = 1, n_people * n_conditions),
-    p_person = probs[condition] + rep(rnorm(n_people, 0, sigma_person), each = n_trial, n_conditions),
-    response = rbinom(n_rows, 1, p_person)) %>%
+    q_intercept = rep(rnorm(n_people, 0, sigma_person), each = n_trial, n_conditions),
+    q =qs[condition] + q_intercept,
+    p = boot::inv.logit(q),
+    response = rbinom(n_rows, 1, p)) %>%
     mutate(
       condition = as.factor(condition),
       person = as.factor(person))
