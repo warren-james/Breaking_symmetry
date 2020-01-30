@@ -31,13 +31,13 @@ sim_data <- function(n_people, n_trial, n_conditions)
 
 plot_fake_data <- function(n_people, n_conditions, n_trial, probs) 
 {
-	fake_data <- sim_data(n_people, n_conditions, n_trial)
+	fake_data <- sim_data(n_people, n_trial, n_conditions)
 
 	fake_data %>% 
 		group_by(condition, person) %>%
 		summarise(proportion = mean(response)) -> fake_data
 
-	ggplot() + 
+	ggplot() +
 		geom_boxplot(data = fake_data, aes(x = condition, y = proportion)) +
 			ggtitle("Some simulated data") +
 			geom_point(aes(x = c(1,2), y = probs), size = 3, colour = "red")
@@ -64,7 +64,7 @@ itr_sim <- function (n_people, n_trial, n_itr = 100, alpha = 0.05)
 
 # plot_fake_data(n_people, n_conditions, n_trial, probs) 
 
-n_peeps = seq(2, 10, by = 2)
+n_peeps = seq(10, 20, by = 2)
 n_trls = seq(25, 200, by = 25)
 
 # Loop over various numers of participants and trials
