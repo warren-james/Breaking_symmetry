@@ -84,10 +84,10 @@ n <- n_iter * length(n_subs) * length(n_trials) * length(dists)
 # 
 # # TODO make this loop quicker by using data.table()
 # # split dataset for ease of access...
-# df_Av <- df_all %>%
-#   filter(condition == "Avatar")
-# df_Th <- df_all %>%
-#   filter(condition == "Throwing")
+df_Av <- df_all %>%
+  filter(condition == "Avatar")
+df_Th <- df_all %>%
+  filter(condition == "Throwing")
 # 
 # # start counter
 # count <- 0

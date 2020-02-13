@@ -245,10 +245,16 @@ plt_hdi <- df_sample %>%
   geom_line() + 
   geom_ribbon(aes(ymin = HDI_lower, 
                   ymax = HDI_upper),
-              alpha = .3)
+              alpha = .3) +
+  theme_bw() + 
+  theme(axis.title = element_text(size = 8)) + 
+  scale_y_continuous("Difference from Clarke and Hunt (2016) data fit", labels = scales::percent_format(accuracy = 1)) + 
+  scale_x_continuous("Sample Size")
 plt_hdi
 
-
+ggsave(plt_hdi, file = "../../Figures/Experiment_3_Hoop_size/power_plot.png",
+       width = 5.6,
+       height = 3.5)
 
 
 
