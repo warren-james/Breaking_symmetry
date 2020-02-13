@@ -397,7 +397,7 @@ df_sample_compare %>%
               alpha = .3) + 
   theme_bw() +
   theme(axis.title = element_text(size = 8)) +
-  scale_x_continuous("No. Participants") + 
+  scale_x_continuous("Sample Size") + 
   scale_y_continuous("Difference in fixations to more likely side (Bias-Symmetric)")
 
 # save this 
