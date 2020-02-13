@@ -1,0 +1,269 @@
+---
+title: "Supplementary Material for Asymmetry paper"
+author: "Warren James"
+date: "18/12/2019"
+output: html_document
+---
+
+---
+title: "Supplementary Material For Asymmetry paper"
+author: "Warren James"
+date: "18/12/2019"
+output: html_document
+---
+
+```{r setup, include=T, message=F, warning=F}
+# library 
+library(tidybayes)
+library(tidyverse)
+```
+
+## Experiment 1: Probability 
+```{r Probability, include = F, echo = F}
+# Load in everything from the modelling
+load("../Analyses/Experiment_4_Prob/modelling/BRMS/model_output/bm_fix_like_dt")
+load("../Analyses/Experiment_4_Prob/modelling/BRMS/model_output/bm_fix_like_dt_draws")
+draws <- fix_like_post$draws_df %>% 
+  mutate(prop = boot::inv.logit(estimate)) %>% 
+  select(-estimate)
+```
+
+```{r Probability show plots, include = T, echo = F}
+# Proportion fixations to most likely side 
+plt_me_Bias <- draws %>% 
+  ggplot(aes(prop,
+             colour = Bias_type,
+             fill = Bias_type)) + 
+  geom_density(alpha = .3) + 
+  theme_bw() + 
+  theme(axis.title.x = element_blank()) +
+  labs(fill = "Bias Type",
+       colour = "Bias Type") +
+#       "Proportion of Fixations to Most Likely Side") +
+  see::scale_color_flat() + 
+  see::scale_fill_flat() + 
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1))
+  
+plt_me_Dist <- draws %>% 
+  ggplot(aes(prop,
+             colour = Dist_type,
+             fill = Dist_type)) + 
+  geom_density(alpha = .3) + 
+  theme_bw() +  
+  theme(axis.title.x = element_blank()) +
+  labs(fill = "Distance Type",
+       colour = "Distance Type") +
+#       x = "Proportion of Fixations to Most Likely Side") +
+  see::scale_color_flat() + 
+  see::scale_fill_flat() + 
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1))
+
+plt_interaction <- fix_like_post$plt_estimates +
+  theme_bw() + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() +
+  labs(x = "Proportion of Fixations to Most Likely Side",
+       colour = "Bias Type",
+       fill = "Bias Type") +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1))
+
+gridExtra::grid.arrange(plt_me_Dist, plt_me_Bias, plt_interaction)
+```
+
+```{r Get Values, include = F, echo = F}
+# HDI_values 
+HDI_Bias <- draws %>%
+  group_by(Bias_type) %>%
+  summarise(lower = hdi(prop)[,1],
+            mu = mean(prop),
+            upper = hdi(prop)[,2],
+            med = median(prop))
+HDI_Dist <- draws %>% 
+  group_by(Dist_type) %>% 
+  summarise(lower = hdi(prop)[,1],
+            mu = mean(prop),
+            upper = hdi(prop)[,2],
+            med = median(prop))
+HDI_interaction <- draws %>% 
+  group_by(Bias_type, Dist_type) %>% 
+  summarise(lower = hdi(prop)[,1],
+            mu = mean(prop),
+            upper = hdi(prop)[,2],
+            med = median(prop))
+
+# Diff values 
+Diff_Bias <- draws %>% 
+  spread(Bias_type, 
+         prop) %>%
+  mutate(diff = Bias - Symmetric,
+         Bias_bigger = ifelse(diff > 0, 1, 0))
+D_bias_lower <- hdci(Diff_Bias$diff)[,1]
+D_bias_mu <- mean(Diff_Bias$diff)
+D_bias_upper <- hdci(Diff_Bias$diff)[,2]
+p_bias_bigger <- mean(Diff_Bias$Bias_bigger)
+
+Diff_Dist <- draws %>% 
+  spread(Dist_type, 
+         prop) %>%
+  mutate(diff = Far - Close,
+         Far_bigger = ifelse(diff > 0, 1, 0))
+D_dist_lower <- hdci(Diff_Dist$diff)[,1]
+D_dist_mu <- mean(Diff_Dist$diff)
+D_dist_upper <- hdci(Diff_Dist$diff)[,2]
+p_far_bigger <- mean(Diff_Dist$Far_bigger)
+
+Diff_Interaction_compdist <- Diff_Dist %>% 
+  group_by(Bias_type) %>% 
+  summarise(p_Far_bigger = mean(Far_bigger),
+            lower = hdci(diff)[,1],
+            mu = mean(diff),
+            upper = hdci(diff)[,2],
+            med = median(diff))
+Diff_Interaction_compbias <- Diff_Bias %>% 
+  group_by(Dist_type) %>% 
+  summarise(p_Bias_bigger = mean(Bias_bigger),
+            lower = hdci(diff)[,1],
+            mu = mean(diff),
+            upper = hdci(diff)[,2],
+            med = median(diff))
+
+```
+The results of this model suggest that our participants were sensitive to the probability information (see above figure). In the Biased condition, the average participant fixated the most likely target `r paste(round(HDI_Bias[1,3], digits = 3)*100, "%", sep = "")` of the time (95% HDPI of |`r paste(round(HDI_Bias[1,2], digits = 3)*100, "%", sep = "")`, `r paste(round(HDI_Bias[1,4], digits = 3)*100, "%", sep = "")`|), compared to `r paste(round(HDI_Bias[2,3], digits = 3)*100, "%", sep = "")` (95% HPDI of |`r paste(round(HDI_Bias[2,2], digits = 3)*100, "%", sep = "")`,`r paste(round(HDI_Bias[2,4], digits = 3)*100, "%", sep = "")`|) in the symmetric condition. The width of these intervals reflects a high degree of uncertainty in fixed effects, due to the range of behaviours exhibited by participants. None-the-less, the HPDI on the difference between these two conditions, |`r round(D_bias_lower, digits = 3)`, `r round(D_bias_upper, digits = 3)`| is largely positive and we can be reasonably confident (P(difference > 0 | data ) =  `r round(p_bias_bigger, digits = 3)`) that the most-likely target is fixated more frequently in the biased condition. The distance between the square targets did not appear to have any consistent effect in the Symmetric condition, however there was a small decrease in fixations towards the “most likely” box when the boxes were far apart in the bias condition (dropping from `r round(HDI_interaction[1,4], digits = 3)`%, 95% HPDI of |`r round(HDI_interaction[1,3], digits = 3)`%,`r round(HDI_interaction[1,5], digits = 3)`%| to `r round(HDI_interaction[2,4], digits = 3)`%, 95% HPDI of |`r round(HDI_interaction[2,3], digits = 3)`%,`r round(HDI_interaction[2,5], digits = 3)`%|). As such, the difference between the conditions were much more pronounced in the close condition (P(Bias > Symmetric|data)) = `r round(Diff_Interaction_compbias[1,2], digits = 3)`%) than in the far condition (P(Bias > Symmetric|data)) = `r round(Diff_Interaction_compbias[2,2], digits = 3)`%). The width of these intervals reflects the range of performance that was exhibited by participants. However, this does show that participants generally made us of this probability information in order to decide where to fixate. 
+
+```{r model for side fixations, echo = F, include = F}
+load("../Analyses/Experiment_4_Prob/modelling/BRMS/model_output/bm_fix_S_dt")
+load("../Analyses/Experiment_4_Prob/modelling/BRMS/model_output/bm_fix_S_dt_draws")
+df_prop_S <- fix_S_post$draws_df %>% 
+  mutate(prop = boot::inv.logit(estimate))
+```
+
+```{r plots side fixations, echo = F, include = T}
+# something like the first set of plots above 
+plt_S_Dist <- df_prop_S %>% 
+  ggplot(aes(prop,
+             colour = Dist_type,
+             fill = Dist_type)) + 
+  geom_density(alpha = .3) + 
+  theme_bw() + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank())
+
+plt_S_Bias <- df_prop_S %>% 
+  ggplot(aes(prop, 
+             colour = Bias_type,
+             fill = Bias_type)) + 
+  geom_density(alpha = .3) + 
+  theme_bw() + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank())
+
+plt_S_overall <- df_prop_S %>% 
+  ggplot(aes(prop,
+             colour = Bias_type,
+             fill = Bias_type)) + 
+  geom_density(alpha = .3) + 
+  facet_wrap(~Dist_type) + 
+  theme_bw() + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() +
+  scale_x_continuous("Proportion of Fixations to Most Likely Side",
+                     labels = scales::percent_format(accuracy = 1)) +
+  theme(axis.title.y = element_blank())
+
+gridExtra::grid.arrange(plt_S_Dist, plt_S_Bias, plt_S_overall)
+```
+
+```{r get HDPI values, echo = F, include = F}
+```
+
+We can now ask whether participants were more likely to make use of the optimal strategy when in the biased condition. We will use the same predictors as above, but this time, to predict the probability of participants fixating either of side boxes over the central box. A random observer, equally likely to look at any of the three boxes, would have a 66% chance of fixating a Side box. The results suggest that in the Biased condition, participants were more likely to fixate the side boxes than the central box in both the close (95.4%,HPDI of |85.9%, 99.9%|) and far (96.4%, HPDI of |86.9%, 100%|) conditions. This contrasts with  than when the participants were in the Symmetric condition (close; 83.9%, 95% HPDI of |60.3%, 98.5%|) for the close, and , far; 84.7%,( 95% HPDI of |62.8%, 99.9%|) for the far apart targets in the symmetric condition. These results would suggest that the bias present in the Biased condition encouraged participants to fixate the side boxes more often. However, it does not suggest that adding this bias facilitated the use of the optimal strategy as participants did not appear to account for distance in an optimal manner. 
+
+
+## Hoop Sizes 
+```{r Load in Hoop size data, inclued = F, echo = F}
+load("../Analyses/Experiment_3_Hoop_size/modelling/model_outputs/m1")
+load("../Analyses/Experiment_3_Hoop_size/modelling/model_outputs/m1_draws")
+```
+
+```{r Sort out plots, include = T, echo = F}
+plt_estimates <- draws$plt_estimates
+plt_estimates
+```
+
+```{r Sort Hdis, include = F, echo = F}
+p_above_5 <- draws$Prop_above.5
+HDI_all <- draws$draws_HDI[[2]]
+```
+
+The data from this experiment were analysed using a Bayesian beta regression. The recorded data for standing positions were transformed to be between 0 and 1, with 0 representing the larger hoop and 1 representing the smaller hoop. Therefore, the central point would be 0.,5, and meaning anything above this value would demonstrate a shift in participant’s bhaviour away from the mid-point and towards the small hoop. The model included normalised hoop delta as a predictor to see how participants changed position with an increasing distance. This was also entered as a random effect by participant. 
+
+The model results confirmed that participants in general had a bias towards standing closer to the small hoop (mean of `r round(HDI_all$mean, digits = 3)`, 95% HDPI of |`r round(HDI_all$lower, digits = 3)`, `r round(HDI_all$upper, digits = 3)`|). We can be reasonably confident about this results as the p(x > 0.5|data) = `r paste(round(p_above_5$above0_5, digits = 3)*100, "%", sep = "")`. This can be seen in the posterior in the above figure. Also, not that distance did not appear to have an effect on position (i.e., participants were generally biased slightly towards the smaller hoop).
+
+
+## Two Throws 
+```{r load in model for two throws, include = F, echo = F}
+load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos")
+load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos_draws")
+```
+
+```{r plotting for two throws, include = T, echo = F}
+# example distributions 
+plt_examples <- draws$Plots[1][[1]][["data"]] %>% 
+  mutate(Dist_Type = factor(Dist_type, c("Close", "Mid", "Far")),
+         Num_Throws = ifelse(Num_throws == "One_throw", "One", "Two")) %>% 
+  ggplot(aes(prop, 
+             colour = Num_Throws,
+             fill = Num_Throws)) + 
+  geom_density(alpha = .3) + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() + 
+  facet_wrap(~Dist_Type) + 
+  theme_bw() + 
+  scale_x_continuous("Normalised Delta") + 
+  coord_cartesian(expand = F) + 
+  guides(fill = guide_legend(title = "No. Throws"),
+         colour = guide_legend(title = "No. Throws"))
+
+# plt_difference 
+plt_difference <- draws$Plots[3][[1]] + 
+  theme_bw() + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat()
+
+# show this 
+gridExtra::grid.arrange(plt_examples, plt_difference)
+```
+
+```{r Sort HDI, include = F, echo = F}
+# get overall 
+HDI_two_throw_overall_diff <- draws$HDIs[[2]]
+HDI_two_throw_mean_pos_overall <- draws$HDIs[[1]]
+mu <- HDI_two_throw_mean_pos_overall$mean
+lower <- HDI_two_throw_mean_pos_overall$lower
+upper <- HDI_two_throw_mean_pos_overall$upper
+
+# get the closest 
+HDI_tt_close <- draws$HDIs[[3]] %>% 
+  filter(Dist_type == "Close")
+mu_close <- HDI_tt_close$mean
+lower_close <- HDI_tt_close$lower
+upper_close <- HDI_tt_close$upper
+
+HDI_tt_diff <- draws$HDIs[[4]]
+
+P_close <- draws$Above_0[[2]] %>% 
+  filter(Dist_type == "Close")
+```
+A Bayesian Beta regression was carried out to investigate whether participants performed the task in a more optimal way when they were given the chance to attempt to throw at both targets. The predictors were the No. of throws and Delta (Hoop separation). The predicted value was the normalised standing position with 0 being central and 1 being next to one of the hoops. 
+The analysis suggested that there was an overall greater tendency for participants in the One-throw condition to stand further from the centre (mean of `r round(mu[1], digits = 3)`, 95% HPDI of |`r round(lower[1], digits = 3)` , `r round(upper[1], digits = 3)`|) than when they were in the Two-throw condition (mean of `r round(mu[2], digits = 3)`, 95% HPDI of |`r round(lower[2], digits = 3)` , `r round(upper[2], digits = 3)`|) with P(One-throw > Two-throw|data) = `r paste(round(draws$Above_0[[1]], digits = 3)*100, "%", sep = "")`. 
+
+As can be seen in the above figure, this effect was the strongest for the closest separation which reflects the larger amount of variation in standing position with distance in the Two-throw condition. In general, when in the One-throw condition, participants stood further from the centre (mean of `r round(mu_close[1], digits = 3)`, 95% HPDI of |`r round(lower_close[1], digits = 3)` , `r round(upper_close[1], digits = 3)`|) than in the the Two-throw condition (mean of `r round(mu_close[1], digits = 3)`, 95% HPDI of |`r round(lower_close[1], digits = 3)` , `r round(upper_close[1], digits = 3)`|) with P(One-throw > Two_throw|data) = `r paste(P_close$above0*100, "%", sep = "")`. 
+
+## Reward
+

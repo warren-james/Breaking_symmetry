@@ -13,7 +13,7 @@ model_data <- model_data %>%
   group_by(Participant) %>% 
   mutate(slab_measures = as.numeric(as.factor(Norm_Delta)),
          slab_measures = factor(slab_measures,
-                                labels = c("90%", "75%", "25%", "10%")))  
+                                labels = c("90% (Close)", "75%", "25%", "10% (Far)")))  
   
 #### Make plots ####
 # density plot
@@ -36,14 +36,21 @@ plt_box <- model_data %>%
              colour = Gamble_Type,
              fill = Gamble_Type)) + 
   geom_boxplot(alpha = .3) +
-  scale_x_discrete("Slab Measures") +
+  scale_x_discrete("Hoop Delta") +
   scale_y_continuous(breaks = c(0,1),
                      labels = c("Centre", "Side")) +
   see::scale_color_flat() + 
   see::scale_fill_flat() + 
   theme_bw() + 
   theme(axis.title.y = element_blank(),
-        legend.position = "bottom") +
+        # legend.position = "right",
+        legend.position = c(.2,.8),
+        legend.text = element_text(size = 5),
+        legend.title = element_text(size = 7),
+        legend.box.margin = margin(t = -25, r = -25, b = -25, l = -25),
+        legend.box = "vertical",
+        axis.text = element_text(size = 7),
+        axis.title.x = element_text(size = 7)) +
   labs(colour = "Split Type",
        fill = "Split Type")
 plt_box
@@ -66,12 +73,16 @@ plt_prop_gamble_types <- model_data %>%
   mutate(n_total = sum(n),
          n_prop = n/n_total) %>% 
   ggplot(aes(Participant, n_prop, fill = Gamble_Type)) +
-  scale_fill_ptol() + 
+  see::scale_fill_flat() + 
   geom_bar(stat = "identity", width = 0.5) +
-  theme_bw() + 
+  theme_bw() +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
   #scale_y_discrete(limits = seq(0,1,.25)) + 
-  theme(legend.position = "bottom")
+  theme(legend.position = "none",
+        legend.text = element_text(size = 7),
+        axis.text = element_text(size = 7),
+        axis.title.y = element_text(size = 7),
+        axis.title.x = element_blank())
 plt_prop_gamble_types$labels$y <- "% of each split"
 plt_prop_gamble_types$labels$fill <- "Split"
 plt_prop_gamble_types

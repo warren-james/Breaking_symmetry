@@ -1,5 +1,11 @@
-sim_data <- function(n_people, n_trial, n_conditions)
+sim_data <- function(n_people, n_trial, n_conditions, sigma_person, sigma_person_condition)
 {
+  if(missing(sigma_person)){
+    sigma_person <- .5
+  }
+  if(missing(sigma_person_condition)){
+    sigma_person_condition <- .1
+  }
   n_rows <- n_people * n_conditions * n_trial
   
   # apply logit function to change [0, 1] probabilities
