@@ -4,6 +4,7 @@
 # but that's on expected accuracy...
 # I suppose we could look at "placement" for close vs far? 
 # So maybe that's a good idea? 
+# or we can do something with expected accuracy? 
 
 #### Library ####
 library(tidyverse)
@@ -259,3 +260,5 @@ plt_over_diff[["data"]] %>%
   geom_ribbon(aes(ymin = HDI_lower,
                   ymax = HDI_upper),
               alpha = .3)
+
+##### Expected Accuracy version ####

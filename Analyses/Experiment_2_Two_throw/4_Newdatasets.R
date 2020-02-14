@@ -137,6 +137,9 @@ df_new$OptAcc[df_new$optpos == df_new$HoopDelta] <- 0.5
 # Centre Strat accuracy
 df_new$CentAcc <- df_new$EstimatedAcc
 
+# save this 
+save(df_new, file = "scratch/df_wit_acc")
+
 # Now for expected accuracy 
 new_acc_sep <- acc_sep
 colnames(new_acc_sep) <- c("Participant",
