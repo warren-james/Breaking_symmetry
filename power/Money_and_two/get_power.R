@@ -8,13 +8,13 @@
 #### Library ####
 library(tidyverse)
 library(tidybayes)
+
 #### Load in data #### 
 # load in data from the power analysis 
 # all we need is the placement/standing positions and then we can sample from there 
 # I guess? 
 load("data/df_Aberdeen_decisions")
 load("data/df_part2_Throw")
-
 
 # sort out data we need 
 df_Av <- df_Aberdeen_decisions %>% 
@@ -48,12 +48,12 @@ df_all <- rbind(df_Th, df_Av) %>%
 #### Plots ####
 # just a quick plot for the different groups 
 df_all %>%
-  filter(standard_sep %in% c("90%", "10%")) %>%
+  filter(standard_lab %in% c("90%", "10%")) %>%
   ggplot(aes(norm_pos,
              colour = condition,
              fill = condition)) +
   geom_density(alpha = .3) + 
-  facet_wrap(~standard_sep)
+  facet_wrap(~standard_lab)
 
 #### Resampling #### 
 # now we can resmaple this data using
@@ -195,6 +195,67 @@ ggsave("../../Figures/Experiment_3_Hoop_size/power_plot.png",
        height = 3.5)
 
 
+# difference of difference between distances for this one 
+# compare the two groups by difference
+plt_diff_groups <- df_sample %>% 
+  gather(c(baseline,comparison),
+         key = "group",
+         value = "value") %>% 
+  spread(dist_type,
+         value) %>%
+  mutate(diff = `10%` - `90%`) %>% 
+  ggplot(aes(diff)) + 
+  geom_density(aes(colour = group,
+                   fill = group),
+               alpha = .3) + 
+  see::scale_color_flat() +
+  see::scale_fill_flat() +
+  facet_wrap(~n_subs) + 
+  theme_bw()
+plt_diff_groups 
 
+# what is the difference between these two dists?
+plt_over_diff <- df_sample %>% 
+  gather(c(baseline,comparison),
+         key = "group",
+         value = "value") %>% 
+  spread(dist_type,
+         value) %>%
+  mutate(diff = `10%` - `90%`) %>% 
+  select(- `10%`, - `90%`) %>%
+  spread(group,
+         diff) %>% 
+  mutate(diff = comparison - baseline) %>%
+  ggplot(aes(diff)) + 
+  geom_density() + 
+  facet_wrap(~n_subs)
+plt_over_diff
 
+# P(diff > 0|x)
+df_above0 <- plt_over_diff[["data"]] %>% 
+  mutate(above0 = ifelse(diff > 0, 1, 0)) %>% 
+  group_by(n_subs) %>% 
+  summarise(mean_above0 = mean(above0))
 
+# add this data in 
+plt_diff_groups_2 <- plt_diff_groups +
+  geom_text(data = df_above0,
+            size = 3,
+            aes(-.2, 4,
+                label = paste(round(mean_above0,
+                                    digits = 3)*100,
+                              "%", sep = ""))) 
+plt_diff_groups_2
+
+# do hdi for this? 
+plt_over_diff[["data"]] %>% 
+  filter(n_trials != 12) %>%
+  group_by(n_subs) %>% 
+  summarise(mu = mean(diff),
+            HDI_lower = hdi(diff)[1],
+            HDI_upper = hdi(diff)[2]) %>% 
+  ggplot(aes(n_subs, mu)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = HDI_lower,
+                  ymax = HDI_upper),
+              alpha = .3)
