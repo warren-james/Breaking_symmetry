@@ -77,6 +77,9 @@ df_part2 <- df_part2 %>%
          beta_pos = squash(beta_pos, 1, 0, 1e-4)) %>%
   ungroup()
 
+# save 
+save(df_part2, file = "scratch/df_part2")
+
 
 #### make some plots ####
 # overall 

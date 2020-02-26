@@ -10,6 +10,12 @@ library(tidyverse)
 library(rstan)
 library(brms)
 
+#### Functions ####
+# squash range
+squash <- function(y, max, min, squash){
+  y <- y * ((max-squash) - (min + squash)) + (min + squash)
+}
+
 #### Load data ####
 load("scratch/data/df_part2")
 load("scratch/data/df_part1")
@@ -21,7 +27,7 @@ acc_dat <- data.frame(Participant = character(),
                       Est_Accuracy = numeric())
 
 # separations we want 
-separations <- c(0:30)
+separations <- c(0:36)
 
 # run loop
 for(P in levels(df_part1$Participant)) {
@@ -43,12 +49,38 @@ for(P in levels(df_part1$Participant)) {
                                        Est_Accuracy = p))
 }
 
+# tidy 
+rm(P, ss, m, p, separations)
+
 
 #### sort data for model ####
 # add in accuracy data to df_part2 
 df_part2 <- merge(df_part2, acc_dat)
 
-# Scale Delta so 0 is closest hoop and 1 is farthest 
+# want to add in expected acc 
+r_acc <- acc_dat %>%
+  mutate(r_dist = HoopDelta,
+         r_p = Est_Accuracy) %>% 
+  select(-HoopDelta,
+         -Est_Accuracy)
+l_acc <- acc_dat %>%
+  mutate(l_dist = HoopDelta,
+         l_p = Est_Accuracy) %>% 
+  select(-HoopDelta,
+         -Est_Accuracy)
+
+# merge this
+df_part2 <- df_part2 %>% 
+  mutate(l_dist = abs(HoopDelta - Subject_Position),
+         r_dist = abs(HoopDelta + Subject_Position)) %>% 
+  merge(l_acc) %>% 
+  merge(r_acc) %>%
+  mutate(Exp_acc = (r_p * .5) + (l_p * .5))
+
+# tidy 
+rm(l_acc, r_acc)
+
+# Scale Deltaso 0 is closest hoop and 1 is farthest 
 # This might make the scaling weird though?
 # Could make this scale based on estimated accuracy for that target?
 # remove any norm_dist > 1 
@@ -59,8 +91,9 @@ model_data <- df_part2 %>%
          Norm_Delta = HoopDelta/max_delta,
          Unequal = as.numeric(as.factor(Gamble_Type))-1) %>%
   filter(Norm_Dist <= 1) %>%
-  mutate(Norm_Dist = (Norm_Dist + 1e-4)/(1+ 2e-4)) %>%
-  select(Participant, Norm_Delta, Est_Accuracy, Gamble_Type, Norm_Dist, Unequal) %>%
+  #mutate(Norm_Dist = (Norm_Dist + 1e-4)/(1+ 1e-4)) %>%
+  mutate(Norm_Dist = squash(Norm_Dist, 1, 0, 1e-4)) %>% 
+  select(Participant, Norm_Delta, Est_Accuracy, Exp_acc, Gamble_Type, Norm_Dist, Unequal) %>%
   mutate(med_dist = median(Norm_Delta),
          dist_type = ifelse(Norm_Delta > med_dist, "far", "close")) %>%
   select(-med_dist)
@@ -184,6 +217,7 @@ save(m6.1, file = "scratch/model_outputs/m6.1_output")
 
 
 #### Try some BRMS models ####
+#### Position ####
 # brms model 
 m_brms <- brm(Norm_Dist ~ Norm_Delta*Gamble_Type,
               data = model_data, family = "beta",
@@ -204,3 +238,48 @@ m_brms_v2 <- brm(Norm_Dist ~ dist_type*Gamble_Type,
 
 # save
 save(m_brms_v2, file = "scratch/model_outputs/m_brms_v2")
+
+# add in random intercepts and slopes? 
+# this is with distance as a factor
+m_brms_ri <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type*Gamble_Type|Participant),
+                 data = model_data,
+                 family = "beta",
+                 chains = 1,
+                 iter = 4000,
+                 warmup = 2000)
+
+# save
+save(m_brms_ri, file = "scratch/model_outputs/m_brms_ri")
+
+# same as above but with distance as a continuous predictor 
+m_brms_ri_v2 <- brm(Norm_Dist ~ Norm_Delta*Gamble_Type + (Norm_Delta*Gamble_Type|Participant),
+                    data = model_data, 
+                    family = "beta",
+                    chains = 1,
+                    iter = 4000,
+                    warmup = 2000)
+# save
+save(m_brms_ri_v2, file = "scratch/model_outputs/m_brms_ri_v2")
+
+#### Expected Acc ####
+# with distance as a factor
+m_brms_acc <- brm(Exp_acc ~ dist_type*Gamble_Type + (dist_type*Gamble_Type|Participant),
+                  data = model_data,
+                  family = "beta",
+                  chains = 1,
+                  iter = 4000,
+                  warmup = 2000)
+# save
+save(m_brms_acc, file = "scratch/model_outputs/m_brms_acc")
+
+
+# distance as a continuous predictor 
+m_brms_acc_v2 <- brm(Exp_acc ~ Norm_Delta*Gamble_Type + (Norm_Delta*Gamble_Type|Participant),
+                     data = model_data,
+                     family = "beta",
+                     chains = 1,
+                     iter = 4000,
+                     warmup = 2000)
+# save
+save(m_brms_acc_v2, file = "scratch/model_outputs/m_brms_acc_v2")
+

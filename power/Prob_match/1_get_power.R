@@ -279,6 +279,9 @@ sample_orig <- df_orig %>%
 df_resample <- rbind(sample_orig, sample_bias) %>% 
   mutate(Most = ifelse(box_type == "Most", 1, 0))
 
+# save this 
+save(df_resample, file = "scratch/df_resample")
+
 #### resampling ####
 # quick plot of the real data to see what it's like 
 df_resample %>% 

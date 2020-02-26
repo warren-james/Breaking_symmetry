@@ -380,7 +380,9 @@ df_regions <- new_acc_measures %>%
 
 # remake the plot 
 plt_lines_region <- df_regions %>% 
-  ungroup(sep_factor = as.numeric(sep_factor)/as.numeric(max(sep_factor))) %>% 
+  ungroup() %>% 
+  mutate(sep_factor = as.numeric(sep_factor)/as.numeric(max(sep_factor)),
+         sep_factor = sep_factor/max(sep_factor)) %>% 
   ggplot(aes(sep_factor, Expected)) +
   geom_ribbon(aes(ymin = ymin, 
                   ymax = ymax,
@@ -394,7 +396,7 @@ plt_lines_region <- df_regions %>%
   facet_wrap(~bias_type) + 
   theme_bw()+
   scale_y_continuous("Expected Accuracy") +
-  scale_x_continuous("Normalised Delta") +
+  scale_x_continuous(expression(Delta[N])) + #"Normalised Delta") +
   guides(fill = F,
          colour = F) + 
   see::scale_color_flat() + 

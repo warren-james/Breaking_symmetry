@@ -18,7 +18,7 @@ draw_post <- function(model) {
     mutate(Biastype_Bias.Disttype_Close = b_Intercept,
            Biastype_Symmetric.Disttype_Close = b_Intercept + b_bias_typeSymmetric,
            Biastype_Bias.Disttype_Far = b_Intercept + b_dist_typeFar,
-           Biastype_Symmetric.Disttype_Far = b_Intercept + b_bias_typeSymmetric +
+           Biastype_Symmetric.Disttype_Far = b_Intercept + b_bias_typeSymmetric + b_dist_typeFar + 
              `b_bias_typeSymmetric:dist_typeFar`) %>% 
     select(.iteration,
            Biastype_Bias.Disttype_Close,
