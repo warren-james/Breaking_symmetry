@@ -56,6 +56,9 @@ df_all %>%
   geom_density(alpha = .3) + 
   facet_wrap(~standard_lab)
 
+# save this 
+save(df_all, file = "scratch/df_all")
+
 #### Resampling #### 
 # now we can resmaple this data using
 n_iter <- 5000
@@ -185,7 +188,7 @@ df_sample %>%
               alpha = .3) + 
   see::scale_color_flat() + 
   see::scale_fill_flat() + 
-  scale_y_continuous("Difference in mean position between 'Optimal' and Standard samples") +
+  scale_y_continuous("Difference in mean position between Standard and 'Optimal' samples") +
   scale_x_continuous("Sample Size") +
   theme_bw() #+
   # facet_grid(dist_type~n_trials)

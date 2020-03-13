@@ -1,6 +1,5 @@
 ---
 title: "Supplementary Material for Asymmetry paper"
-author: "Warren James"
 output: 
   bookdown::pdf_document2:
     fig_caption: false
@@ -8,12 +7,10 @@ output:
 
 ---
 title: "Supplementary Material For Asymmetry paper"
-author: "Warren James"
-date: "18/12/2019"
 output: html_document
 ---
 
-```{r setup, include=T, message=F, warning=F}
+```{r setup, include=T, message=F, warning=F, echo= F}
 # library 
 library(tidybayes)
 library(tidyverse)
@@ -21,7 +18,7 @@ library(brms)
 ```
 
 # Resampling
-For experiments 1, 3, and 4 we made use of resampling existing data as we had run experiments in the past that were comparable. Experiment 2 was slightly different in that we did not have previous data to compare to, as such, we generated a series of distributions based on previous data and how reliably we could detect small differences. Resampling was carried out in order to establish if adding more pariticipants to our sample sizes would have lead to a reduction in uncertainty around our estimates.
+For experiments 1, 3, and 4 we made use of resampling existing data as we had run experiments in the past that were comparable. Experiment 2 was slightly different in that we did not have previous data to compare to, as such, we generated a series of distributions based on previous data. Resampling was carried out in order to establish if adding more pariticipants to our sample sizes would have lead to a reduction in uncertainty around our estimates.
 
 ## Probability 
 For this experiment, data from ($N$ = 12) Clark and Hunt (2016), which acted as a substitute for the Symmetric condition, and an unpublished pilot study ($N$ = 11), which followed the same rules as the Bias condition in the main experiment, were resampled in order to invesigate how often participants would fixate one of the side boxes given it was more likely to contain the target for the Bias condition. For the Symmetric condition, we followed the same rule as the in the paper and classified the most likely box as the side box that participants fixated most often. These data are shown in the box plots of the figure below. The main interest for our purposes was the proportion of time participants fixated the most likely box.
@@ -55,6 +52,7 @@ plt_data <- df_resample %>%
              fill = Condition,
              colour = Condition)) + 
   geom_boxplot(alpha = .3) + 
+  geom_point(alpha = .3, position = position_jitterdodge(.1)) +
   facet_wrap(~prop_type) +
   see::scale_color_flat() +
   see::scale_fill_flat() +
@@ -159,10 +157,65 @@ gridExtra::grid.arrange(plt_distributions, plt_hdi)
 ```
 
 
-# Two Throws and Reward
+## Two Throws and Reward
 As the hypothesis for both of these experiments was that out intervention would push participants towards being more optimal, we can use the same datasets to look at how uncertainty around the difference would change with varying sample sizes. For these experiments, comparison data was drawn from two unpublished studies; one in which the standard behaviour was observed, and one in which participants were closer to optimal in their performance.
 
 The first dataset is comprised of 40 participants who took part in a version of the Clarke and Hunt (2016) _Throwing Task_. The second dataset is comprised of 60 participants who took part in a computerised version of this task. To compare these datasets, placement positions and standing positions were put on the same scale (0 being the centre and 1 being stood/placed next to the target). Only data for the easiest (smallest separataion of targets) and hard (furthest separation of targets) conditions were considered as these points offered more comparable base performance levels. 
+
+```{r load in data and draw distributions, include = T, echo = F}
+# so we're interested in the difference between the closest and furthest... 
+# so we should just plot that? 
+load("../power/Money_and_two/scratch/df_sample")
+load("../power/Money_and_two/scratch/df_all")
+plt_data <- df_all %>%
+  filter(standard_lab %in% c("10%","90%")) %>%
+  group_by(participant, condition, standard_lab) %>% 
+  summarise(norm_pos = mean(norm_pos)) %>%
+  ggplot(aes(standard_lab, norm_pos,
+             colour = condition,
+             fill = condition)) + 
+  geom_boxplot(alpha = .3) + 
+  geom_point(alpha = .3, position = position_jitterdodge(.1)) + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() + 
+  theme_bw() +
+  scale_y_continuous("Normalised Placement") +
+  theme(axis.title.x = element_blank()) + 
+  guides(colour = guide_legend(title = "Condition"),
+         fill = guide_legend(title = "Condition"))
+
+plt_data_diff <- plt_data[["data"]] %>%
+  ungroup() %>% 
+  spread(standard_lab, norm_pos) %>% 
+  mutate(diff = `90%` - `10%`) %>% 
+  ggplot(aes(condition, diff,
+             colour = condition, 
+             fill = condition)) + 
+  geom_boxplot(alpha = .3) + 
+  geom_point(alpha = .3, position = position_jitterdodge(.1))
+  
+# plot samples in terms of difference? 
+plt_hdi <- df_sample %>% 
+  filter(n_trials != 12) %>%
+  mutate(diff = baseline - comparison) %>% 
+  group_by(n_subs, dist_type) %>% 
+  summarise(mu = mean(diff),
+            upper = hdi(diff)[2],
+            lower = hdi(diff)[1]) %>% 
+  ggplot(aes(n_subs, mu)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = lower, ymax = upper),
+              alpha = .3) + 
+  facet_wrap(~dist_type) + 
+  theme_bw() + 
+  scale_x_continuous("Sample Size") + 
+  scale_y_continuous("Difference: Athletes - Avatar")
+
+# show both 
+gridExtra::grid.arrange(plt_data, plt_hdi, ncol = 1)
+  
+```
+
 
 # Analysis
 
