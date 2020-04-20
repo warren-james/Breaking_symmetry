@@ -70,6 +70,42 @@ plt_dst <- norm_dat %>%
   see::scale_fill_flat()
 plt_dst
 
+# same as above but using ggridges 
+plt_ridges <- norm_dat %>% 
+  # mutate(Strat = ifelse(hoop_pos <= switchSlab, "Centre", "Side")) %>%
+  mutate(Strat = ifelse(slab_measures %in% c("~90%", "~50% - 1", "~50%"),
+                        "Centre", "Side")) %>%
+  ggplot(aes(norm_dist, slab_measures,
+             fill = Strat)) + 
+  ggridges::geom_density_ridges(alpha = .6,
+                                stat = "binline",
+                                bins = 15) + 
+  scale_x_continuous("",
+                     breaks = c(-1,0,1), 
+                     labels = c("Big Hoop", "Centre", "Small Hoop"),
+                     expand = c(0,0)) + 
+  scale_y_discrete("Slab Difficulty",
+                   expand = c(0,0)) +
+  coord_cartesian(clip = "off") +
+  # ggsci::scale_fill_d3() + 
+  # ggsci::scale_fill_jama() + 
+  ggsci::scale_fill_jco() +
+  # ggsci::scale_fill_simpsons() +
+  # ggsci::scale_fill_ucscgb() +
+  # ggridges::theme_ridges()
+  theme_bw() + 
+  theme(legend.title = element_blank(),
+        legend.text = element_text(size = 7),
+        axis.text = element_text(size = 7),
+        axis.title.y = element_text(size = 7),
+        axis.title.x = element_text(size = 7))
+plt_ridges
+
+# save
+ggsave(plt_ridges, file ="../../Figures/Experiment_3_Hoop_size/ridges_plt.png",
+       height = 4,
+       width = 5.6)
+
 # now do overall instead of by separation 
 plt_dst_overall <- norm_dat %>% 
   ggplot(aes(norm_dist)) + 

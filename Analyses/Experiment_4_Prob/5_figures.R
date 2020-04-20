@@ -72,11 +72,13 @@ plt_fix <- df_part2_fixed %>%
   summarise(centre = mean(centre),
             ML = mean(ML),
             LL = mean(LL)) %>% 
+  ungroup() %>%
   gather(centre:LL,
          key = "prop_type",
          value = "proportion") %>%
   mutate(prop_type = factor(prop_type, c("centre", "ML", "LL"),
-                            labels = c("Centre", "Most Likely", "Least Likely"))) %>%
+                            labels = c("Centre", "Most Likely", "Least Likely")),
+         bias_type = factor(bias_type, c("Symmetric", "Biased"))) %>%
   ggplot(aes(dist_type, proportion,
              fill = bias_type,
              colour = bias_type)) +
@@ -382,7 +384,8 @@ df_regions <- new_acc_measures %>%
 plt_lines_region <- df_regions %>% 
   ungroup() %>% 
   mutate(sep_factor = as.numeric(sep_factor)/as.numeric(max(sep_factor)),
-         sep_factor = sep_factor/max(sep_factor)) %>% 
+         sep_factor = sep_factor/max(sep_factor),
+         bias_type = factor(bias_type, c("Symmetric", "Biased"))) %>% 
   ggplot(aes(sep_factor, Expected)) +
   geom_ribbon(aes(ymin = ymin, 
                   ymax = ymax,
@@ -404,6 +407,6 @@ plt_lines_region <- df_regions %>%
 plt_lines_region  
 
 # # save 
-# ggsave("../../Figures/Experiment_4_Prob/region_performance.png",
-#        width = 5.6,
-#        heigh = 3.5)
+ggsave("../../Figures/Experiment_4_Prob/region_performance.png",
+       width = 5.6,
+       heigh = 3)
