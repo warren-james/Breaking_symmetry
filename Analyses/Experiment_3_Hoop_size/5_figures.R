@@ -211,8 +211,10 @@ norm_dat %>%
   theme(legend.position = "none",
         axis.title.y = element_blank(),
         axis.title.x = element_blank()) +
-  see::scale_color_flat() + 
-  see::scale_fill_flat() # + 
+  # ggsci::scale_colour_lancet() + 
+  # ggsci::scale_fill_lancet()
+  see::scale_color_flat() +
+  see::scale_fill_flat() # +
   # geom_text(data = data_lines, 
   #           aes(1, 3.8,
   #               label = paste("hat(mu)==", round(mu(a,b), 2))),
@@ -227,9 +229,9 @@ norm_dat %>%
   # stat_bin(binwidth= .1, geom="text", aes(label=..count..))
 
 # save 
-# ggsave("../../Figures/Experiment_3_Hoop_size/histogram_beta_fit.png",
-#        width = 5.6,
-#        height = 5)
+ggsave("../../Figures/Experiment_3_Hoop_size/histogram_beta_fit.png",
+       width = 5.6,
+       height = 3)
 
 # look at the mean and precision
 data_lines %>%
@@ -453,7 +455,7 @@ plt_acc_regions <- df_acc %>%
   mutate(sep_factor = as.numeric(slab_measures),
          Best = pmax(Expected, Centre, Side_S, Side_L),
          Worst = pmin(Expected, Centre, Side_S, Side_S),
-         ymin_Best = min(Best),
+         ymin_Best = min(Best)-.01,
          ymax_Best = max(Best),
          ymin_Worst = min(Worst),
          ymax_Worst = max(Worst)) %>% 
@@ -468,13 +470,23 @@ plt_acc_regions <- df_acc %>%
                   ymax = ymax_Best,
                   fill = "green"),
               alpha = .3) +
-  geom_line(aes(group = participant)) +
-  scale_y_continuous("Expected Accuracy") +
+  geom_line(aes(group = participant), alpha = .3) +
+  scale_y_continuous("Expected Accuracy", labels = scales::percent_format(accuracy = 1)) +
   scale_x_continuous("Slab Measures", breaks = c(1:6),
                      labels = c("~90%", "~50% - 1", "~50%", "~50% + 1", "~50% + 2", "~10%")) +
+  # see::scale_color_flat() + 
+  # see::scale_fill_flat() +
+  # ggsci::scale_fill_lancet() + 
+  # ggsci::scale_colour_lancet() +
+  scale_colour_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2") +
   # see::scale_color_pizza_d() +
   # see::scale_fill_pizza() +
   guides(fill = F) +
   theme_bw()
 plt_acc_regions
 
+# save 
+ggsave(plt_acc_regions, file = "../../Figures/Experiment_3_Hoop_size/plt_acc_regions.png",
+       width = 5.6,
+       height = 3)

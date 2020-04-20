@@ -97,7 +97,7 @@ plt_fix
 # save this 
 ggsave("../../Figures/Experiment_4_Prob/boxes_prop_CML.png",
        width = 5.6,
-       height = 3)
+       height = 2.5)
 
 # some quick descriptives 
 plt_fix[["data"]] %>% 
@@ -395,15 +395,19 @@ plt_lines_region <- df_regions %>%
             linetype = "dashed") +
   facet_wrap(~bias_type) + 
   theme_bw()+
-  scale_y_continuous("Expected Accuracy") +
-  scale_x_continuous(expression(Delta[N])) + #"Normalised Delta") +
+  scale_y_continuous("Expected Accuracy", labels = scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(expression(Delta)) + #"Normalised Delta") +
   guides(fill = F,
          colour = F) + 
-  see::scale_color_flat() + 
-  see::scale_fill_flat()
+  # ggsci::scale_color_lancet() +
+  # ggsci::scale_fill_lancet()
+  scale_colour_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2")
+  # see::scale_color_flat() + 
+  # see::scale_fill_flat()
 plt_lines_region  
 
 # # save 
-# ggsave("../../Figures/Experiment_4_Prob/region_performance.png",
-#        width = 5.6,
-#        heigh = 3.5)
+ggsave("../../Figures/Experiment_4_Prob/region_performance.png",
+       width = 5.6,
+       heigh = 2.5)

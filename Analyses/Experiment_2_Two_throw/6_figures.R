@@ -74,6 +74,10 @@ plt_box$labels$colour = "No. Throws"
 plt_box$labels$fill = "No. Throws"
 plt_box
 
+# save 
+ggsave(plt_box, file = "../../Figures/Experiment_2_Two_throw/box_plt.png",
+       height = 3, 
+       width = 5.6)
 
 #### Expected Accuracy ####
 # load part 1 data 
@@ -152,30 +156,37 @@ df_acc %>%
   mutate(sep_factor = as.numeric(slab_measures),
          Best = pmax(Expected, Centre, Side),
          Worst = pmin(Expected, Centre, Side),
-         ymin_Best = min(Best),
+         ymin_Best = min(Best)-.01,
          ymax_Best = max(Best),
          ymin_Worst = min(Worst),
          ymax_Worst = max(Worst)) %>%
   ggplot(aes(sep_factor, Expected)) + 
   geom_ribbon(aes(x = sep_factor,
                   ymin = ymin_Worst,
-                  ymax = ymax_Worst,
+                  ymax = ymax_Worst, 
                   fill = "red"),
-              alpha = .3) + 
+              alpha = .35) + 
   geom_ribbon(aes(x = sep_factor,
                   ymin = ymin_Best,
                   ymax = ymax_Best,
                   fill = "green"),
-              alpha = .3) +
-  scale_y_continuous("Expected Accuracy") +
+              alpha = .35) +
+  scale_y_continuous("Expected Accuracy", labels = scales::percent_format(accuracy = 1)) +
   scale_x_continuous("Slab Measures", breaks = c(1:6),
                      labels = c("~90%", "~50% - 1", "~50%", "~50% + 1", "~50% + 2", "~10%")) +
-  geom_line(aes(group = interaction(Participant, Num_throws))) + 
+  # ggsci::scale_color_lancet() + 
+  # ggsci::scale_fill_lancet() +
+  scale_colour_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2") +
+  geom_line(aes(group = interaction(Participant, Num_throws)),
+            size = .5,
+            alpha = .2) + 
   theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = .5)) +
   facet_wrap(~Num_throws) + 
   guides(fill = F)
 
 # save this 
-# ggsave("../../Figures/Experiment_2_Two_throw/Accuracy_regions.png",
-#        height = 5, 
-#        width = 7)
+ggsave("../../Figures/Experiment_2_Two_throw/Accuracy_regions.png",
+       height = 3,
+       width = 5.6)
