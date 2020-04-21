@@ -7,6 +7,8 @@ library(tidyverse)
 #### Load in data ####
 load("scratch/df_part2_norm")
 
+#### constants #### 
+save_route <- c("../../Figures/Experiment_3_Hoop_size/")
 #### functions ####
 mu <- function(a, b){
   a/(a + b)
@@ -84,8 +86,9 @@ plt_ridges <- norm_dat %>%
                      breaks = c(-1,0,1), 
                      labels = c("Big Hoop", "Centre", "Small Hoop"),
                      expand = c(0,0)) + 
-  scale_y_discrete("Slab Difficulty",
+  scale_y_discrete(expression(paste("Hoop Delta (", Delta, ")", sep = "")),
                    expand = c(0,0)) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
   coord_cartesian(clip = "off") +
   # ggsci::scale_fill_d3() + 
   # ggsci::scale_fill_jama() + 
@@ -94,8 +97,7 @@ plt_ridges <- norm_dat %>%
   # ggsci::scale_fill_ucscgb() +
   # ggridges::theme_ridges()
   theme_bw() + 
-  theme(legend.title = element_blank(),
-        legend.text = element_text(size = 7),
+  theme(legend.position = "none",
         axis.text = element_text(size = 7),
         axis.title.y = element_text(size = 7),
         axis.title.x = element_text(size = 7))
@@ -103,7 +105,7 @@ plt_ridges
 
 # save
 ggsave(plt_ridges, file ="../../Figures/Experiment_3_Hoop_size/ridges_plt.png",
-       height = 4,
+       height = 3.5,
        width = 5.6)
 
 # now do overall instead of by separation 
@@ -508,7 +510,8 @@ plt_acc_regions <- df_acc %>%
               alpha = .3) +
   geom_line(aes(group = participant), alpha = .3) +
   scale_y_continuous("Expected Accuracy", labels = scales::percent_format(accuracy = 1)) +
-  scale_x_continuous("Slab Measures", breaks = c(1:6),
+  scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")", sep = "")),
+                                breaks = c(1:6),
                      labels = c("~90%", "~50% - 1", "~50%", "~50% + 1", "~50% + 2", "~10%")) +
   # see::scale_color_flat() + 
   # see::scale_fill_flat() +
@@ -519,10 +522,22 @@ plt_acc_regions <- df_acc %>%
   # see::scale_color_pizza_d() +
   # see::scale_fill_pizza() +
   guides(fill = F) +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text = element_text(size = 7),
+        axis.title.y = element_text(size = 7),
+        axis.title.x = element_text(size = 7))
 plt_acc_regions
 
 # save 
 ggsave(plt_acc_regions, file = "../../Figures/Experiment_3_Hoop_size/plt_acc_regions.png",
        width = 5.6,
        height = 3)
+
+# cobine with ridges 
+plt_save <- gridExtra::grid.arrange(plt_acc_regions, plt_ridges, ncol = 2)
+ggsave(plt_save, file = paste(save_route, "exp_acc_pos_combined.png"),
+       height = 3, 
+       width = 5.6)
+
+
+

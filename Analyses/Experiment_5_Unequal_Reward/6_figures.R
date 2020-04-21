@@ -10,6 +10,9 @@ load("scratch/data/model_data")
 #### Constants ####
 save_route <- "../../Figures/Experiment_5_Unequal_Reward/"
 
+#### Functions ####
+
+
 #### Pre-processing #####
 # sort the labels for their standing positions so we have some consitencies 
 model_data <- model_data %>% 
@@ -19,6 +22,8 @@ model_data <- model_data %>%
                                 labels = c("90% (Close)", "75%", "25%", "10% (Far)")))  
   
 #### Make plots ####
+#### Position ####
+#### Density plot ####
 # density plot
 model_data %>% 
   ggplot(aes(Norm_Dist,
@@ -31,7 +36,7 @@ model_data %>%
   see::scale_fill_flat() +
   facet_wrap(~dist_type)
 
-
+#### Box plot ####
 # box plots 
 plt_box <- model_data %>% 
   ggplot(aes(slab_measures, 
@@ -39,7 +44,7 @@ plt_box <- model_data %>%
              colour = Gamble_Type,
              fill = Gamble_Type)) + 
   geom_boxplot(alpha = .3) +
-  scale_x_discrete("Hoop Delta") +
+  scale_x_discrete(expression(paste("Hoop Delta (", Delta, ")", sep = ""))) +
   scale_y_continuous(breaks = c(0,1),
                      labels = c("Centre", "Side")) +
   see::scale_color_flat() + 
@@ -63,6 +68,7 @@ ggsave(paste(save_route, "box_plot_standing_pos", ".png", sep = ""),
        height = 3,
        width = 5.6)
 
+#### Prop of gamble types ####
 # prop of gamble types
 # can either do percentages since there were some trials that were excluded from the analysis since 
 # they were outside the range 
@@ -95,6 +101,7 @@ ggsave(paste(save_route, "Percent_split", ".png", sep = ""),
        height = 3, 
        width = 5.6)
 
+#### histogram version ####
 # remake this as a hisotgram 
 plt_hist <- model_data %>% 
   mutate(dist_type = ifelse(dist_type == "far", "Far", "Close")) %>%
@@ -140,7 +147,8 @@ plt_hist <- model_data %>%
          colour = guide_legend("Distance"))
 plt_hist
 
-plt_hist_overall <- model_data %>% 
+#### Bar plot version ####
+plt_bar <- model_data %>% 
   group_by(Gamble_Type, slab_measures) %>% 
   summarise(n = n()) %>% 
   ungroup() %>% 
@@ -148,30 +156,55 @@ plt_hist_overall <- model_data %>%
   mutate(count = sum(n)) %>% 
   ungroup() %>% 
   mutate(prop = n/count) %>% 
-  filter(Gamble_Type == "Unequal") %>% 
+  filter(Gamble_Type != "Unequal") %>% 
   ggplot(aes(x = slab_measures, y = prop)) +
   geom_bar(stat = "identity",
            colour = "black",
-           fill = "red",
+           fill = "#2980b9",
            alpha = .3)  +
   scale_x_discrete(expression(paste("Hoop Delta (", Delta, ")", sep = ""))) + 
-  scale_y_continuous("Number of Unequal split choices",
+  scale_y_continuous("Proportion of Equal split choices",
                      labels = scales::percent_format(accuracy = 1)) + 
   theme_bw() + 
   theme(axis.text = element_text(size = 7),
         axis.title.y = element_text(size = 7),
         axis.title.x = element_text(size = 7))
-plt_hist_overall
+plt_bar
 
 # combine the previous two plots 
 # plt_save <- gridExtra::grid.arrange(plt_box, plt_prop_gamble_types, ncol = 2)
-plt_save <- gridExtra::grid.arrange(plt_box, plt_hist_overall, ncol = 2)
+plt_save <- gridExtra::grid.arrange(plt_box, plt_bar, ncol = 2)
 ggsave(plt_save,
        file = paste(save_route, "combined_standing_prop_split", ".png", sep = ""),
-       height = 3,
+       height = 2.5,
        width = 5.6)
 
+#### new idea ####
+model_data %>% 
+  group_by(Participant, slab_measures) %>% 
+  mutate(count = n()) %>%
+  ungroup() %>%
+  group_by(Participant, Gamble_Type, slab_measures, count) %>% 
+  summarise(n = n()) %>%
+  ungroup() %>%
+  # make a column for the "interaction"
+  mutate(int = paste(Gamble_Type, slab_measures, sep = "_")) %>% 
+  select(Participant, count, n, int) %>% 
+  complete(int, nesting(Participant), 
+           fill = list(n = 0)) %>% 
+  # separate
+  separate(int, 
+           into = c("Gamble_Type", "slab_measures"),
+           sep = "_") %>% 
+  # need to use if else statement here for sanity
+  mutate(prop = ifelse(n == 0, 0, n/count)) %>% 
+  ungroup() %>% 
+  group_by(Gamble_Type, slab_measures) %>% 
+  summarise(mu = mean(prop))
 
+
+
+#### Extra plots ####
 # remake this but as a histogram 
 model_data %>% 
   ggplot(aes(Norm_Dist, 
