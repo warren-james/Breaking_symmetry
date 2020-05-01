@@ -9,7 +9,7 @@ load("scratch/data/model_data")
 load("scratch/data/df_part2")
 #### Constants ####
 save_route <- "../../Figures/Experiment_5_Unequal_Reward/"
-
+plt_space <- 0
 #### Functions ####
 
 
@@ -20,7 +20,7 @@ model_data <- model_data %>%
   mutate(slab_measures = as.numeric(as.factor(Norm_Delta)),
          slab_measures = factor(slab_measures,
                                 labels = c("90% (Close)", "75%", "25%", "10% (Far)")))  
-  
+
 df_part2 <- df_part2 %>% 
   group_by(Participant) %>% 
   mutate(Norm_Delta = HoopDelta/max(HoopDelta),
@@ -58,15 +58,16 @@ plt_box <- model_data %>%
   see::scale_color_flat() + 
   see::scale_fill_flat() + 
   theme_bw() + 
-  theme(axis.title.y = element_blank(),
-        # legend.position = "right",
-        legend.position = c(.2,.8),
-        legend.text = element_text(size = 5),
-        legend.title = element_text(size = 7),
-        legend.box.margin = margin(t = -25, r = -25, b = -25, l = -25),
-        legend.box = "vertical",
-        axis.text = element_text(size = 7),
-        axis.title.x = element_text(size = 7)) +
+  theme(
+    axis.title.y = element_blank(),
+    # legend.position = "right",
+    legend.position = "none",
+    legend.box.margin = margin(t = -10, r = -10, b = -10, l = -10),
+    legend.box = "vertical",
+    axis.text = element_text(size = 7),
+    axis.title.x = element_text(size = 7),
+    plot.margin = unit(c(plt_space, plt_space, plt_space, plt_space), "cm")
+  ) +
   labs(colour = "Split Type",
        fill = "Split Type")
 plt_box
@@ -93,14 +94,16 @@ plt_prop_gamble_types <- model_data %>%
   see::scale_fill_flat() + 
   geom_bar(stat = "identity", width = 0.5) +
   theme_bw() +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_y_continuous("Percent of each split", labels = scales::percent_format(accuracy = 1)) +
   #scale_y_discrete(limits = seq(0,1,.25)) + 
-  theme(legend.position = "none",
-        legend.text = element_text(size = 7),
-        axis.text = element_text(size = 7),
-        axis.title.y = element_text(size = 7),
-        axis.title.x = element_blank())
-plt_prop_gamble_types$labels$y <- "% of each split"
+  theme(
+    legend.position = "none",
+    legend.text = element_text(size = 7),
+    axis.text = element_text(size = 7),
+    axis.title.y = element_text(size = 7),
+    axis.title.x = element_blank(),
+    plot.margin = unit(c(plt_space, plt_space, plt_space, plt_space), "cm")
+  )
 plt_prop_gamble_types$labels$fill <- "Split"
 plt_prop_gamble_types
 
@@ -178,9 +181,12 @@ plt_bar <- model_data %>%
                   ylim = c(0,1),
                   xlim = c(.4,4.6)) +
   theme_bw() + 
-  theme(axis.text = element_text(size = 8),
-        axis.title.y = element_text(size = 8),
-        axis.title.x = element_text(size = 8))
+  theme(
+    axis.text = element_text(size = 8),
+    axis.title.y = element_text(size = 8),
+    axis.title.x = element_text(size = 8),
+    plot.margin = unit(c(plt_space, plt_space, plt_space, plt_space), "cm")
+  )
 plt_bar
 
 # combine the previous two plots 
@@ -235,8 +241,9 @@ df_part2 %>%
   theme(
     legend.title = element_blank(),
     axis.title = element_text(size = 8),
-    axis.text = element_text(size = 8)
-    )
+    axis.text = element_text(size = 8),
+    plot.margin = unit(c(plt_space, plt_space, plt_space, plt_space), "cm")
+  )
 
 # something similar but using ggridges 
 plt_ridges <- df_part2 %>% 
@@ -279,7 +286,7 @@ plt_ridges <- df_part2 %>%
   #                               bins = 8) +
   theme_bw()
 plt_ridges
-  
+
 # geom_path idea 
 plt_line_choices <- df_part2 %>% 
   group_by(Participant, slab_measures) %>% 
@@ -321,7 +328,8 @@ plt_line_choices <- df_part2 %>%
   theme(
     legend.position = "none",
     axis.title = element_text(size = 8),
-    axis.text = element_text(size = 8)
+    axis.text = element_text(size = 8),
+    plot.margin = unit(c(plt_space, plt_space, plt_space, plt_space), "cm")
   )
 plt_line_choices
 
@@ -394,9 +402,9 @@ plt_ribbon <- df_exp_acc %>%
                   ymax = ymax_Best,
                   fill = "green"),
               alpha = .3) +
-scale_y_continuous("Expected Earnigs per trial",
-                   breaks = seq(0,20,5),
-                   labels = c("0p", "5p", "10p", "15p", "20p")) + 
+  scale_y_continuous("Expected Earnigs per trial",
+                     breaks = seq(0,20,5),
+                     labels = c("0p", "5p", "10p", "15p", "20p")) + 
   scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")", sep = "")),
                      limits = c(.7, 4.3),
                      breaks = seq(1,4,1),
@@ -407,16 +415,17 @@ scale_y_continuous("Expected Earnigs per trial",
   theme(
     legend.position = "none",
     axis.title = element_text(size = 8),
-    axis.text = element_text(size = 8)
+    axis.text = element_text(size = 8),
+    plot.margin = unit(c(plt_space, plt_space, plt_space, plt_space), "cm")
   )
 plt_ribbon
 
 #### putting all plots together ####
-plt_save <- gridExtra::grid.arrange(plt_bar, plt_line_choices, plt_box, plt_ribbon, ncol = 2)
+# plt_save <- gridExtra::grid.arrange(plt_bar, plt_line_choices, plt_box, plt_ribbon, ncol = 2)
 plt_save <- cowplot::plot_grid(plt_bar, plt_line_choices, plt_box, plt_ribbon, labels = c("a)", "b)", "c)", "d)"), label_size = 8)
 ggsave(plt_save, file = paste(save_route, "four_panel.png", sep = ""),
-       height = 5,
-       width = 5.6)
+       height = 4,
+       width = 4.48)
 
 
 # to satisfy curiosity about the best strategy 
@@ -518,9 +527,9 @@ plt_choice_trial <- df_part2 %>%
   ) + 
   facet_wrap(~Participant)
 plt_choice_trial
-  
-  
-  
+
+
+
 # df_part2 %>% 
 #   mutate(Unequal = ifelse(Gamble_Type == "Equal", 0, 1)) %>% 
 #   group_by(Trial) %>% 
@@ -535,7 +544,7 @@ df_part2 %>%
   group_by(Gamble_Type) %>% 
   summarise(n = n()) %>% 
   mutate(prop = n/240)
-    
-  
+
+
 
 
