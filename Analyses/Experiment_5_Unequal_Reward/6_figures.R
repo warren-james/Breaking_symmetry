@@ -6,7 +6,7 @@ library(tidyverse)
 
 #### load in data #### 
 load("scratch/data/model_data")
-
+load("scratch/data/df_part2")
 #### Constants ####
 save_route <- "../../Figures/Experiment_5_Unequal_Reward/"
 
@@ -21,6 +21,14 @@ model_data <- model_data %>%
          slab_measures = factor(slab_measures,
                                 labels = c("90% (Close)", "75%", "25%", "10% (Far)")))  
   
+df_part2 <- df_part2 %>% 
+  group_by(Participant) %>% 
+  mutate(Norm_Delta = HoopDelta/max(HoopDelta),
+         slab_measures = as.numeric(as.factor(Norm_Delta)),
+         slab_measures = factor(slab_measures,
+                                labels = c("90% (Close)", "75%", "25%", "10% (Far)")),
+         dist_type = ifelse(slab_measures %in% c("90% (Close)", "75%"), "close", "far"))
+
 #### Make plots ####
 #### Position ####
 #### Density plot ####
@@ -139,10 +147,10 @@ plt_hist <- model_data %>%
                      labels = scales::percent_format(accuracy = 1)) +
   theme_bw() + 
   theme(legend.title = element_blank(),
-        legend.text = element_text(size = 7),
-        axis.text = element_text(size = 7),
-        axis.title.y = element_text(size = 7),
-        axis.title.x = element_text(size = 7)) +
+        legend.text = element_text(size = 8),
+        axis.text = element_text(size = 8),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_text(size = 8)) +
   guides(fill = guide_legend("Distance"),
          colour = guide_legend("Distance"))
 plt_hist
@@ -163,12 +171,16 @@ plt_bar <- model_data %>%
            fill = "#2980b9",
            alpha = .3)  +
   scale_x_discrete(expression(paste("Hoop Delta (", Delta, ")", sep = ""))) + 
-  scale_y_continuous("Proportion of Equal split choices",
-                     labels = scales::percent_format(accuracy = 1)) + 
+  scale_y_continuous("Percent of Equal split choices",
+                     labels = scales::percent_format(accuracy = 1),
+                     limits = c(0,1)) + 
+  coord_cartesian(expand = F,
+                  ylim = c(0,1),
+                  xlim = c(.4,4.6)) +
   theme_bw() + 
-  theme(axis.text = element_text(size = 7),
-        axis.title.y = element_text(size = 7),
-        axis.title.x = element_text(size = 7))
+  theme(axis.text = element_text(size = 8),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_text(size = 8))
 plt_bar
 
 # combine the previous two plots 
@@ -180,7 +192,8 @@ ggsave(plt_save,
        width = 5.6)
 
 #### new idea ####
-model_data %>% 
+# more bar plots but broken down by "out of 3"
+df_part2 %>% 
   group_by(Participant, slab_measures) %>% 
   mutate(count = n()) %>%
   ungroup() %>%
@@ -199,10 +212,261 @@ model_data %>%
   # need to use if else statement here for sanity
   mutate(prop = ifelse(n == 0, 0, n/count)) %>% 
   ungroup() %>% 
-  group_by(Gamble_Type, slab_measures) %>% 
-  summarise(mu = mean(prop))
+  mutate(out_of_3 = paste(prop*3, " / 3", sep = "")) %>% 
+  filter(Gamble_Type == "Equal") %>% 
+  group_by(slab_measures, out_of_3) %>% 
+  summarise(n = n()) %>% 
+  ungroup() %>%
+  mutate(slab_measures = factor(slab_measures,
+                                c("90% (Close)", "75%", "25%", "10% (Far)"))) %>%
+  ggplot(aes(out_of_3, n,
+             colour = slab_measures, 
+             fill = slab_measures)) + 
+  geom_bar(stat = "identity",
+           alpha = .3,
+           position = "dodge") +
+  scale_y_continuous("Number of Equal Splits Chosen", breaks = seq(0,10,2)) +
+  scale_x_discrete(expression(paste("Hoop Delta (", Delta, ")", sep = ""))) +
+  see::scale_color_flat() + 
+  see::scale_fill_flat() +
+  # ggsci::scale_color_d3() + 
+  # ggsci::scale_fill_d3()
+  theme_bw() + 
+  theme(
+    legend.title = element_blank(),
+    axis.title = element_text(size = 8),
+    axis.text = element_text(size = 8)
+    )
+
+# something similar but using ggridges 
+plt_ridges <- df_part2 %>% 
+  group_by(Participant, slab_measures) %>% 
+  mutate(count = n()) %>%
+  ungroup() %>%
+  group_by(Participant, Gamble_Type, slab_measures, count) %>% 
+  summarise(n = n()) %>%
+  ungroup() %>%
+  # make a column for the "interaction"
+  mutate(int = paste(Gamble_Type, slab_measures, sep = "_")) %>% 
+  select(Participant, count, n, int) %>% 
+  complete(int, nesting(Participant), 
+           fill = list(n = 0)) %>% 
+  # separate
+  separate(int, 
+           into = c("Gamble_Type", "slab_measures"),
+           sep = "_") %>% 
+  # need to use if else statement here for sanity
+  mutate(prop = ifelse(n == 0, 0, n/count)) %>% 
+  ungroup() %>% 
+  mutate(out_of_3 = paste(prop*3, " / 3", sep = "")) %>% 
+  filter(Gamble_Type == "Equal") %>% 
+  # group_by(slab_measures, out_of_3) %>%
+  # summarise(n = n()) %>%
+  ungroup() %>%
+  mutate(slab_measures = factor(slab_measures,
+                                c("90% (Close)", "75%", "25%", "10% (Far)"))) %>% 
+  ggplot(aes(out_of_3, slab_measures,
+             # height = n,
+             group = slab_measures,
+             colour = out_of_3,
+             fill = out_of_3)) + 
+  ggridges::geom_density_ridges(stat = "binline",
+                                alpha = .3,
+                                fill = "blue",
+                                binwidth = 1) +
+  # ggridges::geom_ridgeline(stat = "binline") +
+  # ggridges::geom_density_ridges(stat = "binline",
+  #                               bins = 8) +
+  theme_bw()
+plt_ridges
+  
+# geom_path idea 
+plt_line_choices <- df_part2 %>% 
+  group_by(Participant, slab_measures) %>% 
+  mutate(count = n()) %>%
+  ungroup() %>%
+  group_by(Participant, Gamble_Type, slab_measures, count) %>% 
+  summarise(n = n()) %>%
+  ungroup() %>%
+  # make a column for the "interaction"
+  mutate(int = paste(Gamble_Type, slab_measures, sep = "_")) %>% 
+  select(Participant, count, n, int) %>% 
+  complete(int, nesting(Participant), 
+           fill = list(n = 0)) %>% 
+  # separate
+  separate(int, 
+           into = c("Gamble_Type", "slab_measures"),
+           sep = "_") %>% 
+  # need to use if else statement here for sanity
+  mutate(prop = ifelse(n == 0, 0, n/count)) %>% 
+  ungroup() %>% 
+  mutate(out_of_3 = paste(prop*3, " / 3", sep = "")) %>% 
+  filter(Gamble_Type == "Equal") %>% 
+  # group_by(slab_measures, out_of_3) %>%
+  # summarise(n = n()) %>%
+  ungroup() %>% 
+  mutate(slab_measures = factor(slab_measures,
+                                c("90% (Close)", "75%", "25%", "10% (Far)"))) %>% 
+  ggplot(aes(slab_measures, out_of_3,
+             colour = Participant)) + 
+  # geom_jitter(alpha = .3) + 
+  geom_path(aes(group = Participant),
+            position = position_jitter(w = .1, h = .1),
+            size = 1.25,
+            alpha = .5) + 
+  theme_bw() + 
+  scale_x_discrete(expression(paste("Hoop Delta (", Delta, ")", sep = ""))) +
+  scale_y_discrete("") +
+  see::scale_color_flat() + 
+  theme(
+    legend.position = "none",
+    axis.title = element_text(size = 8),
+    axis.text = element_text(size = 8)
+  )
+plt_line_choices
+
+# save 
+ggsave(paste(save_route, "prop_choices_dist.png", sep = ""),
+       height = 3,
+       width = 5.6)
+
+#### plot of expected earnings ####
+# load in acc data 
+load("scratch/data/acc_dat")
+
+l_acc <- acc_dat 
+colnames(l_acc) <- c("Participant", "left_dist", "left_acc")
+r_acc <- acc_dat 
+colnames(r_acc) <- c("Participant", "right_dist", "right_acc")
+side_c_acc <- acc_dat
+colnames(side_c_acc) <- c("Participant", "side_c_dist", "side_c_acc")
+side_f_acc <- acc_dat
+colnames(side_f_acc) <- c("Participant", "side_f_dist", "side_f_acc")
+cent_acc <- acc_dat
+colnames(cent_acc) <- c("Participant", "cent_dist", "cent_acc")
+
+df_exp_acc <- df_part2 %>% 
+  mutate(left_dist = HoopDelta + Subject_Position,
+         right_dist = HoopDelta - Subject_Position,
+         side_c_dist = 0,
+         side_f_dist = HoopDelta *2,
+         cent_dist = HoopDelta) %>% 
+  merge(l_acc) %>% 
+  merge(r_acc) %>% 
+  merge(cent_acc) %>% 
+  merge(side_f_acc) %>% 
+  merge(side_c_acc) %>% 
+  select(-c(Trial, Colour, B, G, R, Y, Norm_Dist, Norm_Delta, dist_type, Direction)) %>% 
+  mutate(exp_earnings = (left_acc * Left_Gamble * .5) + (right_acc * Right_Gamble * .5),
+         side_unequal_goodChoice = (side_c_acc * 40 * .5) + (side_f_acc * 10 * .5),
+         side_unequal_badChoice = (side_c_acc * 10 * .5) + (side_f_acc * 40 * .5),
+         side_equal = (side_c_acc * 25 * .5) + (side_f_acc * 25 * .5),
+         centre = (cent_acc * 25 * .5) + (cent_acc * 25 * .5)) %>% 
+  group_by(Participant, slab_measures) %>% 
+  summarise(exp_earnings = mean(exp_earnings),
+            side_unequal_goodChoice = mean(side_unequal_goodChoice),
+            side_unequal_badChoice = mean(side_unequal_badChoice),
+            side_equal = mean(side_equal),
+            centre = mean(centre)) %>% 
+  ungroup() %>% 
+  group_by(slab_measures) %>% 
+  mutate(Best = pmax(side_unequal_goodChoice, side_unequal_badChoice, side_equal, centre),
+         Worst = pmin(side_unequal_goodChoice, side_unequal_badChoice, side_equal, centre),
+         ymin_Best = min(Best),
+         ymax_Best = max(Best),
+         ymin_Worst = min(Worst),
+         ymax_Worst = max(Worst)) 
+
+# make plot
+plt_ribbon <- df_exp_acc %>% 
+  ungroup() %>% 
+  mutate(sep_factor = as.numeric(slab_measures)) %>%
+  ggplot(aes(sep_factor, exp_earnings)) + 
+  geom_line(aes(group = Participant),
+            alpha = .3) + 
+  geom_ribbon(aes(x = sep_factor,
+                  ymin = ymin_Worst,
+                  ymax = ymax_Worst,
+                  fill = "red"),
+              alpha = .3) + 
+  geom_ribbon(aes(x = sep_factor,
+                  ymin = ymin_Best,
+                  ymax = ymax_Best,
+                  fill = "green"),
+              alpha = .3) +
+scale_y_continuous("Expected Earnigs per trial",
+                   breaks = seq(0,20,5),
+                   labels = c("0p", "5p", "10p", "15p", "20p")) + 
+  scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")", sep = "")),
+                     limits = c(.7, 4.3),
+                     breaks = seq(1,4,1),
+                     labels = c("90% (Close)", "75%", "25%", "10% (Far)")) + 
+  scale_colour_brewer(palette = "Dark2") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_bw() + 
+  theme(
+    legend.position = "none",
+    axis.title = element_text(size = 8),
+    axis.text = element_text(size = 8)
+  )
+plt_ribbon
+
+#### putting all plots together ####
+plt_save <- gridExtra::grid.arrange(plt_bar, plt_line_choices, plt_box, plt_ribbon, ncol = 2)
+plt_save <- cowplot::plot_grid(plt_bar, plt_line_choices, plt_box, plt_ribbon, labels = c("a)", "b)", "c)", "d)"), label_size = 8)
+ggsave(plt_save, file = paste(save_route, "four_panel.png", sep = ""),
+       height = 5,
+       width = 5.6)
 
 
+# to satisfy curiosity about the best strategy 
+# all looks good
+df_exp_acc %>% 
+  select(Participant, slab_measures, side_unequal_badChoice, side_unequal_goodChoice, side_equal, centre) %>% 
+  gather(side_unequal_badChoice:centre, 
+         key = "Strat",
+         value = "value") %>% 
+  ggplot(aes(slab_measures, value, 
+             colour = Strat,
+             fill = Strat)) + 
+  geom_line(aes(group = Strat)) + 
+  facet_wrap(~Participant) + 
+  theme_bw() + 
+  see::scale_color_flat()
+
+# get total amount 
+df_exp_acc %>% 
+  select(Participant, slab_measures, side_unequal_badChoice, side_unequal_goodChoice, side_equal, centre) %>% 
+  gather(side_unequal_badChoice:centre, 
+         key = "Strat",
+         value = "value") %>% 
+  mutate(exp_total = value * 3) %>% 
+  group_by(Participant, Strat) %>% 
+  summarise(total = sum(exp_total)) %>%
+  ggplot(aes(total,
+             Strat,
+             colour = Strat,
+             fill = Strat)) + 
+  ggridges::geom_density_ridges(alpha = .3) + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() + 
+  theme(
+    legend.position = "none"
+  )
+
+# descriptives for this 
+df_exp_acc %>% 
+  select(Participant, slab_measures, side_unequal_badChoice, side_unequal_goodChoice, side_equal, centre) %>% 
+  gather(side_unequal_badChoice:centre, 
+         key = "Strat",
+         value = "value") %>% 
+  mutate(exp_total = value * 3) %>% 
+  group_by(Participant, Strat) %>% 
+  summarise(total = sum(exp_total)) %>% 
+  ungroup() %>% 
+  group_by(Strat) %>% 
+  summarise(mean_earnigs = mean(total),
+            sdev = sd(total))
 
 #### Extra plots ####
 # remake this but as a histogram 
@@ -225,3 +489,53 @@ model_data %>%
   ggplot(aes(unequal_prop)) + 
   geom_histogram(aes(y = ..density..)) +
   geom_density()
+
+# choice with trial?
+# try a rolling cumsum sort of thing? 
+plt_choice_trial <- df_part2 %>% 
+  mutate(Unequal = ifelse(Gamble_Type == "Equal", 0, 1)) %>% 
+  group_by(Participant) %>% 
+  mutate(cumsum = cumsum(Unequal),
+         prop = cumsum/Trial) %>% 
+  ggplot(aes(Trial, prop, 
+             colour = Participant)) + 
+  # geom_line()
+  geom_path(aes(group = Participant),
+            # position = position_jitter(w = .02, h = .02),
+            size = 1.25,
+            alpha = .5) +
+  geom_hline(yintercept = .5,
+             linetype = "dashed") +
+  scale_y_continuous("Propotion of Unequal choices",
+                     breaks = seq(0,1,1/12),
+                     labels = scales::percent_format(accuracy = 1)) + 
+  scale_x_continuous("Trial Number", breaks = seq(1,12,1)) + 
+  theme_light() +
+  # theme_replace() + 
+  theme(
+    panel.grid.minor = element_blank(),
+    legend.position = "none"
+  ) + 
+  facet_wrap(~Participant)
+plt_choice_trial
+  
+  
+  
+# df_part2 %>% 
+#   mutate(Unequal = ifelse(Gamble_Type == "Equal", 0, 1)) %>% 
+#   group_by(Trial) %>% 
+#   summarise(mu = mean(Unequal)) %>% 
+#   ggplot(aes(Trial, mu)) + 
+#   geom_line()
+#  
+
+# descs
+# prop choices
+df_part2 %>% 
+  group_by(Gamble_Type) %>% 
+  summarise(n = n()) %>% 
+  mutate(prop = n/240)
+    
+  
+
+

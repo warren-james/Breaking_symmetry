@@ -27,7 +27,7 @@ acc_dat <- data.frame(Participant = character(),
                       Est_Accuracy = numeric())
 
 # separations we want 
-separations <- c(0:36)
+separations <- c(0:40)
 
 # run loop
 for(P in levels(df_part1$Participant)) {
@@ -52,6 +52,8 @@ for(P in levels(df_part1$Participant)) {
 # tidy 
 rm(P, ss, m, p, separations)
 
+# save
+save(acc_dat, file = "scratch/data/acc_dat")
 
 #### sort data for model ####
 # add in accuracy data to df_part2 

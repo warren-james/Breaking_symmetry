@@ -79,12 +79,12 @@ refresh <- n_iter/100
 # make this a data.table instead 
 n <- n_iter * length(n_subs) * length(n_trials) * length(dists)
 
-# df_sample <- data.table::data.table(iter = rep(0, n),
-#                                     n_subs = rep(0, n),
-#                                     n_trials = rep(0, n),
-#                                     dist_type = rep("", n),
-#                                     baseline = rep(0, n),
-#                                     comparison = rep(0, n))
+df_sample <- data.table::data.table(iter = rep(0, n),
+                                    n_subs = rep(0, n),
+                                    n_trials = rep(0, n),
+                                    dist_type = rep("", n),
+                                    baseline = rep(0, n),
+                                    comparison = rep(0, n))
 # 
 # # TODO make this loop quicker by using data.table()
 # # split dataset for ease of access...
@@ -92,60 +92,60 @@ df_Av <- df_all %>%
   filter(condition == "Avatar")
 df_Th <- df_all %>%
   filter(condition == "Throwing")
-# 
-# # start counter
-# count <- 0
-# # loop through
-# for(ii in 1:n_iter){
-#   if(ii %% refresh == 0){
-#     print(paste((ii/n_iter)*100, "%", sep = ""))
-#   }
-#   # loop distances
-#   for(dist in dists){
-#     base_ss <- df_Th %>%
-#       filter(standard_lab == dist)
-#     comp_ss <- df_Av %>%
-#       filter(standard_lab == dist)
-#     for(trials in n_trials){
-#       for(subs in n_subs){
-#         # get random subjects
-#         base_subs <- sample(df_Th$participant, subs, replace = T)
-#         comp_subs <- sample(df_Av$participant, subs, replace = T)
-# 
-#         # loop through subjects
-#         base_sample <- c()
-#         comp_sample <- c()
-#         for(sub in 1:subs){
-#           base_temp <- base_ss %>%
-#             filter(participant == base_subs[sub])
-#           comp_temp <- comp_ss %>%
-#             filter(participant == comp_subs[sub])
-#           base_sample <- c(base_sample,
-#                            sample(base_temp$norm_pos, trials, replace = T))
-#           comp_sample <- c(comp_sample,
-#                            sample(comp_temp$norm_pos, trials, replace = T))
-#           if(sub == subs){
-#             count <- count + 1
-#             # bind to dataframe
-#             # df_sample <- rbind(df_sample, tibble(iter = ii,
-#             #                                      n_subs = subs,
-#             #                                      n_trials = trials,
-#             #                                      dist = dist,
-#             #                                      baseline = mean(base_sample),
-#             #                                      comparison = mean(comp_sample)))
-#             # input into table
-#             df_sample[count, iter := ii]
-#             df_sample[count, n_subs := subs]
-#             df_sample[count, n_trials := trials]
-#             df_sample[count, dist_type := dist]
-#             df_sample[count, baseline := mean(base_sample)]
-#             df_sample[count, comparison := mean(comp_sample)]
-#           }
-#         }
-#       }
-#     }
-#   }
-# }
+
+# start counter
+count <- 0
+# loop through
+for(ii in 1:n_iter){
+  if(ii %% refresh == 0){
+    print(paste((ii/n_iter)*100, "%", sep = ""))
+  }
+  # loop distances
+  for(dist in dists){
+    base_ss <- df_Th %>%
+      filter(standard_lab == dist)
+    comp_ss <- df_Av %>%
+      filter(standard_lab == dist)
+    for(trials in n_trials){
+      for(subs in n_subs){
+        # get random subjects
+        base_subs <- sample(df_Th$participant, subs, replace = T)
+        comp_subs <- sample(df_Av$participant, subs, replace = T)
+
+        # loop through subjects
+        base_sample <- c()
+        comp_sample <- c()
+        for(sub in 1:subs){
+          base_temp <- base_ss %>%
+            filter(participant == base_subs[sub])
+          comp_temp <- comp_ss %>%
+            filter(participant == comp_subs[sub])
+          base_sample <- c(base_sample,
+                           sample(base_temp$norm_pos, trials, replace = T))
+          comp_sample <- c(comp_sample,
+                           sample(comp_temp$norm_pos, trials, replace = T))
+          if(sub == subs){
+            count <- count + 1
+            # bind to dataframe
+            # df_sample <- rbind(df_sample, tibble(iter = ii,
+            #                                      n_subs = subs,
+            #                                      n_trials = trials,
+            #                                      dist = dist,
+            #                                      baseline = mean(base_sample),
+            #                                      comparison = mean(comp_sample)))
+            # input into table
+            df_sample[count, iter := ii]
+            df_sample[count, n_subs := subs]
+            df_sample[count, n_trials := trials]
+            df_sample[count, dist_type := dist]
+            df_sample[count, baseline := mean(base_sample)]
+            df_sample[count, comparison := mean(comp_sample)]
+          }
+        }
+      }
+    }
+  }
+}
 
 # might not need this...
 # df_sample <- as_tibble(df_sample)
@@ -169,7 +169,7 @@ df_sample %>%
 
 # now do some HDI stuff...
 df_sample %>% 
-  filter(dist_type == "10%",
+  filter(dist_type == "90%",
          n_trials == 60) %>%
   mutate(diff = baseline - comparison) %>%
   # gather(baseline:comparison,

@@ -3,8 +3,8 @@ Trial,Colour,Direction,Left_Gamble,Right_Gamble,Subject_Position,Accuracy,Winnin
 2,Y,Right,40,10,0,1,10
 3,B,Right,25,25,-7,0,0
 4,B,Left,25,25,-8,1,25
-5,B,Left,40,40,-8,1,40
-6,G,Left,10,40,-11,1,40
+5,B,Left,40,10,-8,1,40
+6,G,Left,40,10,-11,1,40
 7,R,Left,10,40,0,1,10
 8,R,Left,10,40,0,1,10
 9,G,Left,10,40,12,0,0

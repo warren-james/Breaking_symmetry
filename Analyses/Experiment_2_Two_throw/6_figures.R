@@ -7,6 +7,9 @@ library(tidyverse)
 #### load data ####
 load("scratch/df_part2")
 
+#### constants ####
+save_route <- c("../../Figures/Experiment_2_Two_throw/")
+
 # remove trials where participants stood outside the range?
 df_part2 %>%  
   mutate(outside = ifelse(abspos > 1, 1, 0)) %>% 
@@ -29,6 +32,12 @@ df_part2 %>%
   ungroup() %>% 
   filter(abspos <= 1) -> df_part2
 
+
+# Get mean hoop positions for plots 
+df_mu_hoop <- df_part2 %>% 
+  group_by(slab_measures) %>% 
+  summarise(mu_hoop_pos = mean(HoopDelta))
+
 #### PLOTS ####
 # some histograms?
 plt_hist <- df_part2 %>%
@@ -46,6 +55,19 @@ plt_hist <- df_part2 %>%
   facet_wrap(~slab_measures)
 plt_hist
 
+# ridges version 
+df_part2 %>% 
+  ggplot(aes(
+    abspos,
+    slab_measures,
+    colour = Num_throws,
+    fill = Num_throws
+    )) + 
+  ggridges::geom_density_ridges(alpha = .6,
+                                stat = "binline",
+                                bins = 10) + 
+  facet_wrap(~Num_throws)
+
 df_part2 %>% 
   ggplot(aes(x = abspos,
              colour = Num_throws,
@@ -56,7 +78,7 @@ df_part2 %>%
   see::scale_fill_flat() 
 
 # try some boxplots
-plt_box <- df_part2 %>% 
+plt_box <- df_part2 %>%
   ggplot(aes(slab_measures,
              abspos,
              colour = Num_throws,
@@ -67,15 +89,22 @@ plt_box <- df_part2 %>%
   scale_y_continuous("", 
                      breaks = c(0, 1),
                      labels = c("Centre","Side")) + 
-  theme_bw() 
-plt_box$labels$x = "Slab Measures"
-plt_box$labels$y = "Absolute position"
-plt_box$labels$colour = "No. Throws"
-plt_box$labels$fill = "No. Throws"
+  scale_x_discrete(expression(paste("Hoop Delta (", Delta, ")", sep = "")),
+                   labels = c("C", "-1", "0", "+1", "+2", "F")) +
+  theme_bw() +
+  # guides(colour = guide_legend("No. Throws"),
+  #        fill = guide_legend("No. Throws")) +
+  theme(
+    axis.title = element_text(size = 8),
+    axis.text = element_text(size = 8),
+    # legend.title = element_text(size = 8),
+    legend.title = element_blank(),
+    legend.text = element_text(size = 8)
+  )
 plt_box
 
 # save 
-ggsave(plt_box, file = "../../Figures/Experiment_2_Two_throw/box_plt.png",
+ggsave(plt_box, file = paste(save_route, "box_plt.png", sep = ""),
        height = 3, 
        width = 5.6)
 
@@ -146,13 +175,14 @@ df_acc <- df_part2 %>%
   ungroup()
 
 # plot this 
-df_acc %>% 
-  group_by(Participant, slab_measures, Num_throws) %>% 
+plt_ribbon <- df_acc %>% 
+  merge(df_mu_hoop) %>%
+  group_by(Participant, slab_measures, mu_hoop_pos, Num_throws) %>% 
   summarise(Expected = mean(Expected),
             Centre = mean(Centre),
             Side = mean(Side)) %>%
   ungroup() %>% 
-  group_by(slab_measures) %>%
+  group_by(slab_measures, mu_hoop_pos) %>%
   mutate(sep_factor = as.numeric(slab_measures),
          Best = pmax(Expected, Centre, Side),
          Worst = pmin(Expected, Centre, Side),
@@ -160,20 +190,23 @@ df_acc %>%
          ymax_Best = max(Best),
          ymin_Worst = min(Worst),
          ymax_Worst = max(Worst)) %>%
-  ggplot(aes(sep_factor, Expected)) + 
-  geom_ribbon(aes(x = sep_factor,
+  ggplot(aes(mu_hoop_pos, Expected)) + 
+  geom_ribbon(aes(x = mu_hoop_pos,
                   ymin = ymin_Worst,
                   ymax = ymax_Worst, 
                   fill = "red"),
               alpha = .35) + 
-  geom_ribbon(aes(x = sep_factor,
+  geom_ribbon(aes(x = mu_hoop_pos,
                   ymin = ymin_Best,
                   ymax = ymax_Best,
                   fill = "green"),
               alpha = .35) +
   scale_y_continuous("Expected Accuracy", labels = scales::percent_format(accuracy = 1)) +
-  scale_x_continuous("Slab Measures", breaks = c(1:6),
-                     labels = c("~90%", "~50% - 1", "~50%", "~50% + 1", "~50% + 2", "~10%")) +
+  scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")", sep = "")),
+                     breaks = unique(df_mu_hoop$mu_hoop_pos),
+                     # labels = c("~90%", "~50% - 1", "~50%", "~50% + 1", "~50% + 2", "~10%")
+                     labels = c("C", "-1", "0", "+1", "+2", "F")
+                     ) +
   # ggsci::scale_color_lancet() + 
   # ggsci::scale_fill_lancet() +
   scale_colour_brewer(palette = "Dark2") +
@@ -182,11 +215,47 @@ df_acc %>%
             size = .5,
             alpha = .2) + 
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 90, vjust = .5)) +
+  theme(
+    strip.text = element_text(size= 8),
+    # axis.text.x = element_text(angle = 90, vjust = .5),
+    axis.title = element_text(size = 8),
+    axis.text = element_text(size = 8),
+    legend.title = element_text(size = 8),
+    legend.text = element_text(size = 8),
+    panel.grid.minor = element_blank()
+  ) +
   facet_wrap(~Num_throws) + 
   guides(fill = F)
+plt_ribbon
 
 # save this 
-ggsave("../../Figures/Experiment_2_Two_throw/Accuracy_regions.png",
+ggsave(paste(save_route, "Accuracy_regions.png", sep = ""),
        height = 3,
        width = 5.6)
+
+# put these together 
+# plt_save <- gridExtra::grid.arrange(plt_box, plt_ribbon, ncol = 1)
+plt_save <- cowplot::plot_grid(plt_box, plt_ribbon, labels = c("a)", "b)"), label_size = 8, ncol = 1)
+ggsave(plt_save, file = paste(save_route, "combine.png", sep = ""),
+       height = 4,
+       width = 5.6)
+
+# some descs 
+df_acc %>% 
+  # filter(slab_measures == "~10%") %>%
+  ggplot(aes(Expected, 
+             colour = Num_throws,
+             fill = Num_throws)) + 
+  geom_density(position = "dodge",
+               alpha = .3) + 
+  facet_wrap(~slab_measures)
+
+df_acc %>% 
+  # filter(slab_measures == "~10%") %>% 
+  # group_by(Num_throws) %>% 
+  group_by(slab_measures, Num_throws) %>%
+  summarise(mu = mean(Expected)) %>% 
+  spread(Num_throws, mu)
+
+# raw version 
+df_part2

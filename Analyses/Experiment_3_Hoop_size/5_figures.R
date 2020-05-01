@@ -87,7 +87,8 @@ plt_ridges <- norm_dat %>%
                      labels = c("Big Hoop", "Centre", "Small Hoop"),
                      expand = c(0,0)) + 
   scale_y_discrete(expression(paste("Hoop Delta (", Delta, ")", sep = "")),
-                   expand = c(0,0)) +
+                   expand = c(0,0),
+                   labels = c("C", "-1", "0", "+1", "+2", "F")) +
   geom_vline(xintercept = 0, linetype = "dashed") +
   coord_cartesian(clip = "off") +
   # ggsci::scale_fill_d3() + 
@@ -98,13 +99,14 @@ plt_ridges <- norm_dat %>%
   # ggridges::theme_ridges()
   theme_bw() + 
   theme(legend.position = "none",
-        axis.text = element_text(size = 7),
-        axis.title.y = element_text(size = 7),
-        axis.title.x = element_text(size = 7))
+        axis.text = element_text(size = 8),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_text(size = 8),
+        plot.margin = unit(c(.2,.25,.2,.2), "cm"))
 plt_ridges
 
 # save
-ggsave(plt_ridges, file ="../../Figures/Experiment_3_Hoop_size/ridges_plt.png",
+ggsave(plt_ridges, file =paste(save_route, "ridges_plt.png", sep = ""),
        height = 3.5,
        width = 5.6)
 
@@ -267,7 +269,7 @@ norm_dat %>%
   # stat_bin(binwidth= .1, geom="text", aes(label=..count..))
 
 # save 
-ggsave("../../Figures/Experiment_3_Hoop_size/histogram_beta_fit.png",
+ggsave(paste(save_route, "histogram_beta_fit.png", sep =""),
        width = 5.6,
        height = 3)
 
@@ -480,8 +482,13 @@ df_acc <- norm_dat %>%
          Side_small = ifelse(Side_small < .5, .5, Side_small)) 
 
 #### Plot accuracy ####
+df_mean_hoop <- df_acc %>% 
+  group_by(slab_measures) %>% 
+  summarise(mu_hoop_pos = mean(hoop_pos))
+
 plt_acc_regions <- df_acc %>% 
-  group_by(participant, slab_measures) %>% 
+  merge(df_mean_hoop) %>%
+  group_by(participant, slab_measures, mu_hoop_pos) %>% 
   summarise(# Actual = mean(accuracy),
             Expected = mean(Expected),
             Centre = mean(Centre),
@@ -489,7 +496,7 @@ plt_acc_regions <- df_acc %>%
             Side_S = mean(Side_small),
             Optimal = pmax(Centre, Side_L, Side_S)) %>% 
   ungroup() %>% 
-  group_by(slab_measures) %>%
+  group_by(slab_measures, mu_hoop_pos) %>%
   mutate(sep_factor = as.numeric(slab_measures),
          Best = pmax(Expected, Centre, Side_S, Side_L),
          Worst = pmin(Expected, Centre, Side_S, Side_S),
@@ -497,13 +504,13 @@ plt_acc_regions <- df_acc %>%
          ymax_Best = max(Best),
          ymin_Worst = min(Worst),
          ymax_Worst = max(Worst)) %>% 
-  ggplot(aes(x = sep_factor, Expected)) + 
-  geom_ribbon(aes(x = sep_factor,
+  ggplot(aes(x = mu_hoop_pos, Expected)) + 
+  geom_ribbon(aes(x = mu_hoop_pos,
                   ymin = ymin_Worst,
                   ymax = ymax_Worst,
                   fill = "red"),
               alpha = .3) + 
-  geom_ribbon(aes(x = sep_factor,
+  geom_ribbon(aes(x = mu_hoop_pos,
                   ymin = ymin_Best,
                   ymax = ymax_Best,
                   fill = "green"),
@@ -511,9 +518,12 @@ plt_acc_regions <- df_acc %>%
   geom_line(aes(group = participant), alpha = .3) +
   scale_y_continuous("Expected Accuracy", labels = scales::percent_format(accuracy = 1)) +
   scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")", sep = "")),
-                                breaks = c(1:6),
-                     labels = c("~90%", "~50% - 1", "~50%", "~50% + 1", "~50% + 2", "~10%")) +
-  # see::scale_color_flat() + 
+                     breaks = unique(df_mean_hoop$mu_hoop_pos),
+                     labels = c("C", "-1", "0", "+1", "+2", "F")) +
+  # scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")", sep = "")),
+  #                               breaks = c(1:6),
+  #                    labels = c("~90%", "~50% - 1", "~50%", "~50% + 1", "~50% + 2", "~10%")) +
+  # see::scale_color_flat() +
   # see::scale_fill_flat() +
   # ggsci::scale_fill_lancet() + 
   # ggsci::scale_colour_lancet() +
@@ -523,20 +533,22 @@ plt_acc_regions <- df_acc %>%
   # see::scale_fill_pizza() +
   guides(fill = F) +
   theme_bw() +
-  theme(axis.text = element_text(size = 7),
-        axis.title.y = element_text(size = 7),
-        axis.title.x = element_text(size = 7))
+  theme(axis.text = element_text(size = 8),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_text(size = 8),
+        panel.grid.minor = element_blank())
 plt_acc_regions
 
 # save 
-ggsave(plt_acc_regions, file = "../../Figures/Experiment_3_Hoop_size/plt_acc_regions.png",
+ggsave(plt_acc_regions, file = paste(save_route, "plt_acc_regions.png", sep = ""),
        width = 5.6,
        height = 3)
 
 # cobine with ridges 
-plt_save <- gridExtra::grid.arrange(plt_acc_regions, plt_ridges, ncol = 2)
-ggsave(plt_save, file = paste(save_route, "exp_acc_pos_combined.png"),
-       height = 3, 
+# plt_save <- gridExtra::grid.arrange(plt_ridges, plt_acc_regions, ncol = 2)
+plt_save <- cowplot::plot_grid(plt_ridges, plt_acc_regions, ncol = 2, labels = c("a)", "b)"), label_size = 8)
+ggsave(plt_save, file = paste(save_route, "exp_acc_pos_combined.png", sep = ""),
+       height = 2.5, 
        width = 5.6)
 
 

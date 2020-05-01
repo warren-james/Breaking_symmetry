@@ -9,5 +9,5 @@ Trial,Colour,Direction,Left_Gamble,Right_Gamble,Subject_Position,Accuracy,Winnin
 8,G,Left,10,40,8,0,0
 9,G,Left,10,40,8,0,0
 10,Y,Left,25,25,0,1,25
-11,Y,Right,40,40,0,0,0
+11,Y,Right,10,40,0,0,0
 12,G,Left,25,25,0,0,0
