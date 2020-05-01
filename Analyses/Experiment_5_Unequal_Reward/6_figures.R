@@ -9,7 +9,7 @@ load("scratch/data/model_data")
 load("scratch/data/df_part2")
 #### Constants ####
 save_route <- "../../Figures/Experiment_5_Unequal_Reward/"
-plt_space <- 0
+plt_space <- .5
 #### Functions ####
 
 
@@ -424,8 +424,8 @@ plt_ribbon
 # plt_save <- gridExtra::grid.arrange(plt_bar, plt_line_choices, plt_box, plt_ribbon, ncol = 2)
 plt_save <- cowplot::plot_grid(plt_bar, plt_line_choices, plt_box, plt_ribbon, labels = c("a)", "b)", "c)", "d)"), label_size = 8)
 ggsave(plt_save, file = paste(save_route, "four_panel.png", sep = ""),
-       height = 4,
-       width = 4.48)
+       height = 5*.8,
+       width = 5.6*.8)
 
 
 # to satisfy curiosity about the best strategy 
