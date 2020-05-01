@@ -71,9 +71,15 @@ df_distributions <- tibble(x_vals = rep(x, length(c(0,mu2))),
 
 df_distributions %>% 
   mutate(diff = as.factor(diff)) %>%
-  ggplot(aes(x_vals, p,
-             colour = diff)) + 
-  geom_line() + 
+  ggplot(aes(x_vals, p)) + 
+  geom_histogram(data = df_part2, 
+                 aes(x = (norm_pos + 1)/2,
+                     y = ..density..),
+                 binwidth = .1,
+                 colour = "blue",
+                 fill = "blue",
+                 alpha = .2) + 
+  geom_line(aes(colour = diff)) + 
   theme_bw() + 
   see::scale_color_flat() +
   guides(colour = guide_legend("Difference")) +
