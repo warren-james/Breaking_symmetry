@@ -28,7 +28,9 @@ load("../power/Hoop_size/scratch/sampled_data")
 load("../power/Hoop_size/scratch/df_part2")
 ```
 
-We started by fitting a a beta distribution to the _Throwing Experiment_ data from Clarke and Hunt (2016) using the `fitdistrplus` package. We then investigated how well we could detect various effects, and how this varied based on the sample size. See Figure 1a. 
+We started by fitting a a beta distribution to the _Throwing Experiment_ data from Clarke and Hunt (2016) using the `fitdistrplus` package, as illustrated in Figure 1a. The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\sim0$.
+
+We then investigated how well we could detect various effects (i.e., increases in the mean from $\mu=0$ to $\mu=0.01$), and how this varied based on the sample size.  
 
 We altered the mean value but kept the variance the same to simulate participants shifting in one direction or the other. As can be seen in the figure below, we tested $X \in \{5\%, 10\%, 15\%, 20\%\}$ which were indicative of participants standing $X\%$ closer to the smaller hoop. These distributions were sampled from 5000 times by simulating $N = 3\ldots 24$ participants and 72 trials. 
 
