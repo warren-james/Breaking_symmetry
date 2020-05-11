@@ -34,7 +34,7 @@ We then investigated how well we could detect various effects (i.e., increases i
 
 We altered the mean value but kept the variance the same to simulate participants shifting in one direction or the other. As can be seen in the figure below, we tested $X \in \{5\%, 10\%, 15\%, 20\%\}$ which were indicative of participants standing $X\%$ closer to the smaller hoop. These distributions were sampled from 5000 times by simulating $N = 3\ldots 24$ participants and 72 trials. 
 
-```{r drawdistributions, include = T, echo = F, fig.height = 3, fig.cap="Warren write some text."}
+```{r drawdistributions, include = T, echo = F, fig.height = 3, fig.cap="The left hand plot shows a histrogram for the empirical data from Clarke and Hunt (2016) with a line to show a beta distribution that had been fit to these data. The right hand plot shows how this distribution would change had the participants' mean position had been biased towards one of the side hoops to varying degrees."}
 load("../power/Hoop_size/scratch/sampled_data")
 load("../power/Hoop_size/scratch/df_part2")
 
@@ -102,7 +102,8 @@ plt_dists <- df_distributions %>%
   guides(colour = guide_legend("Difference")) + 
   theme(
     axis.title = element_blank(),
-    legend.position = "bottom"
+    legend.title = element_blank(),
+    legend.position = "right"
   )
 
 plt_hist <- df_distributions %>% 
@@ -137,9 +138,9 @@ plt_hist <- df_distributions %>%
 gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
 ```
 
-Figure 2 shows the uncertainty surrounding the mean estimate for the smallest difference tested (5\%). After 15 participants, the uncertainty surrounding the estimate appears to plateau which demonstrates that the sample size of 21 was sufficient to detect the effect. 
+Figure \@ref(fig:HDIHoopSize) shows the uncertainty surrounding the mean estimate for the smallest difference tested (5\%). After 15 participants, the uncertainty surrounding the estimate appears to plateau which demonstrates that the sample size of 21 was sufficient to detect the effect. 
 
-```{r  include = T, echo = F, fig.height = 3, fig.cap="We need a caption"}
+```{r HDIHoopSize, include = T, echo = F, fig.height = 3, fig.cap="This figure shows how the 95% HDI around the mean difference for the smallest difference simulated (5%) changed with a larger sample size"}
 
 df_sample %>% 
   filter(difference == 0.05) %>% 
