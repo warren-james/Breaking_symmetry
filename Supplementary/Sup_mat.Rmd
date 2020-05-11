@@ -137,10 +137,9 @@ plt_hist <- df_distributions %>%
 gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
 ```
 
+Figure 2 shows the uncertainty surrounding the mean estimate for the smallest difference tested (5\%). After 15 participants, the uncertainty surrounding the estimate appears to plateau which demonstrates that the sample size of 21 was sufficient to detect the effect. 
 
-The plot below the distributions shows the uncertainty surrounding the mean estimate for the smallest difference tested (5\%). After 15 participants, the uncertainty surrounding the estimate appears to plateau which demonstrates that the sample size of 21 was sufficient to detect the effect. 
-
-```{r  include = T, echo = F, fig.height = 3}
+```{r  include = T, echo = F, fig.height = 3, fig.cap="We need a caption"}
 
 df_sample %>% 
   filter(difference == 0.05) %>% 
