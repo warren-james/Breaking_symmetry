@@ -1,8 +1,7 @@
 ---
 title: "Supplementary Material for Asymmetry paper"
 output: 
-  bookdown::pdf_document2:
-    fig_caption: false
+  bookdown::pdf_document2
 ---
 
 ---
@@ -24,11 +23,16 @@ Our power analysis made use of simulations and resampling approaches based on da
 
 ## Experiment 1: Two Hoop Sizes
 
-We started by fitting a a beta distribution to the _Throwing Experiment_ data from Clarke and Hunt (2016) using the `fitdistrplus` package. We then investigated how well we could detect various effects, and how this varied based on the sample size. 
+```{r loaddata, include = T, echo = F, fig.height = 3, fig.cap="Warren write some text."}
+load("../power/Hoop_size/scratch/sampled_data")
+load("../power/Hoop_size/scratch/df_part2")
+```
+
+We started by fitting a a beta distribution to the _Throwing Experiment_ data from Clarke and Hunt (2016) using the `fitdistrplus` package. We then investigated how well we could detect various effects, and how this varied based on the sample size. See Figure 1a. 
 
 We altered the mean value but kept the variance the same to simulate participants shifting in one direction or the other. As can be seen in the figure below, we tested $X \in \{5\%, 10\%, 15\%, 20\%\}$ which were indicative of participants standing $X\%$ closer to the smaller hoop. These distributions were sampled from 5000 times by simulating $N = 3\ldots 24$ participants and 72 trials. 
 
-```{r load data and draw distributions, include = T, echo = F, fig.height = 3}
+```{r drawdistributions, include = T, echo = F, fig.height = 3, fig.cap="Warren write some text."}
 load("../power/Hoop_size/scratch/sampled_data")
 load("../power/Hoop_size/scratch/df_part2")
 
