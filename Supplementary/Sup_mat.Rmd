@@ -28,7 +28,7 @@ load("../power/Hoop_size/scratch/sampled_data")
 load("../power/Hoop_size/scratch/df_part2")
 ```
 
-We started by fitting a a beta distribution to the _Throwing Experiment_ data from Clarke and Hunt (2016) using the `fitdistrplus` package, as illustrated in Figure 1a. The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\sim0$.
+We started by fitting a a beta distribution to the _Throwing Experiment_ data from Clarke and Hunt (2016) using the `fitdistrplus` package, as illustrated in Figure \@ref(fig:drawdistributions) (left panel). The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\sim0$.
 
 We then investigated how well we could detect various effects (i.e., increases in the mean from $\mu=0$ to $\mu=0.01$), and how this varied based on the sample size.  
 
@@ -167,7 +167,7 @@ As the hypothesis for both of these experiments was that out intervention would 
 
 The first dataset is comprised of 40 participants who took part in a version of the Clarke and Hunt (2016) _Throwing Task_. The second dataset is comprised of 60 participants who took part in a computerised version of this task. To compare these datasets, placement positions and standing positions were put on the same scale (0 being the centre and 1 being stood/placed next to the target). Only data for the easiest (smallest separataion of targets) and hard (furthest separation of targets) conditions were considered as these points offered more comparable base performance levels. 
 
-```{r load in data and draw distributions, include = T, echo = F}
+```{r Exp2and3Plots, include = T, echo = F, fig.cap="The top plot shows boxplots for the empirical data being sampled from. The bottom plots show the 95% HDI for the difference in the close (90%) and far (10%) separations"}
 # so we're interested in the difference between the closest and furthest... 
 # so we should just plot that? 
 load("../power/Money_and_two/scratch/df_sample")
