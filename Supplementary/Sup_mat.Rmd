@@ -221,7 +221,22 @@ plt_hdi <- df_sample %>%
 gridExtra::grid.arrange(plt_data, plt_hdi, ncol = 1)
   
 ```
+## Experiment 3: Rewards 
 
+## Experiment 4: Probability Matching
+
+# Probability matching
+
+## Introduction 
+
+## Methods 
+```{r ProbExpFig}
+# might need to do this another way since it'll be a png or something
+```
+
+## Results 
+```{r ProbPlots, include = T, echo = F}
+```
 # Session Info
 
 
