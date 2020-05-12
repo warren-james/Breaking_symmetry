@@ -15,6 +15,8 @@ output: html_document
 library(tidybayes)
 library(tidyverse)
 library(brms)
+library(png)
+library(grid)
 ```
 
 These supplementary materials present full details of the power analysis used in the main manuscript, an additional fourth experiment, along with full details of all R packages used in the analysis. 
@@ -222,17 +224,43 @@ gridExtra::grid.arrange(plt_data, plt_hdi, ncol = 1)
 
 ## Introduction 
 
-## Methods 
-```{r ProbExpFig}
-# might need to do this another way since it'll be a png or something
+## _Methods_ 
+
+### _Participants_
+16 Particiapnts (two Male) were recruited from the University of Aberdeen community with an average age of 22.75 (between 19 and 29). Each participant was reimbursed £10 for their time. 
+
+### _Procedure_
+The experiment followed a similar procedure to the "_Detection Task_" from Clarke and Hunt (2016). In the first session, we measured visual acuity which lasted approximately 30 minutes. This was followed by a second session in which the participants performed the actual decision task which lasted approximately 40-50 minutes.
+
+```{r ProbSession1, include=T, echo=F, fig.asp=.45, fig.cap="The sequence for every trial in Session 1"}
+
+plt_fig1 <- readPNG("../Figures/Experiment_4_Prob/Part1_Trial.png")
+grid.raster(plt_fig1)
+
+```
+
+
+```{r ProbSession2, include=T, echo=F, fig.asp=.45, fig.cap="The sequence for every trial in Session 2"}
+
+plt_fig2 <- readPNG("../Figures/Experiment_4_Prob/Part2_Trial.png")
+grid.raster(plt_fig2)
+
 ```
 
 ## Results 
-```{r ProbPlots, include = T, echo = F}
+
+```{r ProbProp, include = T, echo = F, fig.asp=.45, fig.cap="These boxplots show the proportion of the time that participants fixated the centre (left panel), most-likely (central panel) and least-likely (right panel) box. In the _Bias_ condition, 'most likely' was the box with and 80% probability of containing the target. In the _Symmetric_ condition, 'most-likely' was whichever side box a given participant had fixated the most. The Close and Far distinction is baseed on when participants should swith from fixating the central box to the side box. Note that for some participants, expected performance differences between the Centre and Side strategies for the closest separation was negligible. However, all participants should have fixated the Side boxes in the Far condition, where the performance advantage of doing so was substantial."}
+
+#knitr::include_graphics('../Figures/Experiment_4_Prob/boxes_prop_CML.png')
+plt_prop_fix <- readPNG("../Figures/Experiment_4_Prob/boxes_prop_CML.png")
+grid.raster(plt_prop_fix)
+
 ```
+
+
 # Session Info
 
 
-```{r}
+```{r, include=T, echo=F}
 sessionInfo()
 ```
