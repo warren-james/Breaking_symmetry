@@ -1,7 +1,8 @@
 ---
 title: "Supplementary Material for Asymmetry paper"
 output: 
-  bookdown::pdf_document2
+  bookdown::pdf_document2:
+    toc: false
 ---
 
 ---
@@ -16,10 +17,13 @@ library(tidyverse)
 library(brms)
 ```
 
+These supplementary materials present full details of the power analysis used in the main manuscript, an additional fourth experiment, along with full details of all R packages used in the analysis. 
+
+Please see the accompanying source Rmd file for the code. 
 
 # Power Analysis
 
-Our power analysis made use of simulations and resampling approaches based on data that we previously collected. Resampling was carried out in order to establish if adding more pariticipants to our sample sizes would have lead to a reduction in uncertainty around our estimates.
+Our power analysis made use of simulations and resampling approaches based on data that we previously collected. Resampling was carried out in order to establish if adding more participants to our sample sizes would have lead to a reduction in uncertainty around our estimates.
 
 ## Experiment 1: Two Hoop Sizes
 
@@ -28,13 +32,9 @@ load("../power/Hoop_size/scratch/sampled_data")
 load("../power/Hoop_size/scratch/df_part2")
 ```
 
-We started by fitting a a beta distribution to the _Throwing Experiment_ data from Clarke and Hunt (2016) using the `fitdistrplus` package, as illustrated in Figure \@ref(fig:drawdistributions) (left panel). The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\sim0$.
+We started by fitting a a beta distribution to the _Throwing Experiment_ data from Clarke and Hunt (2016) using the `fitdistrplus` package, as illustrated in Figure \@ref(fig:drawdistributions) (left panel). In the original data, normalised standing position was coded $\phi \in [0,1]$ with 0 indicating a central standing position, and 1 indicating the participant stood by either of the two hoops. As we are _breaking the symmetry_ between the two targets in this new experiment, we will now treat standing position as $\phi \in (0, 1)$ with 0 representing the positions of the large and small hoop respectively. The central midpoint is now represented as $\phi = 0.5$.
 
-We then investigated how well we could detect various effects (i.e., increases in the mean from $\mu=0$ to $\mu=0.01$), and how this varied based on the sample size.  
-
-We altered the mean value but kept the variance the same to simulate participants shifting in one direction or the other. As can be seen in the figure below, we tested $X \in \{5\%, 10\%, 15\%, 20\%\}$ which were indicative of participants standing $X\%$ closer to the smaller hoop. These distributions were sampled from 5000 times by simulating $N = 3\ldots 24$ participants and 72 trials. 
-
-```{r drawdistributions, include = T, echo = F, fig.height = 3, fig.cap="The left hand plot shows a histrogram for the empirical data from Clarke and Hunt (2016) with a line to show a beta distribution that had been fit to these data. The right hand plot shows how this distribution would change had the participants' mean position had been biased towards one of the side hoops to varying degrees."}
+```{r drawdistributions, include = T, echo = F, fig.height = 2, fig.cap="The left hand plot shows a histrogram for the empirical data from Clarke and Hunt (2016) with a line to show a beta distribution that had been fit to these data. The right hand plot shows how this distribution would change had the participants' mean position had been biased towards one of the side hoops to varying degrees."}
 load("../power/Hoop_size/scratch/sampled_data")
 load("../power/Hoop_size/scratch/df_part2")
 
@@ -99,9 +99,10 @@ plt_dists <- df_distributions %>%
   geom_line(aes(colour = diff)) + 
   theme_bw() + 
   see::scale_color_flat() +
+  scale_x_continuous("standing position") + 
   guides(colour = guide_legend("Difference")) + 
   theme(
-    axis.title = element_blank(),
+    axis.title.y = element_blank(),
     legend.title = element_blank(),
     legend.position = "right"
   )
@@ -119,26 +120,18 @@ plt_hist <- df_distributions %>%
                  colour = "blue", 
                  fill = "blue",
                  alpha = .2) + 
+  scale_x_continuous("standing position") +
   theme(
     legend.position = "none",
-    axis.title = element_blank()
+    axis.title.y = element_blank()
     )
-
-# plt_hist <- df_part2 %>% 
-#   ggplot(aes((norm_pos +1)/2, y = ..density..)) + 
-#   geom_histogram(binwidth = .1, 
-#                  colour = "blue",
-#                  fill = "blue",
-#                  alpha = .2) + 
-#   theme_bw() + 
-#   theme(
-#     axis.title = element_blank()
-#   )
 
 gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
 ```
 
-Figure \@ref(fig:HDIHoopSize) shows the uncertainty surrounding the mean estimate for the smallest difference tested (5\%). After 15 participants, the uncertainty surrounding the estimate appears to plateau which demonstrates that the sample size of 21 was sufficient to detect the effect. 
+The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\phi\approx0$. We now simulate the effect of using two hoop sizes by increasing the mean by various different amounts ($X \in \{5\%, 10\%, 15\%, 20\%\}$) as illustrated in Figure \@ref(fig:drawdistributions) (right panel). These represent different possible effect sizes in the extent to which participants favour standing closer to the small hoop. 
+
+We can now these use distributions to simulate experiments with $N = 3\ldots 24$ participants and 72 trials. Figure \@ref(fig:HDIHoopSize) shows the uncertainty surrounding the mean estimate for the smallest difference tested (5\%). After 15 participants, the uncertainty surrounding the estimate appears to plateau which demonstrates that the sample size of 21 was sufficient to detect the effect. 
 
 ```{r HDIHoopSize, include = T, echo = F, fig.height = 3, fig.cap="This figure shows how the 95% HDI around the mean difference for the smallest difference simulated (5%) changed with a larger sample size"}
 
@@ -160,12 +153,11 @@ df_sample %>%
 
 ```
 
+## Experiment 2: Two Throws
 
-
-## Experiment 2 and 3: Two Throws and Reward
 As the hypothesis for both of these experiments was that out intervention would push participants towards being more optimal, we can use the same datasets to look at how uncertainty around the difference would change with varying sample sizes. For these experiments, comparison data was drawn from two unpublished studies; one in which the standard behaviour was observed, and one in which participants were closer to optimal in their performance.
 
-The first dataset is comprised of 40 participants who took part in a version of the Clarke and Hunt (2016) _Throwing Task_. The second dataset is comprised of 60 participants who took part in a computerised version of this task. To compare these datasets, placement positions and standing positions were put on the same scale (0 being the centre and 1 being stood/placed next to the target). Only data for the easiest (smallest separataion of targets) and hard (furthest separation of targets) conditions were considered as these points offered more comparable base performance levels. 
+The first dataset is comprised of 40 participants who took part in a version of the Clarke and Hunt (2016) _Throwing Task_. The second dataset is comprised of 60 participants who took part in a computerised version of this task. To compare these datasets, placement positions and standing positions were put on the same scale (0 being the centre and 1 being stood/placed next to the target). Only data for the easiest (smallest separation of targets) and hard (furthest separation of targets) conditions were considered as these points offered more comparable base performance levels. 
 
 ```{r Exp2and3Plots, include = T, echo = F, fig.cap="The top plot shows boxplots for the empirical data being sampled from. The bottom plots show the 95% HDI for the difference in the close (90%) and far (10%) separations"}
 # so we're interested in the difference between the closest and furthest... 
@@ -219,8 +211,9 @@ plt_hdi <- df_sample %>%
 
 # show both 
 gridExtra::grid.arrange(plt_data, plt_hdi, ncol = 1)
-  
+
 ```
+
 ## Experiment 3: Rewards 
 
 ## Experiment 4: Probability Matching
