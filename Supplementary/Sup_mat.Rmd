@@ -240,6 +240,8 @@ plt_hdi
 ## Experiment 3: Reward 
 The power analysis for this experiment followed that of the previous section. This was due to the similarity of the hypothesis; the goal was to test whether introducing an asymmetry in the reward structure would encourage participants to adopt a more optimal strategy.
 
+*What about the split in reward???*
+
 ## Experiment 4: Probability Matching
 ```{r load data, include = F, echo = F, message = F, warning = F}
 load("../power/Prob_match/scratch/df_resample")
@@ -658,6 +660,6 @@ gridExtra::grid.arrange(plt_me_Dist, plt_me_Bias, plt_interaction)
 ```
 
 
-
+## Discussion 
 
 # Bibliography
