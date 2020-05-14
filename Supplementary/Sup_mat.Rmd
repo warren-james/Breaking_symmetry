@@ -47,7 +47,7 @@ load("../power/Hoop_size/scratch/df_part2")
 We started by fitting a a beta distribution to the _Throwing Experiment_ data from @clarke2015failure using the `fitdistrplus` package, as illustrated in Figure \@ref(fig:drawdistributions) (left panel). In the original data, normalised standing position was coded $\phi \in [0,1]$ with $0$ indicating a central standing position, and $1$ indicating the participant stood by either of the two hoops. As we are _breaking the symmetry_ between the two targets in this new experiment, we will now treat standing position as $\phi \in (0, 1)$ with $0$ and $1$ representing the positions of the large and small hoop respectively. The central midpoint is now represented as $\phi = 0.5$.
 
 ```{r drawdistributions, include = T, echo = F, fig.height = 2, fig.cap="_The left hand plot shows a histrogram for the empirical data from @clarke2015failure with a line to show a beta distribution that had been fit to these data. The right hand plot shows how this distribution would change had the participants' mean position had been biased towards one of the side hoops to varying degrees._", fig.align = 'center'}
-load("../power/Hoop_size/scratch/sampled_data")
+# load("../power/Hoop_size/scratch/sampled_data")
 load("../power/Hoop_size/scratch/df_part2")
 
 # functions for getting parameters from a beta dist
@@ -142,6 +142,60 @@ gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
 ```
 
 The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\phi\approx0.5$, in this case 0.5 is considered the central point with 0 and 1 representing the left and right hoop respectively. We assumed that by introducing a difference in size between the two hoops that this distribution would shift towards the smaller hoop so as to balance their chances of success. We assumed that the difference in hoop size would cause particiapnts to stand slightly closer to the small hoop, in this case the shift in mean would be +0.05. 
+```{r Hoop Size resampling, include = T, echo = F}
+# setup loop
+n_iter <- 5000
+n_subs <- seq(3, 24, 1)
+n_trials <- 72 
+
+# for data.table
+n <- n_iter * length(n_subs) * length(mu2) * length(n_trials)
+df_sample <- data.table::data.table(iter = rep(0, n),
+                                    n_subs = rep(0, n),
+                                    n_trials = rep(0, n),
+                                    difference = rep(0, n),
+                                    baseline = rep(0, n),
+                                    comparison = rep(0, n))
+
+# loop for sampling
+count <- 0
+for(ii in 1:n_iter){
+  base_shape <- get_shape_beta(mu1, var1)
+  base_alpha <- base_shape$alpha
+  base_beta <- base_shape$beta
+  for(trials in n_trials){
+    for(diff in mu2){
+      comp_shape <- get_shape_beta(mu1 + diff, var1)
+      comp_alpha <- comp_shape$alpha
+      comp_beta <- comp_shape$beta
+      for(sub in n_subs){
+        # up count here
+        count <- count + 1
+        base_sample <- c()
+        comp_sample <- c()
+        for(s in 1:sub){
+          base_sample <- c(base_sample, rbeta(n_trials, base_alpha, base_beta))
+          comp_sample <- c(comp_sample, rbeta(n_trials, comp_alpha, comp_beta))
+        }
+        # df_sample <- rbind(df_sample, tibble(iter = ii,
+        #                                      n_subs = sub,
+        #                                      n_trials = trials,
+        #                                      difference = diff,
+        #                                      baseline = mean(base_sample),
+        #                                      comparison = mean(comp_sample)))
+        # add to table
+        df_sample[count, iter := ii]
+        df_sample[count, n_subs := sub]
+        df_sample[count, n_trials := trials]
+        df_sample[count, difference := diff]
+        df_sample[count, baseline := mean(base_sample)]
+        df_sample[count, comparison := mean(comp_sample)]
+      }
+    }
+  }
+}
+
+```
 
 We can now these use distributions to simulate experiments with $N = 3\ldots 24$ participants and 72 trials. Figure \@ref(fig:HDIHoopSize) shows the uncertainty surrounding the mean estimate for the smallest difference tested (5\%). After 15 participants, the uncertainty surrounding the estimate appears to plateau which demonstrates that the sample size of 21 was sufficient to detect an effect of this size. 
 
