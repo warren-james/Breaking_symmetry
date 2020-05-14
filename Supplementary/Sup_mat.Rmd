@@ -141,7 +141,7 @@ plt_hist <- df_distributions %>%
 gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
 ```
 
-The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\phi\approx0$. We now simulate the effect of using two hoop sizes by increasing the mean by various different amounts ($X \in \{5\%, 10\%, 15\%, 20\%\}$) as illustrated in Figure \@ref(fig:drawdistributions) (right panel). These represent different possible effect sizes in the extent to which participants favour standing closer to the small hoop. 
+The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\phi\approx0.5$, in this case 0.5 is considered the central point with 0 and 1 representing the left and right hoop respectively. We assumed that by introducing a difference in size between the two hoops that this distribution would shift towards the smaller hoop so as to balance their chances of success. We assumed that the difference in hoop size would cause particiapnts to stand slightly closer to the small hoop, in this case the shift in mean would be +0.05. 
 
 We can now these use distributions to simulate experiments with $N = 3\ldots 24$ participants and 72 trials. Figure \@ref(fig:HDIHoopSize) shows the uncertainty surrounding the mean estimate for the smallest difference tested (5\%). After 15 participants, the uncertainty surrounding the estimate appears to plateau which demonstrates that the sample size of 21 was sufficient to detect an effect of this size. 
 
