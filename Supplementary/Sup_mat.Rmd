@@ -142,7 +142,7 @@ gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
 ```
 
 The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\phi\approx0.5$, in this case 0.5 is considered the central point with 0 and 1 representing the left and right hoop respectively. We assumed that by introducing a difference in size between the two hoops that this distribution would shift towards the smaller hoop so as to balance their chances of success. We assumed that the difference in hoop size would cause particiapnts to stand slightly closer to the small hoop, in this case the shift in mean would be +0.05. 
-```{r Hoop Size resampling, include = T, echo = F}
+```{r Hoop Size resampling, include = T, echo = F, cache = T}
 # setup loop
 n_iter <- 5000
 n_subs <- seq(3, 24, 1)
@@ -232,7 +232,7 @@ To compare these datasets, placement positions and standing positions were put o
 # so we should just plot that? 
 
 # load data
-load("../power/Money_and_two/scratch/df_sample")
+# load("../power/Money_and_two/scratch/df_sample")
 load("../power/Money_and_two/scratch/df_all")
 
 # make plot 
@@ -268,6 +268,75 @@ plt_data
 
 To perform our power analysis we sampled these datasets 5000 times for a range of participants ($N = 2...28$). To do this, N participants were chosen at random (with replacement) from each condition (i.e. the _Throwing_ or _Avatar_ "conditions"), then 60 data points were sampled from each of these participants (with replacement) for the closest ("90%") and furthest separations ("10%").  
 
+``` {r two-throw power, include = F, echo = F, cache = T}
+# setup loop parameters
+n_iter <- 5000
+n_subs <- seq(2, 28, 2) 
+n_trials <- c(12, 60)
+dists <- c("90%", "10%")
+
+# setup data 
+n <- n_iter * length(n_subs) * length(n_trials) * length(dists)
+
+df_sample <- data.table::data.table(iter = rep(0, n),
+                                    n_subs = rep(0, n),
+                                    n_trials = rep(0, n),
+                                    dist_type = rep("", n),
+                                    baseline = rep(0, n),
+                                    comparison = rep(0, n))
+# 
+# # TODO make this loop quicker by using data.table()
+# # split dataset for ease of access...
+df_Av <- df_all %>%
+  filter(condition == "Avatar")
+df_Th <- df_all %>%
+  filter(condition == "Throwing")
+
+# start counter
+count <- 0
+# loop through
+for(ii in 1:n_iter){
+  # loop distances
+  for(dist in dists){
+    base_ss <- df_Th %>%
+      filter(standard_lab == dist)
+    comp_ss <- df_Av %>%
+      filter(standard_lab == dist)
+    for(trials in n_trials){
+      for(subs in n_subs){
+        # get random subjects
+        base_subs <- sample(df_Th$participant, subs, replace = T)
+        comp_subs <- sample(df_Av$participant, subs, replace = T)
+
+        # loop through subjects
+        base_sample <- c()
+        comp_sample <- c()
+        for(sub in 1:subs){
+          base_temp <- base_ss %>%
+            filter(participant == base_subs[sub])
+          comp_temp <- comp_ss %>%
+            filter(participant == comp_subs[sub])
+          base_sample <- c(base_sample,
+                           sample(base_temp$norm_pos, trials, replace = T))
+          comp_sample <- c(comp_sample,
+                           sample(comp_temp$norm_pos, trials, replace = T))
+          if(sub == subs){
+            count <- count + 1
+            # input into table
+            df_sample[count, iter := ii]
+            df_sample[count, n_subs := subs]
+            df_sample[count, n_trials := trials]
+            df_sample[count, dist_type := dist]
+            df_sample[count, baseline := mean(base_sample)]
+            df_sample[count, comparison := mean(comp_sample)]
+          }
+        }
+      }
+    }
+  }
+}
+
+```
 
 ```{r exp2-power, include = T, fig.height = 3, echo = F, fig.align = 'center', fig.cap="_plots show the 95% HDI for the difference in the close (90%) and far (10%) separations_"}
 # plot samples in terms of difference? 
