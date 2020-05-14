@@ -1,22 +1,5 @@
-#### Modelling and plotting Hoop Size ####
-
-#### Library ####
-library(brms)
-library(rstan)
-library(tidybayes)
-library(tidyverse)
-
-#### Constants ####
-Hoop_size <- 0.46
-
-#### Functions ####
-# This function squashes the range of values so as to be used in a beta regression 
-squash <- function(y, max, min, squash){
-  y <- y * ((max-squash) - (min + squash)) + (min + squash)
-}
-
-# get draws 
-draw_post <- function(model, data){
+# Hoop size extract draws function 
+HS_draw_post <- function(model, data){
   close <- min(data$norm_hoop_pos)
   mid <- median(data$norm_hoop_pos)
   far <- max(data$norm_hoop_pos)
@@ -80,56 +63,3 @@ draw_post <- function(model, data){
                      "draws_HDI")
   return(output)
 }
-
-
-#### Load in data ####
-load("scratch/df_part2_norm") 
-
-# sort out data for modelling? 
-model_data <- norm_dat %>%
-  select(participant, hoop_pos, norm_dist) %>% 
-  group_by(participant) %>% 
-  mutate(norm_hoop_pos = hoop_pos/max(hoop_pos)) %>%
-  ungroup() %>% 
-  filter(norm_dist >= -1, norm_dist <= 1) %>% 
-  mutate(norm_dist2 = (norm_dist + 1)/2,
-         norm_dist2 = squash(norm_dist2, 1, 0, 1e-4))
-
-# save this 
-save(model_data, file = "data/model_data")
-
-#### Quick Plots ####
-# density plot 
-model_data %>% 
-  ggplot(aes(norm_dist)) + 
-  geom_density() + 
-  geom_histogram(aes(y = ..density..))
-
-#### Modelling ####
-#### Modelling: New idea ####
-# normalised dist  sp > .5 =close to small, sp < .5 close to big
-m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
-          data = model_data,
-          family = "beta",
-          prior = c(set_prior("student_t(3,0,3)", class = "b")),
-          cores = 1,
-          chains = 1,
-          iter = 2000,
-          warmup = 1000)
-# save
-save(m1, file = "modelling/model_outputs/m1")
-
-# draw from samples 
-draws <- draw_post(m1, model_data)
-# save 
-save(draws, file = "modelling/model_outputs/m1_draws")
-
-# plot posterior?
-plt <- model_data %>%
-  add_predicted_draws(m1) %>%
-  ggplot(aes(boot::inv.logit(.prediction))) + 
-  geom_density() + 
-  theme_minimal()
-plt
-
-

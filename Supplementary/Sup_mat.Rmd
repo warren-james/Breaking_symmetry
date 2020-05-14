@@ -169,7 +169,7 @@ df_sample %>%
 
 Our hypothesis for this experiment was that our intervention would push participants towards being more optimal. For the power analysis, we will sample data from two unpublished versions of the split-resource decision problem. For the _One Throw_ (control) condition, we will use data from a (as yet unpublished) replication of the @clarke2015failure _Throwing Task_ for $N=40$ participants. As with the original study, participants were generally sub-optimal and did not vary their strategy with $\Delta$. 
 
-The second dataset is comprised of 60 participants who took part in a computerised version of this task. *more details*
+The second dataset is comprised of 60 participants who took part in a computerised version of this task. The task involved participants deciding where to place a virtual firetruck when there were two buildings which both had an equal chance of becoming the target for that trial. In this task, participants would decide where to place the firetruck and it would drive towards the target building. The speed at which the truck travelled was drawn from a uniform distribution of speeds within a specified range. This meant that the chance of success decrease linearly with distance from the target. This meant that the performance of the truck was very similar to participatns taking part in the _Throwing Task_, and thus the experiments were comparable. However, participants in this version of the task were much closer to using the optimal strategy than had been observed in previous versions of this task. Therefore, these data were used as a comparison for what to expect when participants were better able to use the optimal strategy. 
 
 To compare these datasets, placement positions and standing positions were put on the same scale (0 being the centre and 1 being stood/placed next to the target). Only data for the easiest (smallest separation of targets) and hard (furthest separation of targets) conditions were considered as these points offered more comparable base performance levels. See Figure \@ref(fig:firetruck-data) for details.
 
@@ -307,9 +307,31 @@ plt_resampling
 In the analyses below, we use multi-level Bayesian beta regression to model the change in standing position $\phi$ when we 1) use unequal hoop sizes, 2) remove the need to chose between hoops, and 3) provide unequal rewards. 
 
 ## Experiment 1: Hoop Size
-```{r Load in Hoop size data, inclued = F, echo = F, cache=TRUE}
-load("../Analyses/Experiment_3_Hoop_size/modelling/model_outputs/m1")
-load("../Analyses/Experiment_3_Hoop_size/modelling/model_outputs/m1_draws")
+```{r run model Hoop Size, include = F, echo = F, cache = TRUE}
+# load model data 
+load("../Analyses/Experiment_3_Hoop_size/data/model_data")
+
+# get function for extracting draws 
+source("extract_draws_functions/Hoop_size_draws.R")
+
+# run model
+Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
+          data = model_data,
+          family = "beta",
+          prior = c(set_prior("student_t(3,0,3)", class = "b")),
+          cores = 1,
+          chains = 1,
+          iter = 2000,
+          warmup = 1000)
+
+# extract draws 
+draws <- HS_draw_post(Hoop_size_m1, model_data)
+```
+
+```{r Load in Hoop size data, include = F, echo = F, cache=TRUE}
+# might not need this chunk
+# load("../Analyses/Experiment_3_Hoop_size/modelling/model_outputs/m1")
+# load("../Analyses/Experiment_3_Hoop_size/modelling/model_outputs/m1_draws")
 ```
 
 ```{r PltHoopSizeEstimates, include = T, echo = F, fig.asp=.45, fig.cap="_Posterior predictions for the mean standing position._"}
