@@ -23,9 +23,15 @@ library(png)
 library(grid)
 ```
 
-These supplementary materials present full details of the power analysis used in the main manuscript, an additional fourth experiment, along with full details of all R packages used in the analysis. 
+These supplementary materials present full details of all R packages used in the analysis; a detailed explaination of our simulation-based power analysis; and Bayesian models of the results discussed in the main manuscript. In addition, we also present details a further, related experiment using eye-tracking and a probability matching paradigm. 
 
 Please see the accompanying source Rmd file for the code. 
+
+# Session Info
+
+```{r, include=T, echo=T}
+sessionInfo()
+```
 
 # Power Analysis
 
@@ -33,14 +39,14 @@ Our power analysis made use of simulations and resampling approaches based on da
 
 ## Experiment 1: Two Hoop Sizes
 
-```{r loaddata, include = T, echo = F, fig.height = 3, fig.cap="Warren write some text."}
+```{r loaddata, include = T, echo = F, fig.height = 3}
 load("../power/Hoop_size/scratch/sampled_data")
 load("../power/Hoop_size/scratch/df_part2")
 ```
 
-We started by fitting a a beta distribution to the _Throwing Experiment_ data from @clarke2015failure using the `fitdistrplus` package, as illustrated in Figure \@ref(fig:drawdistributions) (left panel). In the original data, normalised standing position was coded $\phi \in [0,1]$ with 0 indicating a central standing position, and 1 indicating the participant stood by either of the two hoops. As we are _breaking the symmetry_ between the two targets in this new experiment, we will now treat standing position as $\phi \in (0, 1)$ with 0 representing the positions of the large and small hoop respectively. The central midpoint is now represented as $\phi = 0.5$.
+We started by fitting a a beta distribution to the _Throwing Experiment_ data from @clarke2015failure using the `fitdistrplus` package, as illustrated in Figure \@ref(fig:drawdistributions) (left panel). In the original data, normalised standing position was coded $\phi \in [0,1]$ with $0$ indicating a central standing position, and $1$ indicating the participant stood by either of the two hoops. As we are _breaking the symmetry_ between the two targets in this new experiment, we will now treat standing position as $\phi \in (0, 1)$ with $0$ and $1$ representing the positions of the large and small hoop respectively. The central midpoint is now represented as $\phi = 0.5$.
 
-```{r drawdistributions, include = T, echo = F, fig.height = 2, fig.cap="_The left hand plot shows a histrogram for the empirical data from @clarke2015failure with a line to show a beta distribution that had been fit to these data. The right hand plot shows how this distribution would change had the participants' mean position had been biased towards one of the side hoops to varying degrees._"}
+```{r drawdistributions, include = T, echo = F, fig.height = 2, fig.cap="_The left hand plot shows a histrogram for the empirical data from @clarke2015failure with a line to show a beta distribution that had been fit to these data. The right hand plot shows how this distribution would change had the participants' mean position had been biased towards one of the side hoops to varying degrees._", fig.align = 'center'}
 load("../power/Hoop_size/scratch/sampled_data")
 load("../power/Hoop_size/scratch/df_part2")
 
@@ -139,7 +145,7 @@ The fit with the empirical data is reasonable, although we under-estimate the fr
 
 We can now these use distributions to simulate experiments with $N = 3\ldots 24$ participants and 72 trials. Figure \@ref(fig:HDIHoopSize) shows the uncertainty surrounding the mean estimate for the smallest difference tested (5\%). After 15 participants, the uncertainty surrounding the estimate appears to plateau which demonstrates that the sample size of 21 was sufficient to detect an effect of this size. 
 
-```{r HDIHoopSize, include = T, echo = F, fig.height = 3, fig.cap="_This figure shows how the 95% HDI around the mean difference for the smallest difference simulated (5%) changed with a larger sample size_"}
+```{r HDIHoopSize, include = T, echo = F, fig.align = 'center', fig.height = 3, fig.cap="_This figure shows how the 95% HDI around the mean difference for the smallest difference simulated (5%) changed with a larger sample size_"}
 
 df_sample %>% 
   filter(difference == 0.05) %>% 
@@ -161,11 +167,13 @@ df_sample %>%
 
 ## Experiment 2: Two Throws
 
-As the hypothesis for both of these experiments was that out intervention would push participants towards being more optimal, we can use the same datasets to look at how uncertainty around the difference would change with varying sample sizes. For these experiments, comparison data was drawn from two unpublished studies; one in which the standard behaviour was observed, and one in which participants were closer to optimal in their performance.
+Our hypothesis for this experiment was that our intervention would push participants towards being more optimal. For the power analysis, we will sample data from two unpublished versions of the split-resource decision problem. For the _One Throw_ (control) condition, we will use data from a (as yet unpublished) replication of the @clarke2015failure _Throwing Task_ for $N=40$ participants. As with the original study, participants were generally sub-optimal and did not vary their strategy with $\Delta$. 
 
-The first dataset is comprised of 40 participants who took part in a version of the @clarke2015failure _Throwing Task_. The second dataset is comprised of 60 participants who took part in a computerised version of this task. To compare these datasets, placement positions and standing positions were put on the same scale (0 being the centre and 1 being stood/placed next to the target). Only data for the easiest (smallest separation of targets) and hard (furthest separation of targets) conditions were considered as these points offered more comparable base performance levels. 
+The second dataset is comprised of 60 participants who took part in a computerised version of this task. *more details*
 
-```{r Exp2and3Plots, include = T, echo = F, fig.cap="_The top plot shows boxplots for the empirical data being sampled from. The bottom plots show the 95% HDI for the difference in the close (90%) and far (10%) separations_"}
+To compare these datasets, placement positions and standing positions were put on the same scale (0 being the centre and 1 being stood/placed next to the target). Only data for the easiest (smallest separation of targets) and hard (furthest separation of targets) conditions were considered as these points offered more comparable base performance levels. See Figure \@ref(fig:firetruck-data) for details.
+
+```{r firetruck-data, include = T, fig.height = 3, echo = F, fig.align = 'center', fig.cap="_boxplots for the empirical data being sampled from._"}
 # so we're interested in the difference between the closest and furthest... 
 # so we should just plot that? 
 load("../power/Money_and_two/scratch/df_sample")
@@ -196,7 +204,14 @@ plt_data_diff <- plt_data[["data"]] %>%
              fill = condition)) + 
   geom_boxplot(alpha = .3) + 
   geom_point(alpha = .3, position = position_jitterdodge(.1))
-  
+
+plt_data_diff
+```
+
+To perform our power analysis we ....
+
+
+```{r exp2-power, include = T, fig.height = 3, echo = F, fig.align = 'center', fig.cap="_plots show the 95% HDI for the difference in the close (90%) and far (10%) separations_"}
 # plot samples in terms of difference? 
 plt_hdi <- df_sample %>% 
   filter(n_trials != 12,
@@ -215,9 +230,7 @@ plt_hdi <- df_sample %>%
   scale_x_continuous("Sample Size") + 
   scale_y_continuous("Difference: Athletes - Avatar")
 
-# show both 
-gridExtra::grid.arrange(plt_data, plt_hdi, ncol = 1)
-
+plt_hdi
 ```
 
 ## Experiment 3: Reward 
@@ -617,10 +630,6 @@ gridExtra::grid.arrange(plt_me_Dist, plt_me_Bias, plt_interaction)
 ```
 
 
-# Session Info
 
-```{r, include=T, echo=T}
-sessionInfo()
-```
 
 # Bibliography
