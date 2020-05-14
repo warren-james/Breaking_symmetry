@@ -176,8 +176,12 @@ To compare these datasets, placement positions and standing positions were put o
 ```{r firetruck-data, include = T, fig.height = 3, echo = F, fig.align = 'center', fig.cap="_boxplots for the empirical data being sampled from._"}
 # so we're interested in the difference between the closest and furthest... 
 # so we should just plot that? 
+
+# load data
 load("../power/Money_and_two/scratch/df_sample")
 load("../power/Money_and_two/scratch/df_all")
+
+# make plot 
 plt_data <- df_all %>%
   filter(standard_lab %in% c("10%","90%")) %>%
   group_by(participant, condition, standard_lab) %>% 
@@ -205,10 +209,10 @@ plt_data_diff <- plt_data[["data"]] %>%
   geom_boxplot(alpha = .3) + 
   geom_point(alpha = .3, position = position_jitterdodge(.1))
 
-plt_data_diff
+plt_data
 ```
 
-To perform our power analysis we ....
+To perform our power analysis we sampled these datasets 5000 times for a range of participants ($N = 2...28$). To do this, N participants were chosen at random (with replacement) from each condition (i.e. the _Throwing_ or _Avatar_ "conditions"), then 60 data points were sampled from each of these participants (with replacement) for the closest ("90%") and furthest separations ("10%").  
 
 
 ```{r exp2-power, include = T, fig.height = 3, echo = F, fig.align = 'center', fig.cap="_plots show the 95% HDI for the difference in the close (90%) and far (10%) separations_"}
