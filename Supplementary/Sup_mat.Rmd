@@ -304,8 +304,10 @@ plt_resampling
 
 # Additional Analyses
 
+In the analyses below, we use multi-level Bayesian beta regression to model the change in standing position $\phi$ when we 1) use unequal hoop sizes, 2) remove the need to chose between hoops, and 3) provide unequal rewards. 
+
 ## Experiment 1: Hoop Size
-```{r Load in Hoop size data, inclued = F, echo = F}
+```{r Load in Hoop size data, inclued = F, echo = F, cache=TRUE}
 load("../Analyses/Experiment_3_Hoop_size/modelling/model_outputs/m1")
 load("../Analyses/Experiment_3_Hoop_size/modelling/model_outputs/m1_draws")
 ```
