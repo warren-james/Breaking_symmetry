@@ -29,6 +29,9 @@ model_data_pos <- df_part2 %>%
   filter(abspos <= 1) %>% 
   mutate(abspos = squash(abspos, 1, 0, 1e-4))
 
+# save 
+save(model_data_pos, file = "scratch/model_data_pos")
+
 # to be sorted
 # model_data_acc
 

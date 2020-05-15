@@ -407,6 +407,78 @@ The data were coded so that a fixation was classified as either being to the Mos
 
 As can be seen in the figure below, the uncertainty surrounding the estimate for the difference between the groups appears to plateau somewhere around 15 participants. The shaded region represents a 95% Highest Density Interval (HDI) for the disribution of differences simulated through resampling. As such, the sample size of 18 in the main experiment appears to be ample in order to detect this difference and increasing the sample size above this value does not add more to the certainty, as can be seen in Figure \@ref(fig:ProbPowerPlots). 
 
+``` {r prob matching power, include = F, echo = F, cache = T}
+load("../power/Prob_match/scratch/df_resample")
+
+# sampling
+n_trials <- 300 # seq(100, 450, 50)
+n_subs <- seq(2, 20, 1)
+n_iter <- 5000
+conditions <- unique(df_resample$Condition)
+
+# setup data.table 
+n <- length(n_subs) * length(conditions) * n_iter
+df_sample <- data.table::data.table(iter = rep(0, n),
+                                    n_sub = rep(0, n),
+                                    n_trials = rep(0, n),
+                                    Condition = rep("", n),
+                                    Most = rep(0, n))
+
+# run loop
+counter <- 0
+for(ii in 1:n_iter){
+  # loop conditions
+  for(cond in conditions){
+    ss_cond <- df_resample %>%
+      filter(Condition == cond)
+
+    # loop n trials
+    for(trials in n_trials){
+      # loop n subjects
+      for(sub in n_subs){
+        # get random participants
+        subj <- sample(ss_cond$Participant, sub, replace = T)
+
+        # get data
+        ss_sub <- ss_cond %>%
+          filter(Participant %in% subj)
+
+        # set this for a stopping point
+        # final_sub <- tail(unique(ss_sub$Participant), n = 1)
+
+        # initialise vector
+        samp <- c()
+
+        # loop through participants
+        count <- 0
+        for(unique_sub in subj){
+          count <- count + 1
+          # who are we sampling from?
+          sampling <- ss_sub %>%
+            filter(Participant == unique_sub)
+
+          # sample random trials
+          samp <- c(samp, sample(sampling$Most, trials, replace = T))
+
+          # check if we're adding this to the data frame
+          if(count == length(subj)){
+            counter <- counter + 1
+            df_sample[counter, iter := ii]
+            df_sample[counter, n_sub := sub]
+            df_sample[counter, n_trials := trials]
+            df_sample[counter, Condition := cond]
+            df_sample[counter, Most := mean(samp)]
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+```
+
 ```{r ProbPowerPlots, include = T, echo = F, fig.asp=.45, fig.cap="_Plot to show how the 95% HDI of the estimated difference in fixations to the most likely box changed with an increase in participants_"}
 # maybe just the hdi stuff?
 # do I want to rerun the sim with dist type added in?
@@ -479,8 +551,26 @@ The model results confirmed that participants in general had a bias towards stan
 
 ## Experiment 2: Two Throws
 ```{r load in model for two throws, include = F, echo = F}
-load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos")
-load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos_draws")
+# load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos")
+# load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos_draws")
+```
+
+```{r Two-throws modelling, include = F, echo = F, cache = T}
+load("../Analyses/Experiment_2_Two_throw/scratch/model_data_pos")
+
+source("extract_draws_functions/Two_throw_draws.R")
+
+Two_throw_m1 <- brm(abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
+                    family = "beta",
+                    data = model_data_pos,
+                    prior = c(set_prior("student_t(3,0,3)", class = "b")),
+                    cores = 1,
+                    chains = 1,
+                    iter = 2000,
+                    warmup = 1000)
+
+draws <- draw_post_delta(Two_throw_m1, model_data_pos)
+
 ```
 
 ```{r PltTwoThrowEstimates, include = T, echo = F, fig.asp=.55, fig.cap="_The top plots show the Posterior distributions for the estimated mean standing position. The bottom plot shows the distribution of estimated difference between the two conditions for three difference distances_"}
@@ -543,10 +633,22 @@ This effect was the strongest for the closest separation which reflects the larg
 
 
 ## Experiment 3: Reward
-```{r load in gambling data, include = F, echo = F, warning = F}
-load("../Analyses/Experiment_5_Unequal_Reward/scratch/model_outputs/m_brms_ri")
-load("../Analyses/Experiment_5_Unequal_Reward/scratch/model_outputs/m_brms_ri_draws")
-draws_df <- draws_df %>% 
+```{r load in gambling data, include = F, echo = F, warning = F, cache=T}
+# load("../Analyses/Experiment_5_Unequal_Reward/scratch/model_outputs/m_brms_ri")
+# load("../Analyses/Experiment_5_Unequal_Reward/scratch/model_outputs/m_brms_ri_draws")
+load("../Analyses/Experiment_5_Unequal_Reward/scratch/data/model_data")
+
+source("extract_draws_functions/Reward_draws.R")
+
+# run model 
+Reward_m1 <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type*Gamble_Type|Participant),
+                 data = model_data,
+                 family = "beta",
+                 chains = 1,
+                 iter = 4000,
+                 warmup = 2000)
+
+draws_df <- draws_factor(Reward_m1) %>% 
   mutate(prop = boot::inv.logit(estimate))
 
 ```
