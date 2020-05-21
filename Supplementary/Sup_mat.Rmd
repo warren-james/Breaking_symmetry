@@ -33,6 +33,9 @@ Please see the accompanying source Rmd file for the code.
 sessionInfo()
 ```
 
+``` {r}
+options(mc.cores = parallel::detectCores())
+```
 # Power Analysis
 
 Our power analysis made use of simulations and resampling approaches based on data that we previously collected. Resampling was carried out in order to establish if adding more participants to our sample sizes would have lead to a reduction in uncertainty around our estimates.
@@ -524,20 +527,31 @@ The data from this experiment were analysed using a Bayesian beta regression. Th
 
 First, we will check that our priors are sensible!
 
-```{r run-model-hoop-size-priors, echo = T, cache = TRUE}
+```{r run-model-hoop-size-priors, echo = F, include = F, cache = TRUE}
 
 # run model
-Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
-          data = model_data,
-          family = "beta",
-          prior = c(set_prior("student_t(3,0,3)", class = "b")),
-          cores = 1,
-          chains = 1,
-          iter = 2000,
-          warmup = 1000,
-          sample_prior = "only")
+Hoop_size_priors <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
+                    data = model_data,
+                    family = "beta",
+                    prior = c(set_prior("student_t(3, 0, 1)",
+                                        coef = "norm_hoop_pos",
+                                        class = "b"),
+                              set_prior("student_t(3,0,1)",
+                                        class = "Intercept")),
+                    cores = 2,
+                    chains = 2,
+                    iter = 5000,
+                    warmup = 2500,
+                    control = list(adapt_delta = .95, max_treedepth = 15),
+                    sample_prior = "only")
 ```
 
+```{r HoopSizePriors, include = T, echo = F, fig.asp = .45, fig.cap="Priors for Hoop size"}
+# need to make a dataset
+draws <- HS_draw_post(Hoop_size_priors, model_data)
+
+draws$plt_estimates
+```
 
 ### Conditioning on the data
 
@@ -545,13 +559,16 @@ Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant),
 
 # run model
 Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
-          data = model_data,
-          family = "beta",
-          prior = c(set_prior("student_t(3,0,3)", class = "b")),
-          cores = 1,
-          chains = 1,
-          iter = 2000,
-          warmup = 1000)
+                    data = model_data,
+                    family = "beta",
+                    prior = c(set_prior("student_t(3,0,1)", class = "b"),
+                              set_prior("student_t(3,0,1)", class = "Intercept")),
+                    cores = 1,
+                    chains = 1,
+                    iter = 5000,
+                    warmup = 2500,
+                    control = list(adapt_delta = .95, max_treedepth = 15))
+
 
 # extract draws 
 draws <- HS_draw_post(Hoop_size_m1, model_data)
