@@ -502,18 +502,49 @@ plt_resampling <- df_sample %>%
 plt_resampling
 ```
 
-
 # Additional Analyses
 
-In the analyses below, we use multi-level Bayesian beta regression to model the change in standing position $\phi$ when we 1) use unequal hoop sizes, 2) remove the need to chose between hoops, and 3) provide unequal rewards. 
-
-## Experiment 1: Hoop Size
-```{r run model Hoop Size, include = F, echo = F, cache = TRUE}
+```{r}
 # load model data 
 load("../Analyses/Experiment_3_Hoop_size/data/model_data")
 
 # get function for extracting draws 
 source("extract_draws_functions/Hoop_size_draws.R")
+
+```
+
+In the analyses below, we use multi-level Bayesian beta regression to model the change in standing position $\phi$ when we 1) use unequal hoop sizes, 2) remove the need to chose between hoops, and 3) provide unequal rewards. 
+
+## Experiment 1: Hoop Size
+
+The data from this experiment were analysed using a Bayesian beta regression. The recorded data for standing positions were transformed to be between 0 and 1, with 0 representing the larger hoop and 1 representing the smaller hoop. Therefore, the central point would be 0.5, and meaning anything above this value would demonstrate a shift in participant’s bhaviour away from the mid-point and towards the small hoop. The model included normalised hoop delta as a predictor to see how participants changed position with an increasing distance. This was also entered as a random effect by participant. 
+
+
+### Prior Predictive Check
+
+First, we will check that our priors are sensible!
+
+```{r run-model-hoop-size-priors, include = F, echo = F, cache = TRUE}
+
+# run model
+Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
+          data = model_data,
+          family = "beta",
+          prior = c(set_prior("student_t(3,0,3)", class = "b")),
+          cores = 1,
+          chains = 1,
+          iter = 2000,
+          warmup = 1000,
+          sample_prior = "only")
+
+
+
+```
+
+
+### Conditioning on the data
+
+```{r run-model-Hoop-size, include = F, echo = F, cache = TRUE}
 
 # run model
 Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
@@ -535,19 +566,20 @@ draws <- HS_draw_post(Hoop_size_m1, model_data)
 # load("../Analyses/Experiment_3_Hoop_size/modelling/model_outputs/m1_draws")
 ```
 
-```{r PltHoopSizeEstimates, include = T, echo = F, fig.asp=.45, fig.cap="_Posterior predictions for the mean standing position._"}
-plt_estimates <- draws$plt_estimates
-plt_estimates
-```
+
+
 
 ```{r Sort Hdis, include = F, echo = F}
 p_above_5 <- draws$Prop_above.5
 HDI_all <- draws$draws_HDI[[2]]
 ```
 
-The data from this experiment were analysed using a Bayesian beta regression. The recorded data for standing positions were transformed to be between 0 and 1, with 0 representing the larger hoop and 1 representing the smaller hoop. Therefore, the central point would be 0.5, and meaning anything above this value would demonstrate a shift in participant’s bhaviour away from the mid-point and towards the small hoop. The model included normalised hoop delta as a predictor to see how participants changed position with an increasing distance. This was also entered as a random effect by participant. 
-
 The model results confirmed that participants in general had a bias towards standing closer to the small hoop (mean of `r round(HDI_all$mean, digits = 3)`, 95% HDPI of |`r round(HDI_all$lower, digits = 3)`, `r round(HDI_all$upper, digits = 3)`|). We can be reasonably confident about this results as the p(x > 0.5|data) = `r paste(round(p_above_5$above0_5, digits = 3)*100, "%", sep = "")`. This can be seen in the posterior in Figure \@ref(fig:PltHoopSizeEstimates). Also, not that distance did not appear to have an effect on position (i.e., participants were generally biased slightly towards the smaller hoop).
+
+```{r PltHoopSizeEstimates, include = T, echo = F, fig.asp=.45, fig.cap="_Posterior predictions for the mean standing position._"}
+plt_estimates <- draws$plt_estimates
+plt_estimates
+```
 
 ## Experiment 2: Two Throws
 ```{r load in model for two throws, include = F, echo = F}
