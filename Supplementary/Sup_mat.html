@@ -564,6 +564,46 @@ source(&quot;extract_draws_functions/Hoop_size_draws.R&quot;)</code></pre>
 <div id="prior-predictive-check" class="section level3">
 <h3><span class="header-section-number">3.1.1</span> Prior Predictive Check</h3>
 <p>First, we will check that our priors are sensible!</p>
+<pre class="r"><code># run model
+Hoop_size_m1 &lt;- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
+          data = model_data,
+          family = &quot;beta&quot;,
+          prior = c(set_prior(&quot;student_t(3,0,3)&quot;, class = &quot;b&quot;)),
+          cores = 1,
+          chains = 1,
+          iter = 2000,
+          warmup = 1000,
+          sample_prior = &quot;only&quot;)</code></pre>
+<pre><code>## Compiling the C++ model</code></pre>
+<pre><code>## Start sampling</code></pre>
+<pre><code>## 
+## SAMPLING FOR MODEL '69124a886b3208244abde92dc12c5a81' NOW (CHAIN 1).
+## Chain 1: 
+## Chain 1: Gradient evaluation took 0.000447 seconds
+## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 4.47 seconds.
+## Chain 1: Adjust your expectations accordingly!
+## Chain 1: 
+## Chain 1: 
+## Chain 1: Iteration:    1 / 2000 [  0%]  (Warmup)
+## Chain 1: Iteration:  200 / 2000 [ 10%]  (Warmup)
+## Chain 1: Iteration:  400 / 2000 [ 20%]  (Warmup)
+## Chain 1: Iteration:  600 / 2000 [ 30%]  (Warmup)
+## Chain 1: Iteration:  800 / 2000 [ 40%]  (Warmup)
+## Chain 1: Iteration: 1000 / 2000 [ 50%]  (Warmup)
+## Chain 1: Iteration: 1001 / 2000 [ 50%]  (Sampling)
+## Chain 1: Iteration: 1200 / 2000 [ 60%]  (Sampling)
+## Chain 1: Iteration: 1400 / 2000 [ 70%]  (Sampling)
+## Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)
+## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
+## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
+## Chain 1: 
+## Chain 1:  Elapsed Time: 19.5744 seconds (Warm-up)
+## Chain 1:                19.2067 seconds (Sampling)
+## Chain 1:                38.7811 seconds (Total)
+## Chain 1:</code></pre>
+<pre><code>## Warning: There were 287 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help. See
+## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
+<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
 </div>
 <div id="conditioning-on-the-data" class="section level3">
 <h3><span class="header-section-number">3.1.2</span> Conditioning on the data</h3>

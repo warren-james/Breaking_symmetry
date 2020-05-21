@@ -504,7 +504,7 @@ plt_resampling
 
 # Additional Analyses
 
-```{r}
+```{r, echo - FALSE}
 # load model data 
 load("../Analyses/Experiment_3_Hoop_size/data/model_data")
 
@@ -524,7 +524,7 @@ The data from this experiment were analysed using a Bayesian beta regression. Th
 
 First, we will check that our priors are sensible!
 
-```{r run-model-hoop-size-priors, include = F, echo = F, cache = TRUE}
+```{r run-model-hoop-size-priors, echo = T, cache = TRUE}
 
 # run model
 Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
@@ -536,9 +536,6 @@ Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant),
           iter = 2000,
           warmup = 1000,
           sample_prior = "only")
-
-
-
 ```
 
 
