@@ -139,7 +139,7 @@ plt_hist <- df_distributions %>%
   theme(
     legend.position = "none",
     axis.title.y = element_blank()
-    )
+  )
 
 gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
 ```
@@ -310,7 +310,7 @@ for(ii in 1:n_iter){
         # get random subjects
         base_subs <- sample(df_Th$participant, subs, replace = T)
         comp_subs <- sample(df_Av$participant, subs, replace = T)
-
+        
         # loop through subjects
         base_sample <- c()
         comp_sample <- c()
@@ -434,24 +434,24 @@ for(ii in 1:n_iter){
   for(cond in conditions){
     ss_cond <- df_resample %>%
       filter(Condition == cond)
-
+    
     # loop n trials
     for(trials in n_trials){
       # loop n subjects
       for(sub in n_subs){
         # get random participants
         subj <- sample(ss_cond$Participant, sub, replace = T)
-
+        
         # get data
         ss_sub <- ss_cond %>%
           filter(Participant %in% subj)
-
+        
         # set this for a stopping point
         # final_sub <- tail(unique(ss_sub$Participant), n = 1)
-
+        
         # initialise vector
         samp <- c()
-
+        
         # loop through participants
         count <- 0
         for(unique_sub in subj){
@@ -459,10 +459,10 @@ for(ii in 1:n_iter){
           # who are we sampling from?
           sampling <- ss_sub %>%
             filter(Participant == unique_sub)
-
+          
           # sample random trials
           samp <- c(samp, sample(sampling$Most, trials, replace = T))
-
+          
           # check if we're adding this to the data frame
           if(count == length(subj)){
             counter <- counter + 1
@@ -507,6 +507,10 @@ plt_resampling
 
 # Additional Analyses
 
+In the analyses below, we use multi-level Bayesian beta regression to model the change in standing position $\phi$ when we 1) use unequal hoop sizes, 2) remove the need to chose between hoops, and 3) provide unequal rewards. 
+
+## Experiment 1: Hoop Size
+
 ```{r, echo - FALSE}
 # load model data 
 load("../Analyses/Experiment_3_Hoop_size/data/model_data")
@@ -515,10 +519,6 @@ load("../Analyses/Experiment_3_Hoop_size/data/model_data")
 source("extract_draws_functions/Hoop_size_draws.R")
 
 ```
-
-In the analyses below, we use multi-level Bayesian beta regression to model the change in standing position $\phi$ when we 1) use unequal hoop sizes, 2) remove the need to chose between hoops, and 3) provide unequal rewards. 
-
-## Experiment 1: Hoop Size
 
 The data from this experiment were analysed using a Bayesian beta regression. The recorded data for standing positions were transformed to be between 0 and 1, with 0 representing the larger hoop and 1 representing the smaller hoop. Therefore, the central point would be 0.5, and meaning anything above this value would demonstrate a shift in participant’s bhaviour away from the mid-point and towards the small hoop. The model included normalised hoop delta as a predictor to see how participants changed position with an increasing distance. This was also entered as a random effect by participant. 
 
@@ -531,19 +531,19 @@ First, we will check that our priors are sensible!
 
 # run model
 Hoop_size_priors <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
-                    data = model_data,
-                    family = "beta",
-                    prior = c(set_prior("student_t(3, 0, 1)",
-                                        coef = "norm_hoop_pos",
-                                        class = "b"),
-                              set_prior("student_t(3,0,1)",
-                                        class = "Intercept")),
-                    cores = 2,
-                    chains = 2,
-                    iter = 5000,
-                    warmup = 2500,
-                    control = list(adapt_delta = .95, max_treedepth = 15),
-                    sample_prior = "only")
+                        data = model_data,
+                        family = "beta",
+                        prior = c(set_prior("student_t(3, 0, 1)",
+                                            coef = "norm_hoop_pos",
+                                            class = "b"),
+                                  set_prior("student_t(3,0,1)",
+                                            class = "Intercept")),
+                        cores = 2,
+                        chains = 2,
+                        iter = 5000,
+                        warmup = 2500,
+                        control = list(adapt_delta = .95, max_treedepth = 15),
+                        sample_prior = "only")
 ```
 
 ```{r HoopSizePriors, include = T, echo = F, fig.asp = .45, fig.cap="Priors for Hoop size"}
@@ -561,10 +561,13 @@ draws$plt_estimates
 Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
                     data = model_data,
                     family = "beta",
-                    prior = c(set_prior("student_t(3,0,1)", class = "b"),
-                              set_prior("student_t(3,0,1)", class = "Intercept")),
-                    cores = 1,
-                    chains = 1,
+                    prior = c(set_prior("student_t(3, 0, 1)",
+                                            coef = "norm_hoop_pos",
+                                            class = "b"),
+                                  set_prior("student_t(3,0,1)",
+                                            class = "Intercept")),
+                    cores = 2,
+                    chains = 2,
                     iter = 5000,
                     warmup = 2500,
                     control = list(adapt_delta = .95, max_treedepth = 15))
@@ -596,26 +599,115 @@ plt_estimates
 ```
 
 ## Experiment 2: Two Throws
-```{r load in model for two throws, include = F, echo = F}
-# load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos")
-# load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos_draws")
-```
-
-```{r Two-throws modelling, include = F, echo = F, cache = T}
+```{r Two Throws: load data, include = F, echo = F}
 load("../Analyses/Experiment_2_Two_throw/scratch/model_data_pos")
 
 source("extract_draws_functions/Two_throw_draws.R")
+```
 
-Two_throw_m1 <- brm(abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
-                    family = "beta",
-                    data = model_data_pos,
-                    prior = c(set_prior("student_t(3,0,3)", class = "b")),
-                    cores = 1,
-                    chains = 1,
-                    iter = 2000,
-                    warmup = 1000)
+```{r Two_Throws_Priors_only_model, include = F, echo = F, cache = T}
+Two_throw_priors <- brm(abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
+                        family = "beta",
+                        data = model_data_pos,
+                        prior = c(set_prior("student_t(4,0,.8)",
+                                            class = "b",
+                                            coef = "norm_delta"),
+                                  set_prior("student_t(4,0,.8)",
+                                            class = "b",
+                                            coef = "norm_delta:Num_throwsTwoMThrows"),
+                                  set_prior("student_t(4,0,.8)",
+                                            class = "b", coef = "Num_throwsTwoMThrows"),
+                                  set_prior("student_t(4,0,.8)",
+                                            class = "Intercept")),
+                        cores = 1,
+                        chains = 1,
+                        iter = 10000,
+                        warmup = 5000,
+                        control = list(adapt_delta = .99, max_treedepth = 15),
+                        sample_prior = "only")
 
-draws <- draw_post_delta(Two_throw_m1, model_data_pos)
+
+# test 
+close <- min(model_data_pos$norm_delta)
+mid <- median(model_data_pos$norm_delta)
+far <- max(model_data_pos$norm_delta)
+
+draws_df <- Two_throw_priors  %>% 
+  spread_draws(b_Intercept,
+               b_norm_delta,
+               b_Num_throwsTwoMThrows,
+               `b_norm_delta:Num_throwsTwoMThrows`) %>%
+  mutate(One_throw = b_Intercept,
+         Norm_delta_OT = b_norm_delta,
+         Two_throw = b_Num_throwsTwoMThrows,
+         Norm_delta_TT = `b_norm_delta:Num_throwsTwoMThrows`) %>% 
+  select(-b_Intercept,
+         -b_norm_delta,
+         -b_Num_throwsTwoMThrows,
+         -`b_norm_delta:Num_throwsTwoMThrows`) %>%
+  mutate(hoop_Close.One_throw = One_throw + (close * Norm_delta_OT),
+         hoop_Mid.One_throw = One_throw + (mid * Norm_delta_OT),
+         hoop_Far.One_throw = One_throw + (far * Norm_delta_OT),
+         hoop_Close.Two_throw = One_throw + Two_throw + (close * Norm_delta_TT),
+         hoop_Mid.Two_throw = One_throw + Two_throw + (mid * Norm_delta_TT),
+         hoop_Far.Two_throw = One_throw + Two_throw + (far * Norm_delta_TT)) %>%
+  select(.iteration,
+         hoop_Close.One_throw,
+         hoop_Mid.One_throw,
+         hoop_Far.One_throw,
+         hoop_Close.Two_throw,
+         hoop_Mid.Two_throw,
+         hoop_Far.Two_throw) %>% 
+  gather(c(hoop_Close.One_throw:hoop_Far.Two_throw),
+         key = "parameter",
+         value = "estimate") %>% 
+  separate(parameter,
+           into= c("Dist_type", "Num_throws"),
+           sep = "\\.") %>% 
+  separate(Dist_type, 
+           into = c("remove", "Dist_type"),
+           sep = "_") %>% 
+  select(-remove)
+
+priors_plt <- draws_df %>% 
+  mutate(prop = boot::inv.logit(estimate)) %>% 
+  ggplot(aes(prop, 
+             colour = Num_throws,
+             fill = Num_throws)) + 
+  geom_density(
+    kernel = "biweight",
+    alpha = .3
+    )+ 
+  facet_wrap(~Dist_type) + 
+  theme_bw()
+```
+
+```{r PltTwoThrowPriors, include = T, echo = F, fig.asp=.45, fig.cap="_Posterior for the priors only model_"}
+priors_plt
+```
+
+```{r Two-throws modelling, include = F, echo = F, cache = T}
+# Two_throw_m1 <- brm(abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
+#                     family = "beta",
+#                     data = model_data_pos,
+#                     prior = c(set_prior("student_t(4,0,.8)",
+#                                             class = "b",
+#                                             coef = "norm_delta"),
+#                                   set_prior("student_t(4,0,.8)",
+#                                             class = "b",
+#                                             coef = "norm_delta:Num_throwsTwoMThrows"),
+#                                   set_prior("student_t(4,0,.8)",
+#                                             class = "b", coef = "Num_throwsTwoMThrows"),
+#                                   set_prior("student_t(4,0,.8)",
+#                                             class = "Intercept")),
+#                         cores = 1,
+#                         chains = 1,
+#                         iter = 6500,
+#                         warmup = 3250,
+#                         control = list(adapt_delta = .99, max_treedepth = 15))
+
+load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos")
+draws <- draw_post_delta(m1_pos, model_data_pos)
 
 ```
 
