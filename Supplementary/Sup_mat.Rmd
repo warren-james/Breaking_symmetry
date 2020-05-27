@@ -627,49 +627,10 @@ Two_throw_priors <- brm(abspos ~ norm_delta * Num_throws + (norm_delta * Num_thr
                         sample_prior = "only")
 
 
-# test 
-close <- min(model_data_pos$norm_delta)
-mid <- median(model_data_pos$norm_delta)
-far <- max(model_data_pos$norm_delta)
+# get draws 
+draws_df <- draw_post_delta(Two_throw_priors, model_data_pos)
 
-draws_df <- Two_throw_priors  %>% 
-  spread_draws(b_Intercept,
-               b_norm_delta,
-               b_Num_throwsTwoMThrows,
-               `b_norm_delta:Num_throwsTwoMThrows`) %>%
-  mutate(One_throw = b_Intercept,
-         Norm_delta_OT = b_norm_delta,
-         Two_throw = b_Num_throwsTwoMThrows,
-         Norm_delta_TT = `b_norm_delta:Num_throwsTwoMThrows`) %>% 
-  select(-b_Intercept,
-         -b_norm_delta,
-         -b_Num_throwsTwoMThrows,
-         -`b_norm_delta:Num_throwsTwoMThrows`) %>%
-  mutate(hoop_Close.One_throw = One_throw + (close * Norm_delta_OT),
-         hoop_Mid.One_throw = One_throw + (mid * Norm_delta_OT),
-         hoop_Far.One_throw = One_throw + (far * Norm_delta_OT),
-         hoop_Close.Two_throw = One_throw + Two_throw + (close * Norm_delta_TT),
-         hoop_Mid.Two_throw = One_throw + Two_throw + (mid * Norm_delta_TT),
-         hoop_Far.Two_throw = One_throw + Two_throw + (far * Norm_delta_TT)) %>%
-  select(.iteration,
-         hoop_Close.One_throw,
-         hoop_Mid.One_throw,
-         hoop_Far.One_throw,
-         hoop_Close.Two_throw,
-         hoop_Mid.Two_throw,
-         hoop_Far.Two_throw) %>% 
-  gather(c(hoop_Close.One_throw:hoop_Far.Two_throw),
-         key = "parameter",
-         value = "estimate") %>% 
-  separate(parameter,
-           into= c("Dist_type", "Num_throws"),
-           sep = "\\.") %>% 
-  separate(Dist_type, 
-           into = c("remove", "Dist_type"),
-           sep = "_") %>% 
-  select(-remove)
-
-priors_plt <- draws_df %>% 
+priors_plt <- draws_df$Draws_df %>% 
   mutate(prop = boot::inv.logit(estimate)) %>% 
   ggplot(aes(prop, 
              colour = Num_throws,
@@ -687,27 +648,27 @@ priors_plt
 ```
 
 ```{r Two-throws modelling, include = F, echo = F, cache = T}
-# Two_throw_m1 <- brm(abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
-#                     family = "beta",
-#                     data = model_data_pos,
-#                     prior = c(set_prior("student_t(4,0,.8)",
-#                                             class = "b",
-#                                             coef = "norm_delta"),
-#                                   set_prior("student_t(4,0,.8)",
-#                                             class = "b",
-#                                             coef = "norm_delta:Num_throwsTwoMThrows"),
-#                                   set_prior("student_t(4,0,.8)",
-#                                             class = "b", coef = "Num_throwsTwoMThrows"),
-#                                   set_prior("student_t(4,0,.8)",
-#                                             class = "Intercept")),
-#                         cores = 1,
-#                         chains = 1,
-#                         iter = 6500,
-#                         warmup = 3250,
-#                         control = list(adapt_delta = .99, max_treedepth = 15))
+Two_throw_m1 <- brm(abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
+                    family = "beta",
+                    data = model_data_pos,
+                    prior = c(set_prior("student_t(4,0,.8)",
+                                            class = "b",
+                                            coef = "norm_delta"),
+                                  set_prior("student_t(4,0,.8)",
+                                            class = "b",
+                                            coef = "norm_delta:Num_throwsTwoMThrows"),
+                                  set_prior("student_t(4,0,.8)",
+                                            class = "b", coef = "Num_throwsTwoMThrows"),
+                                  set_prior("student_t(4,0,.8)",
+                                            class = "Intercept")),
+                        cores = 1,
+                        chains = 1,
+                        iter = 10000,
+                        warmup = 5000,
+                        control = list(adapt_delta = .99, max_treedepth = 15))
 
-load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos")
-draws <- draw_post_delta(m1_pos, model_data_pos)
+# load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos")
+draws <- draw_post_delta(Two_throw_m1, model_data_pos)
 
 ```
 
