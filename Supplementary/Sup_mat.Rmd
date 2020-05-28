@@ -562,10 +562,10 @@ Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant),
                     data = model_data,
                     family = "beta",
                     prior = c(set_prior("student_t(3, 0, 1)",
-                                            coef = "norm_hoop_pos",
-                                            class = "b"),
-                                  set_prior("student_t(3,0,1)",
-                                            class = "Intercept")),
+                                        coef = "norm_hoop_pos",
+                                        class = "b"),
+                              set_prior("student_t(3,0,1)",
+                                        class = "Intercept")),
                     cores = 2,
                     chains = 2,
                     iter = 5000,
@@ -635,10 +635,12 @@ priors_plt <- draws_df$Draws_df %>%
   ggplot(aes(prop, 
              colour = Num_throws,
              fill = Num_throws)) + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() +
   geom_density(
     kernel = "biweight",
     alpha = .3
-    )+ 
+  )+ 
   facet_wrap(~Dist_type) + 
   theme_bw()
 ```
@@ -652,20 +654,20 @@ Two_throw_m1 <- brm(abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|
                     family = "beta",
                     data = model_data_pos,
                     prior = c(set_prior("student_t(4,0,.8)",
-                                            class = "b",
-                                            coef = "norm_delta"),
-                                  set_prior("student_t(4,0,.8)",
-                                            class = "b",
-                                            coef = "norm_delta:Num_throwsTwoMThrows"),
-                                  set_prior("student_t(4,0,.8)",
-                                            class = "b", coef = "Num_throwsTwoMThrows"),
-                                  set_prior("student_t(4,0,.8)",
-                                            class = "Intercept")),
-                        cores = 1,
-                        chains = 1,
-                        iter = 10000,
-                        warmup = 5000,
-                        control = list(adapt_delta = .99, max_treedepth = 15))
+                                        class = "b",
+                                        coef = "norm_delta"),
+                              set_prior("student_t(4,0,.8)",
+                                        class = "b",
+                                        coef = "norm_delta:Num_throwsTwoMThrows"),
+                              set_prior("student_t(4,0,.8)",
+                                        class = "b", coef = "Num_throwsTwoMThrows"),
+                              set_prior("student_t(4,0,.8)",
+                                        class = "Intercept")),
+                    cores = 1,
+                    chains = 1,
+                    iter = 10000,
+                    warmup = 5000,
+                    control = list(adapt_delta = .99, max_treedepth = 15))
 
 # load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos")
 draws <- draw_post_delta(Two_throw_m1, model_data_pos)
@@ -732,27 +734,77 @@ This effect was the strongest for the closest separation which reflects the larg
 
 
 ## Experiment 3: Reward
-```{r load in gambling data, include = F, echo = F, warning = F, cache=T}
-# load("../Analyses/Experiment_5_Unequal_Reward/scratch/model_outputs/m_brms_ri")
-# load("../Analyses/Experiment_5_Unequal_Reward/scratch/model_outputs/m_brms_ri_draws")
+``` {r GamblingPriorsOnly, include = F, echo = F, warning = F, cache = T}
 load("../Analyses/Experiment_5_Unequal_Reward/scratch/data/model_data")
 
 source("extract_draws_functions/Reward_draws.R")
 
-# run model 
-Reward_m1 <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type*Gamble_Type|Participant),
-                 data = model_data,
-                 family = "beta",
-                 chains = 1,
-                 iter = 4000,
-                 warmup = 2000)
+Reward_priors <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type*Gamble_Type|Participant),
+                     data = model_data,
+                     family = "beta",
+                     prior = c(set_prior("student_t(3,0,.5)",
+                                         class = "b",
+                                         coef = "dist_typefar"),
+                               set_prior("student_t(3,0,.5)",
+                                         class = "b",
+                                         coef = "dist_typefar:Gamble_TypeUnequal"),
+                               set_prior("student_t(3,0,.5)",
+                                         class = "b",
+                                         coef = "Gamble_TypeUnequal"),
+                               set_prior("student_t(3,0,1)",
+                                         class = "Intercept")),
+                     chains = 1,
+                     iter = 10000,
+                     warmup = 5000,
+                     sample_prior = "only",
+                     control = list(adapt_delta = .99, max_treedepth = 15))
+```
 
-draws_df <- draws_factor(Reward_m1) %>% 
-  mutate(prop = boot::inv.logit(estimate))
+
+``` {r RewardPriorsPlt, include = T, echo = F, fig.asp = .45, fig.cap = "test"}
+draws_factor(Reward_priors) %>% 
+  mutate(prop = boot::inv.logit(estimate)) %>% 
+  ggplot(aes(prop,
+             colour = Gamble_Type,
+             fill = Gamble_Type)) + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() +
+  geom_density(alpha = .3,
+               kernel = "biweight") +
+  scale_x_continuous(expression(Delta)) +
+  facet_wrap(~Dist_Type) + 
+  theme_bw()
+```
+
+```{r RewardModel, include = F, echo = F, warning = F, cache = T}
+# run model 
+load("../Analyses/Experiment_5_Unequal_Reward/scratch/data/model_data")
+Reward_m1 <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type*Gamble_Type|Participant),
+                     data = model_data,
+                     family = "beta",
+                     prior = c(set_prior("student_t(3,0,.5)",
+                                         class = "b",
+                                         coef = "dist_typefar"),
+                               set_prior("student_t(3,0,.5)",
+                                         class = "b",
+                                         coef = "dist_typefar:Gamble_TypeUnequal"),
+                               set_prior("student_t(3,0,.5)",
+                                         class = "b",
+                                         coef = "Gamble_TypeUnequal"),
+                               set_prior("student_t(3,0,1)",
+                                         class = "Intercept")),
+                     chains = 1,
+                     iter = 10000,
+                     warmup = 5000,
+                     control = list(adapt_delta = .99, max_treedepth = 15))
 
 ```
 
 ```{r PltRewardestimates, echo = F, inlude = T, warning = F, fig.asp=.75, fig.cap=""}
+# get draws 
+draws_df <- draws_factor(Reward_m1) %>% 
+  mutate(prop = boot::inv.logit(estimate))
+
 # make separate plots for main effects and interactions 
 plt_dist <- draws_df %>% 
   ggplot(aes(prop, 
