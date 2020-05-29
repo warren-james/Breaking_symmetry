@@ -146,56 +146,74 @@ gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
 
 The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\phi\approx0.5$, in this case 0.5 is considered the central point with 0 and 1 representing the left and right hoop respectively. We assumed that by introducing a difference in size between the two hoops that this distribution would shift towards the smaller hoop so as to balance their chances of success. We assumed that the difference in hoop size would cause particiapnts to stand slightly closer to the small hoop, in this case the shift in mean would be +0.05. 
 ```{r Hoop Size resampling, include = T, echo = F, cache = T}
+# Need to sample each participant and get parameters for them 
+temp <- df_part2 %>% 
+  group_by(Participant) %>% 
+  summarise(a = fitdistrplus::fitdist(beta_pos, "beta")$estimate[1],
+            b = fitdistrplus::fitdist(beta_pos, "beta")$estimate[2])
+mus <- seq(0, .2, .05)
+
+df_distributions <- tibble(participant = rep(temp$Participant, each = length(mus)),
+                           og_as = rep(temp$a, each = length(mus)),
+                           og_bs = rep(temp$b, each = length(mus)),
+                           og_mu = mu_beta(og_as, og_bs),
+                           og_var = var_beta(og_as, og_bs),
+                           increase = rep(mus, length(temp$a))) %>% 
+  mutate(mu = og_mu + increase,
+         var = og_var, 
+         alpha = get_shape_beta(mu, var)$alpha,
+         beta = get_shape_beta(mu, var)$beta) %>% 
+  select(participant, increase, mu, var, alpha, beta)
+
+
 # setup loop
+diff_sample <- seq(.05, .2, .05)
 n_iter <- 5000
-n_subs <- seq(3, 24, 1)
-n_trials <- 72 
+n_subs <- seq(3, 25, 1)
+n_trials <- 72
+n <- length(diff_sample) * n_iter * length(n_subs)
+refresh <- n_iter/100
 
-# for data.table
-n <- n_iter * length(n_subs) * length(mu2) * length(n_trials)
 df_sample <- data.table::data.table(iter = rep(0, n),
+                                    increase = rep(0, n),
                                     n_subs = rep(0, n),
-                                    n_trials = rep(0, n),
-                                    difference = rep(0, n),
-                                    baseline = rep(0, n),
-                                    comparison = rep(0, n))
+                                    n_trial = rep(0, n),
+                                    base = rep(0, n),
+                                    comp = rep(0, n))
 
-# loop for sampling
-count <- 0
+# loop 
+count <- 1 
+
 for(ii in 1:n_iter){
-  base_shape <- get_shape_beta(mu1, var1)
-  base_alpha <- base_shape$alpha
-  base_beta <- base_shape$beta
-  for(trials in n_trials){
-    for(diff in mu2){
-      comp_shape <- get_shape_beta(mu1 + diff, var1)
-      comp_alpha <- comp_shape$alpha
-      comp_beta <- comp_shape$beta
-      for(sub in n_subs){
-        # up count here
-        count <- count + 1
-        base_sample <- c()
-        comp_sample <- c()
-        for(s in 1:sub){
-          base_sample <- c(base_sample, rbeta(n_trials, base_alpha, base_beta))
-          comp_sample <- c(comp_sample, rbeta(n_trials, comp_alpha, comp_beta))
-        }
-        # df_sample <- rbind(df_sample, tibble(iter = ii,
-        #                                      n_subs = sub,
-        #                                      n_trials = trials,
-        #                                      difference = diff,
-        #                                      baseline = mean(base_sample),
-        #                                      comparison = mean(comp_sample)))
-        # add to table
-        df_sample[count, iter := ii]
-        df_sample[count, n_subs := sub]
-        df_sample[count, n_trials := trials]
-        df_sample[count, difference := diff]
-        df_sample[count, baseline := mean(base_sample)]
-        df_sample[count, comparison := mean(comp_sample)]
+  for(inc in diff_sample){
+    for(subN in n_subs){
+      subs <- sample(unique(df_distributions$participant), subN, replace = T)
+      baseline <- c()
+      comparison <- c()
+      for(sub_iter in 1:length(subs)){
+        base_a <- df_distributions$alpha[df_distributions$participant == subs[sub_iter] &
+                                           df_distributions$increase == 0]
+        base_b <- df_distributions$beta[df_distributions$participant == subs[sub_iter] &
+                                          df_distributions$increase == 0]
+        comp_a <- df_distributions$alpha[df_distributions$participant == subs[sub_iter] &
+                                           df_distributions$increase == inc]
+        comp_b <- df_distributions$beta[df_distributions$participant == subs[sub_iter] &
+                                          df_distributions$increase == inc]
+        baseline <- c(baseline, rbeta(n_trials, base_a, base_b))
+        comparison <- c(comparison, rbeta(n_trials, comp_a, comp_b))
       }
+      df_sample[count, iter := ii]
+      df_sample[count, increase := inc]
+      df_sample[count, n_subs := subN]
+      df_sample[count, n_trial := n_trials]
+      df_sample[count, base := mean(baseline)]
+      df_sample[count, comp := mean(comparison)]
+      count <- count + 1
     }
   }
+  # if(ii %% refresh == 0){
+  #   print(paste((ii/n_iter)*100, "%", sep = ""))
+  # }
 }
 
 ```
@@ -205,9 +223,9 @@ We can now these use distributions to simulate experiments with $N = 3\ldots 24$
 ```{r HDIHoopSize, include = T, echo = F, fig.align = 'center', fig.height = 3, fig.cap="_This figure shows how the 95% HDI around the mean difference for the smallest difference simulated (5%) changed with a larger sample size_"}
 
 df_sample %>% 
-  filter(difference == 0.05) %>% 
+  filter(increase == 0.05) %>% 
   group_by(n_subs) %>% 
-  mutate(diff = comparison - baseline) %>% 
+  mutate(diff = comp - base) %>% 
   summarise(mu = mean(diff), 
             lower = hdi(diff)[1],
             upper = hdi(diff)[2]) %>% 
@@ -780,23 +798,23 @@ draws_factor(Reward_priors) %>%
 # run model 
 load("../Analyses/Experiment_5_Unequal_Reward/scratch/data/model_data")
 Reward_m1 <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type*Gamble_Type|Participant),
-                     data = model_data,
-                     family = "beta",
-                     prior = c(set_prior("student_t(3,0,.5)",
-                                         class = "b",
-                                         coef = "dist_typefar"),
-                               set_prior("student_t(3,0,.5)",
-                                         class = "b",
-                                         coef = "dist_typefar:Gamble_TypeUnequal"),
-                               set_prior("student_t(3,0,.5)",
-                                         class = "b",
-                                         coef = "Gamble_TypeUnequal"),
-                               set_prior("student_t(3,0,1)",
-                                         class = "Intercept")),
-                     chains = 1,
-                     iter = 10000,
-                     warmup = 5000,
-                     control = list(adapt_delta = .99, max_treedepth = 15))
+                 data = model_data,
+                 family = "beta",
+                 prior = c(set_prior("student_t(3,0,.5)",
+                                     class = "b",
+                                     coef = "dist_typefar"),
+                           set_prior("student_t(3,0,.5)",
+                                     class = "b",
+                                     coef = "dist_typefar:Gamble_TypeUnequal"),
+                           set_prior("student_t(3,0,.5)",
+                                     class = "b",
+                                     coef = "Gamble_TypeUnequal"),
+                           set_prior("student_t(3,0,1)",
+                                     class = "Intercept")),
+                 chains = 1,
+                 iter = 10000,
+                 warmup = 5000,
+                 control = list(adapt_delta = .99, max_treedepth = 15))
 
 ```
 
