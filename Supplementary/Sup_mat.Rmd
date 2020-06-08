@@ -141,7 +141,7 @@ plt_hist <- df_distributions %>%
     axis.title.y = element_blank()
   )
 
-gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
+# gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
 
 
 # Same as above but for each participant
@@ -189,8 +189,7 @@ plt_dists_wP <- df_part2 %>%
   theme_bw() + 
   theme(strip.text.x = element_blank()) + 
   facet_wrap(~Participant, scales = "free")
-
-
+plt_dists_wP
 ```
 
 The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\phi\approx0.5$, in this case 0.5 is considered the central point with 0 and 1 representing the left and right hoop respectively. We assumed that by introducing a difference in size between the two hoops that this distribution would shift towards the smaller hoop so as to balance their chances of success. We assumed that the difference in hoop size would cause particiapnts to stand slightly closer to the small hoop, in this case the shift in mean would be +0.05. 
