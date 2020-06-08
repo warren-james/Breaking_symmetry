@@ -617,82 +617,86 @@ plt_estimates
 ```
 
 ## Experiment 2: Two Throws
+
 ```{r Two Throws: load data, include = F, echo = F}
 load("../Analyses/Experiment_2_Two_throw/scratch/model_data_pos")
 
 source("extract_draws_functions/Two_throw_draws.R")
 ```
 
-```{r Two_Throws_Priors_only_model, include = F, echo = F, cache = T}
-Two_throw_priors <- brm(abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
-                        family = "beta",
-                        data = model_data_pos,
-                        prior = c(set_prior("student_t(4,0,.8)",
-                                            class = "b",
-                                            coef = "norm_delta"),
-                                  set_prior("student_t(4,0,.8)",
-                                            class = "b",
-                                            coef = "norm_delta:Num_throwsTwoMThrows"),
-                                  set_prior("student_t(4,0,.8)",
-                                            class = "b", coef = "Num_throwsTwoMThrows"),
-                                  set_prior("student_t(4,0,.8)",
-                                            class = "Intercept")),
-                        cores = 1,
-                        chains = 1,
-                        iter = 10000,
-                        warmup = 5000,
-                        control = list(adapt_delta = .99, max_treedepth = 15),
-                        sample_prior = "only")
+A Bayesian Beta regression was carried out to investigate whether participants performed the task in a more optimal way when they were given the chance to attempt to throw at both targets. The predictors were the No. of throws and \Delta (Hoop separation). The predicted value was the normalised standing position with 0 being central and 1 being next to one of the hoops. 
 
+We first carry out a prior predictive check to confirm that our choice of priors are reasonable. 
+
+```{r Two_Throws_Priors_only_model, include = F, echo = F, cache = T}
+
+my_prior <- c(
+  set_prior("student_t(4,0,.8)", class = "b", coef = "norm_delta"),
+  set_prior("student_t(4,0,.8)", class = "b", coef = "norm_delta:Num_throwsTwoMThrows"),
+  set_prior("student_t(4,0,.8)", class = "b", coef = "Num_throwsTwoMThrows"),
+  set_prior("student_t(4,0,.8)", class = "Intercept"))
+
+Two_throw_priors <- brm(
+  abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
+  family = "beta",
+  data = model_data_pos,
+  prior = my_prior,
+  cores = 1,
+  chains = 1,
+  iter = 10000,
+  warmup = 5000,
+  control = list(adapt_delta = .99, max_treedepth = 15),
+  sample_prior = "only")
 
 # get draws 
 draws_df <- draw_post_delta(Two_throw_priors, model_data_pos)
 
 priors_plt <- draws_df$Draws_df %>% 
   mutate(prop = boot::inv.logit(estimate)) %>% 
-  ggplot(aes(prop, 
-             colour = Num_throws,
-             fill = Num_throws)) + 
-  see::scale_color_flat() + 
-  see::scale_fill_flat() +
-  geom_density(
-    kernel = "biweight",
-    alpha = .3
-  )+ 
-  facet_wrap(~Dist_type) + 
-  theme_bw()
+  ggplot(aes(prop,colour = Num_throws, fill = Num_throws)) + 
+    see::scale_color_flat() + 
+    see::scale_fill_flat() +
+    geom_density(kernel = "biweight", alpha = .3) + 
+    facet_wrap(~Dist_type) + 
+    theme_bw()
 ```
 
 ```{r PltTwoThrowPriors, include = T, echo = F, fig.asp=.45, fig.cap="_Posterior for the priors only model_"}
 priors_plt
 ```
 
+Net, we train the model on the data and plot the posterior distributions. 
+
 ```{r Two-throws modelling, include = F, echo = F, cache = T}
-Two_throw_m1 <- brm(abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
-                    family = "beta",
-                    data = model_data_pos,
-                    prior = c(set_prior("student_t(4,0,.8)",
-                                        class = "b",
-                                        coef = "norm_delta"),
-                              set_prior("student_t(4,0,.8)",
-                                        class = "b",
-                                        coef = "norm_delta:Num_throwsTwoMThrows"),
-                              set_prior("student_t(4,0,.8)",
-                                        class = "b", coef = "Num_throwsTwoMThrows"),
-                              set_prior("student_t(4,0,.8)",
-                                        class = "Intercept")),
-                    cores = 1,
-                    chains = 1,
-                    iter = 10000,
-                    warmup = 5000,
-                    control = list(adapt_delta = .99, max_treedepth = 15))
+
+Two_throw_m1 <- brm(
+  abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
+  family = "beta",
+  data = model_data_pos,
+  prior = my_prior, 
+  cores = 1,
+  chains = 1,
+  iter = 10000,
+  warmup = 5000,
+  control = list(adapt_delta = .99, max_treedepth = 15))
 
 # load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos")
 draws <- draw_post_delta(Two_throw_m1, model_data_pos)
 
 ```
 
+```{r}
+
+summary(Two_throw_m1)
+
+```
+
+Does $\hat{R} = 1$? Do we have a good number of effective samples?
+
+If so, we can have a look at the model fit...
+
 ```{r PltTwoThrowEstimates, include = T, echo = F, fig.asp=.55, fig.cap="_The top plots show the Posterior distributions for the estimated mean standing position. The bottom plot shows the distribution of estimated difference between the two conditions for three difference distances_"}
+
 # example distributions 
 plt_examples <- draws$Plots[1][[1]][["data"]] %>% 
   mutate(Dist_Type = factor(Dist_type, c("Close", "Mid", "Far")),
@@ -744,7 +748,7 @@ P_close <- draws$Above_0[[2]] %>%
   filter(Dist_type == "Close")
 ```
 
-A Bayesian Beta regression was carried out to investigate whether participants performed the task in a more optimal way when they were given the chance to attempt to throw at both targets. The predictors were the No. of throws and \Delta (Hoop separation). The predicted value was the normalised standing position with 0 being central and 1 being next to one of the hoops. 
+
 
 The analysis suggested that there was an overall greater tendency for participants in the One-throw condition to stand further from the centre (mean of `r round(mu[1], digits = 3)`, 95% HPDI of |`r round(lower[1], digits = 3)` , `r round(upper[1], digits = 3)`|) than when they were in the Two-throw condition (mean of `r round(mu[2], digits = 3)`, 95% HPDI of |`r round(lower[2], digits = 3)` , `r round(upper[2], digits = 3)`|) with P(One-throw > Two-throw|data) = `r paste(round(draws$Above_0[[1]], digits = 3)*100, "%", sep = "")`. 
 
