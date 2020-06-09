@@ -22,14 +22,15 @@ HS_draw_post <- function(model, data){
     select(-remove) 
   # estimates
   plt_estimates <- draws_df %>% 
-    mutate(prop = boot::inv.logit(estimate)) %>% 
+    mutate(prop = boot::inv.logit(estimate),
+           `Distance Type` = factor(`Distance Type`, c("Close", "Mid", "Far"))) %>% 
     ggplot(aes(prop,
                colour = `Distance Type`,
                fill = `Distance Type`)) +
     geom_density(alpha = .3) + 
     see::scale_color_flat() + 
-    see::scale_fill_flat() + 
-    scale_x_continuous("Normalised Delta") + 
+    see::scale_fill_flat() +
+    scale_x_continuous(expression(paste("Normalised ", Delta))) + 
     theme_bw()
   # amount above .5
   prop_above.5 <- draws_df %>%

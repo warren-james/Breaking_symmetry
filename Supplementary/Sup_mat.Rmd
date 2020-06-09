@@ -47,9 +47,9 @@ Our power analysis made use of simulations and resampling approaches based on da
 # load("../power/Hoop_size/scratch/df_part2")
 ```
 
-We started by fitting a a beta distribution to each participant's date from the _Throwing Experiment_ in @clarke2015failure using the `fitdistrplus` package. In the original data, normalised standing position was coded $\phi \in [0,1]$ with $0$ indicating a central standing position, and $1$ indicating the participant stood by either of the two hoops. As we are _breaking the symmetry_ between the two targets in this new experiment, we will now treat standing position as $\phi \in (0, 1)$ with $0$ and $1$ representing the positions of the large and small hoop respectively. The central midpoint is now represented as $\phi = 0.5$.
+We started by fitting a a beta distribution to each participant's date from the _Throwing Experiment_ in @clarke2015failure using the `fitdistrplus` package (as can be seen in Figure \@ref(fig:drawdistributions). In the original data, normalised standing position was coded $\phi \in [0,1]$ with $0$ indicating a central standing position, and $1$ indicating the participant stood by either of the two hoops. As we are _breaking the symmetry_ between the two targets in this new experiment, we will now treat standing position as $\phi \in (0, 1)$ with $0$ and $1$ representing the positions of the large and small hoop respectively. The central midpoint is now represented as $\phi = 0.5$.
 
-```{r drawdistributions, include = T, echo = F, fig.height = 2, fig.cap="_The left hand plot shows a histrogram for the empirical data from @clarke2015failure with a line to show a beta distribution that had been fit to these data. The right hand plot shows how this distribution would change had the participants' mean position had been biased towards one of the side hoops to varying degrees._", fig.align = 'center'}
+```{r drawdistributions, include = T, echo = F, fig.height = 5, fig.cap="_These plots show the various distributions that were fit to each participant. These were then used to draw random samples from in order to simulate participants shifting towards one target._", fig.align = 'center'}
 # load("../power/Hoop_size/scratch/sampled_data")
 load("../power/Hoop_size/scratch/df_part2")
 
@@ -179,7 +179,7 @@ df_dists <- tibble(Participant = rep(unique(df_distributions$participant), each 
 plt_dists_wP <- df_part2 %>%
   ggplot(aes(beta_pos)) + 
   geom_histogram(aes(y = ..density..),
-                 # binwidth = .1
+                 binwidth = .1
                  ) + 
   geom_line(data = df_dists,
             aes(x_vals, y,
@@ -572,7 +572,7 @@ The data from this experiment were analysed using a Bayesian beta regression. Th
 
 ### Prior Predictive Check
 
-First, we will check that our priors are sensible!
+First, we will check that our priors are sensible! (i.e., reasonably flat?)
 
 ```{r run-model-hoop-size-priors, echo = F, include = F, cache = TRUE}
 
@@ -593,11 +593,13 @@ Hoop_size_priors <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant)
                         sample_prior = "only")
 ```
 
-```{r HoopSizePriors, include = T, echo = F, fig.asp = .45, fig.cap="Priors for Hoop size"}
+```{r HoopSizePriors, include = T, echo = F, warning = F,  fig.asp = .45, fig.cap="_Prior predictive Check for the Hoop Size experiment_"}
 # need to make a dataset
 draws <- HS_draw_post(Hoop_size_priors, model_data)
 
-draws$plt_estimates
+plt_estimates <- draws$plt_estimates 
+plt_estimates
+
 ```
 
 ### Conditioning on the data
@@ -619,15 +621,11 @@ Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant),
                     warmup = 2500,
                     control = list(adapt_delta = .95, max_treedepth = 15))
 
-
-# extract draws 
-draws <- HS_draw_post(Hoop_size_m1, model_data)
 ```
 
-```{r Load in Hoop size data, include = F, echo = F, cache=TRUE}
-# might not need this chunk
-# load("../Analyses/Experiment_3_Hoop_size/modelling/model_outputs/m1")
-# load("../Analyses/Experiment_3_Hoop_size/modelling/model_outputs/m1_draws")
+```{r Extract Draws, include = F, echo = F, cache=TRUE}
+# get draws
+draws <- HS_draw_post(Hoop_size_m1, model_data)
 ```
 
 
@@ -653,7 +651,7 @@ load("../Analyses/Experiment_2_Two_throw/scratch/model_data_pos")
 source("extract_draws_functions/Two_throw_draws.R")
 ```
 
-A Bayesian Beta regression was carried out to investigate whether participants performed the task in a more optimal way when they were given the chance to attempt to throw at both targets. The predictors were the No. of throws and \Delta (Hoop separation). The predicted value was the normalised standing position with 0 being central and 1 being next to one of the hoops. 
+A Bayesian Beta regression was carried out to investigate whether participants performed the task in a more optimal way when they were given the chance to attempt to throw at both targets. The predicted value was the Normalised standing position with 0 being central and 1 being next to one of the hoops. The predictors were the normalised distance of the hoops from the centre (norm_delta), the number of throws participants had (Num_throws), and the interactions between these two terms.
 
 We first carry out a prior predictive check to confirm that our choice of priors are reasonable. 
 
@@ -676,25 +674,29 @@ Two_throw_priors <- brm(
   warmup = 5000,
   control = list(adapt_delta = .99, max_treedepth = 15),
   sample_prior = "only")
+```
 
+```{r PltTwoThrowPriors, include = T, echo = F, fig.asp=.45, fig.cap="_Prior predictive Check for the Two Throw Experiment_"}
 # get draws 
 draws_df <- draw_post_delta(Two_throw_priors, model_data_pos)
 
-priors_plt <- draws_df$Draws_df %>% 
-  mutate(prop = boot::inv.logit(estimate)) %>% 
+priors_plt <- draws_df$Draws_df %>%
+  mutate(prop = boot::inv.logit(estimate),
+         Dist_type = factor(Dist_type, c("Close", "Mid", "Far"))) %>% 
   ggplot(aes(prop,colour = Num_throws, fill = Num_throws)) + 
-    see::scale_color_flat() + 
-    see::scale_fill_flat() +
-    geom_density(kernel = "biweight", alpha = .3) + 
-    facet_wrap(~Dist_type) + 
-    theme_bw()
-```
+  see::scale_color_flat() + 
+  see::scale_fill_flat() +
+  scale_x_continuous(expression(paste("Normalised ", Delta))) +
+  geom_density(kernel = "biweight", alpha = .3) + 
+  facet_wrap(~Dist_type) + 
+  theme_bw() + 
+  guides(fill = guide_legend(title = "No. Throws"),
+         colour = guide_legend(title = "No. Throws"))
 
-```{r PltTwoThrowPriors, include = T, echo = F, fig.asp=.45, fig.cap="_Posterior for the priors only model_"}
 priors_plt
 ```
 
-Net, we train the model on the data and plot the posterior distributions. 
+Next, we train the model on the data and plot the posterior distributions. 
 
 ```{r Two-throws modelling, include = F, echo = F, cache = T}
 
@@ -785,12 +787,15 @@ This effect was the strongest for the closest separation which reflects the larg
 
 
 ## Experiment 3: Reward
-``` {r GamblingPriorsOnly, include = F, echo = F, warning = F, cache = T}
+``` {r RewardLoadData, include = F, echo = F, warning = F}
 load("../Analyses/Experiment_5_Unequal_Reward/scratch/data/model_data")
 
 source("extract_draws_functions/Reward_draws.R")
+```
 
-Reward_priors <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type*Gamble_Type|Participant),
+A Bayesian Beta Regression was carried out in order to investigate whether opting for an unequal reward structure in this task would facilitate the use of a more optimal strategy in the _Throwing Task_. The predictors in this model were whether the participant had opted for an _Equal_ or _Unequal_ (Gamble_Type), whether the hoops were _Close_ or _Far_ (dist_type), and the interaction between these. Additionally, random effects of participant were included for all predictors. The predicted value was the normalised standing position, with 0 representing the centre and 1 being next to one of the hoops.  
+```{r GamblingPriorsOnly, include = F, echo = F, warning = F, cache = T}
+Reward_priors <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type * Gamble_Type|Participant),
                      data = model_data,
                      family = "beta",
                      prior = c(set_prior("student_t(3,0,.5)",
@@ -812,7 +817,7 @@ Reward_priors <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type*Gamble_Type|
 ```
 
 
-``` {r RewardPriorsPlt, include = T, echo = F, fig.asp = .45, fig.cap = "test"}
+``` {r RewardPriorsPlt, include = T, echo = F, fig.asp = .45, fig.cap = "_Prior predictive Check for the Reward Study_"}
 draws_factor(Reward_priors) %>% 
   mutate(prop = boot::inv.logit(estimate)) %>% 
   ggplot(aes(prop,
@@ -822,14 +827,17 @@ draws_factor(Reward_priors) %>%
   see::scale_fill_flat() +
   geom_density(alpha = .3,
                kernel = "biweight") +
-  scale_x_continuous(expression(Delta)) +
+  scale_x_continuous(expression(paste("Normalised ", Delta))) +
+  guides(colour = guide_legend(title = "Gamble Type"),
+         fill = guide_legend(title = "Gamble Type")) +
   facet_wrap(~Dist_Type) + 
   theme_bw()
 ```
 
+As the prior predictive checks demonstrated that the model was able to retrieve the prior, and the priors were "sensible", the model was conditioned on the raw data from the experiment. 
+
 ```{r RewardModel, include = F, echo = F, warning = F, cache = T}
 # run model 
-load("../Analyses/Experiment_5_Unequal_Reward/scratch/data/model_data")
 Reward_m1 <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type*Gamble_Type|Participant),
                  data = model_data,
                  family = "beta",
@@ -851,7 +859,7 @@ Reward_m1 <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type*Gamble_Type|Part
 
 ```
 
-```{r PltRewardestimates, echo = F, inlude = T, warning = F, fig.asp=.75, fig.cap=""}
+```{r PltRewardestimates, echo = F, inlude = T, warning = F, fig.asp=.75, fig.cap="_Posterior distributions for the Reward Study_"}
 # get draws 
 draws_df <- draws_factor(Reward_m1) %>% 
   mutate(prop = boot::inv.logit(estimate))
@@ -867,7 +875,7 @@ plt_dist <- draws_df %>%
   theme_bw() +
   guides(colour = guide_legend(title = "Distance Type"),
          fill = guide_legend(title = "Distance Type")) +
-  scale_x_continuous("Normalised Position")
+  scale_x_continuous(expression(paste("Normalised ", Delta)))
 
 plt_gamble <- draws_df %>% 
   ggplot(aes(prop, 
@@ -879,7 +887,7 @@ plt_gamble <- draws_df %>%
   theme_bw() +
   guides(colour = guide_legend(title = "Gamble Type"),
          fill = guide_legend(title = "Gamble Type")) +
-  scale_x_continuous("Normalised Position")
+  scale_x_continuous(expression(paste("Normalised ", Delta)))
 
 plt_inter <- draws_df %>%
   ggplot(aes(prop, 
@@ -897,6 +905,52 @@ plt_inter <- draws_df %>%
 gridExtra::grid.arrange(plt_dist, plt_gamble, plt_inter)
 
 ```
+
+```{r RewardHDI, include = F, echo = F}
+Rewards_hdi_Dist <- draws_df %>% 
+  group_by(Dist_Type) %>% 
+    summarise(lower = hdi(prop)[,1],
+              mu = mean(prop),
+              upper = hdi(prop)[,2])
+
+Rewards_hdi_Gamble <- draws_df %>% 
+  group_by(Gamble_Type) %>% 
+    summarise(lower = hdci(prop)[,1],
+              mu = mean(prop),
+              upper = hdci(prop)[,2])
+  
+Rewards_hdi_interaction <- draws_df %>% 
+    group_by(Gamble_Type, Dist_Type) %>% 
+    summarise(lower = hdi(prop)[,1],
+              mu = mean(prop),
+              upper = hdi(prop)[,2])
+
+```
+
+```{r Probxgreaterthany, echo = F, include = F}
+Pabove0_Dist <- draws_df %>% 
+  group_by(.iteration, Dist_Type) %>% 
+  summarise(mu = mean(prop)) %>%
+  spread(Dist_Type, mu) %>% 
+  mutate(diff = Far - Close,
+         above0 = ifelse(diff > 0, 1, 0))
+
+Pabove0_int <- draws_df %>% 
+  group_by(.iteration, Dist_Type, Gamble_Type) %>% 
+  summarise(mu = mean(prop)) %>% 
+  mutate(inter = paste(Dist_Type, Gamble_Type, sep = "_")) %>% 
+  ungroup() %>% 
+  select(mu, inter, .iteration) %>%
+  spread(inter, mu) %>% 
+  mutate(diff_Far = Far_Unequal - Far_Equal,
+         diff_Close = Close_Unequal - Close_Equal,
+         above0Far = ifelse(diff_Far > 0, 1, 0),
+         above0Close = ifelse(diff_Close > 0, 1, 0))
+
+```
+As can be seen in Figure \@ref(fig:PltRewardestimates), participants in this task were more likely to stand towards one of the side hoops when the hoops were far apart (mean of `r round(Rewards_hdi_Dist[2,3], digits = 3)`, 95% HPDI of |`r round(Rewards_hdi_Dist[2,2], digits = 3)` , `r round(Rewards_hdi_Dist[2,4], digits = 3)`|) than when they were close together (mean of `r round(Rewards_hdi_Dist[1,3], digits = 3)`, 95% HPDI of |`r round(Rewards_hdi_Dist[1,2], digits = 3)` , `r round(Rewards_hdi_Dist[1,4], digits = 3)`|) with P(Far > Close|data) = `r paste(round(mean(Pabove0_Dist$above0), digits = 3)*100, "%", sep = "")`. This suggests that participants were sensitive to the addition of a reward in this experiment.
+
+In addition to this, the interaction of Distance Type with Gamble Type was in the direction of an asymmetrical reward structure pushing participants to make more optimal decisions with participants standing closer to one of the targets when they opted for an unequal split (mean of `r round(Rewards_hdi_interaction[4,4], digits = 3)`, 95% HPDI of |`r round(Rewards_hdi_interaction[4,3], digits = 3)` , `r round(Rewards_hdi_interaction[4,5], digits = 3)`|) than when they had opted for an equal split (mean of `r round(Rewards_hdi_interaction[2,4], digits = 3)`, 95% HPDI of |`r round(Rewards_hdi_interaction[2,3], digits = 3)` , `r round(Rewards_hdi_interaction[2,5], digits = 3)`|) with P(Unequal > Equal|data) = `r paste(round(mean(Pabove0_int$above0Far), digits = 3)*100, "%", sep = "")`. 
 
 # Probability Matching Experiment
 
