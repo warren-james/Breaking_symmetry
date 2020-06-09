@@ -43,11 +43,11 @@ Our power analysis made use of simulations and resampling approaches based on da
 ## Experiment 1: Two Hoop Sizes
 
 ```{r loaddata, include = T, echo = F, fig.height = 3}
-load("../power/Hoop_size/scratch/sampled_data")
-load("../power/Hoop_size/scratch/df_part2")
+# load("../power/Hoop_size/scratch/sampled_data")
+# load("../power/Hoop_size/scratch/df_part2")
 ```
 
-We started by fitting a a beta distribution to the _Throwing Experiment_ data from @clarke2015failure using the `fitdistrplus` package, as illustrated in Figure \@ref(fig:drawdistributions) (left panel). In the original data, normalised standing position was coded $\phi \in [0,1]$ with $0$ indicating a central standing position, and $1$ indicating the participant stood by either of the two hoops. As we are _breaking the symmetry_ between the two targets in this new experiment, we will now treat standing position as $\phi \in (0, 1)$ with $0$ and $1$ representing the positions of the large and small hoop respectively. The central midpoint is now represented as $\phi = 0.5$.
+We started by fitting a a beta distribution to each participant's date from the _Throwing Experiment_ in @clarke2015failure using the `fitdistrplus` package. In the original data, normalised standing position was coded $\phi \in [0,1]$ with $0$ indicating a central standing position, and $1$ indicating the participant stood by either of the two hoops. As we are _breaking the symmetry_ between the two targets in this new experiment, we will now treat standing position as $\phi \in (0, 1)$ with $0$ and $1$ representing the positions of the large and small hoop respectively. The central midpoint is now represented as $\phi = 0.5$.
 
 ```{r drawdistributions, include = T, echo = F, fig.height = 2, fig.cap="_The left hand plot shows a histrogram for the empirical data from @clarke2015failure with a line to show a beta distribution that had been fit to these data. The right hand plot shows how this distribution would change had the participants' mean position had been biased towards one of the side hoops to varying degrees._", fig.align = 'center'}
 # load("../power/Hoop_size/scratch/sampled_data")
@@ -77,7 +77,7 @@ mu1 <- mu_beta(shape_1$estimate[1], shape_1$estimate[2])
 var1 <- var_beta(shape_1$estimate[1], shape_1$estimate[2])
 shape_1 <- get_shape_beta(mu1, var1)
 mu2 <- seq(0.05, .2, 0.05)
-x <- seq(0,1,0.0005)
+x <- seq(0.02,1-0.02,0.02)
 
 # draw these 
 df_distributions <- tibble(x_vals = rep(x, length(c(0,mu2))),
@@ -141,11 +141,10 @@ plt_hist <- df_distributions %>%
     axis.title.y = element_blank()
   )
 
-gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
-```
+# gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
 
-The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\phi\approx0.5$, in this case 0.5 is considered the central point with 0 and 1 representing the left and right hoop respectively. We assumed that by introducing a difference in size between the two hoops that this distribution would shift towards the smaller hoop so as to balance their chances of success. We assumed that the difference in hoop size would cause particiapnts to stand slightly closer to the small hoop, in this case the shift in mean would be +0.05. 
-```{r Hoop Size resampling, include = T, echo = F, cache = T}
+
+# Same as above but for each participant
 # Need to sample each participant and get parameters for them 
 temp <- df_part2 %>% 
   group_by(Participant) %>% 
@@ -165,6 +164,36 @@ df_distributions <- tibble(participant = rep(temp$Participant, each = length(mus
          beta = get_shape_beta(mu, var)$beta) %>% 
   select(participant, increase, mu, var, alpha, beta)
 
+# make some plots
+df_dists <- tibble(Participant = rep(unique(df_distributions$participant), each = length(x) * length(mus)),
+                   x_vals = rep(x, length(mus) *length(unique(df_distributions$participant))),
+                   increase = rep(rep(mus, each = length(x)), length(unique(df_distributions$participant))),
+                   alpha = rep(unique(df_distributions$alpha), each = length(x)),
+                   beta = rep(unique(df_distributions$beta), each = length(x))) %>% 
+  mutate(increase = as.factor(increase)) %>% 
+  group_by(Participant, increase, x_vals) %>% 
+  mutate(y = dbeta(x_vals, alpha, beta))
+  
+
+# make plot 
+plt_dists_wP <- df_part2 %>%
+  ggplot(aes(beta_pos)) + 
+  geom_histogram(aes(y = ..density..),
+                 # binwidth = .1
+                 ) + 
+  geom_line(data = df_dists,
+            aes(x_vals, y,
+                colour = increase)) + 
+  see::scale_color_flat() + 
+  scale_x_continuous(expression(paste("Normalised ", Delta, sep = " "))) +
+  theme_bw() + 
+  theme(strip.text.x = element_blank()) + 
+  facet_wrap(~Participant, scales = "free")
+plt_dists_wP
+```
+
+The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\phi\approx0.5$, in this case 0.5 is considered the central point with 0 and 1 representing the left and right hoop respectively. We assumed that by introducing a difference in size between the two hoops that this distribution would shift towards the smaller hoop so as to balance their chances of success. We assumed that the difference in hoop size would cause particiapnts to stand slightly closer to the small hoop, in this case the shift in mean would be +0.05. 
+```{r Hoop Size resampling, include = T, echo = F, cache = T}
 
 # setup loop
 diff_sample <- seq(.05, .2, .05)
