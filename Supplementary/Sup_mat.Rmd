@@ -43,11 +43,11 @@ Our power analysis made use of simulations and resampling approaches based on da
 ## Experiment 1: Two Hoop Sizes
 
 ```{r loaddata, include = T, echo = F, fig.height = 3}
-load("../power/Hoop_size/scratch/sampled_data")
-load("../power/Hoop_size/scratch/df_part2")
+# load("../power/Hoop_size/scratch/sampled_data")
+# load("../power/Hoop_size/scratch/df_part2")
 ```
 
-We started by fitting a a beta distribution to the _Throwing Experiment_ data from @clarke2015failure using the `fitdistrplus` package, as illustrated in Figure \@ref(fig:drawdistributions) (left panel). In the original data, normalised standing position was coded $\phi \in [0,1]$ with $0$ indicating a central standing position, and $1$ indicating the participant stood by either of the two hoops. As we are _breaking the symmetry_ between the two targets in this new experiment, we will now treat standing position as $\phi \in (0, 1)$ with $0$ and $1$ representing the positions of the large and small hoop respectively. The central midpoint is now represented as $\phi = 0.5$.
+We started by fitting a a beta distribution to each participant's date from the _Throwing Experiment_ in @clarke2015failure using the `fitdistrplus` package. In the original data, normalised standing position was coded $\phi \in [0,1]$ with $0$ indicating a central standing position, and $1$ indicating the participant stood by either of the two hoops. As we are _breaking the symmetry_ between the two targets in this new experiment, we will now treat standing position as $\phi \in (0, 1)$ with $0$ and $1$ representing the positions of the large and small hoop respectively. The central midpoint is now represented as $\phi = 0.5$.
 
 ```{r drawdistributions, include = T, echo = F, fig.height = 2, fig.cap="_The left hand plot shows a histrogram for the empirical data from @clarke2015failure with a line to show a beta distribution that had been fit to these data. The right hand plot shows how this distribution would change had the participants' mean position had been biased towards one of the side hoops to varying degrees._", fig.align = 'center'}
 # load("../power/Hoop_size/scratch/sampled_data")
@@ -77,7 +77,7 @@ mu1 <- mu_beta(shape_1$estimate[1], shape_1$estimate[2])
 var1 <- var_beta(shape_1$estimate[1], shape_1$estimate[2])
 shape_1 <- get_shape_beta(mu1, var1)
 mu2 <- seq(0.05, .2, 0.05)
-x <- seq(0,1,0.0005)
+x <- seq(0.02,1-0.02,0.02)
 
 # draw these 
 df_distributions <- tibble(x_vals = rep(x, length(c(0,mu2))),
@@ -141,11 +141,10 @@ plt_hist <- df_distributions %>%
     axis.title.y = element_blank()
   )
 
-gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
-```
+# gridExtra::grid.arrange(plt_hist, plt_dists, ncol = 2)
 
-The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\phi\approx0.5$, in this case 0.5 is considered the central point with 0 and 1 representing the left and right hoop respectively. We assumed that by introducing a difference in size between the two hoops that this distribution would shift towards the smaller hoop so as to balance their chances of success. We assumed that the difference in hoop size would cause particiapnts to stand slightly closer to the small hoop, in this case the shift in mean would be +0.05. 
-```{r Hoop Size resampling, include = T, echo = F, cache = T}
+
+# Same as above but for each participant
 # Need to sample each participant and get parameters for them 
 temp <- df_part2 %>% 
   group_by(Participant) %>% 
@@ -165,6 +164,36 @@ df_distributions <- tibble(participant = rep(temp$Participant, each = length(mus
          beta = get_shape_beta(mu, var)$beta) %>% 
   select(participant, increase, mu, var, alpha, beta)
 
+# make some plots
+df_dists <- tibble(Participant = rep(unique(df_distributions$participant), each = length(x) * length(mus)),
+                   x_vals = rep(x, length(mus) *length(unique(df_distributions$participant))),
+                   increase = rep(rep(mus, each = length(x)), length(unique(df_distributions$participant))),
+                   alpha = rep(unique(df_distributions$alpha), each = length(x)),
+                   beta = rep(unique(df_distributions$beta), each = length(x))) %>% 
+  mutate(increase = as.factor(increase)) %>% 
+  group_by(Participant, increase, x_vals) %>% 
+  mutate(y = dbeta(x_vals, alpha, beta))
+  
+
+# make plot 
+plt_dists_wP <- df_part2 %>%
+  ggplot(aes(beta_pos)) + 
+  geom_histogram(aes(y = ..density..),
+                 # binwidth = .1
+                 ) + 
+  geom_line(data = df_dists,
+            aes(x_vals, y,
+                colour = increase)) + 
+  see::scale_color_flat() + 
+  scale_x_continuous(expression(paste("Normalised ", Delta, sep = " "))) +
+  theme_bw() + 
+  theme(strip.text.x = element_blank()) + 
+  facet_wrap(~Participant, scales = "free")
+plt_dists_wP
+```
+
+The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\phi\approx0.5$, in this case 0.5 is considered the central point with 0 and 1 representing the left and right hoop respectively. We assumed that by introducing a difference in size between the two hoops that this distribution would shift towards the smaller hoop so as to balance their chances of success. We assumed that the difference in hoop size would cause particiapnts to stand slightly closer to the small hoop, in this case the shift in mean would be +0.05. 
+```{r Hoop Size resampling, include = T, echo = F, cache = T}
 
 # setup loop
 diff_sample <- seq(.05, .2, .05)
@@ -617,82 +646,86 @@ plt_estimates
 ```
 
 ## Experiment 2: Two Throws
+
 ```{r Two Throws: load data, include = F, echo = F}
 load("../Analyses/Experiment_2_Two_throw/scratch/model_data_pos")
 
 source("extract_draws_functions/Two_throw_draws.R")
 ```
 
-```{r Two_Throws_Priors_only_model, include = F, echo = F, cache = T}
-Two_throw_priors <- brm(abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
-                        family = "beta",
-                        data = model_data_pos,
-                        prior = c(set_prior("student_t(4,0,.8)",
-                                            class = "b",
-                                            coef = "norm_delta"),
-                                  set_prior("student_t(4,0,.8)",
-                                            class = "b",
-                                            coef = "norm_delta:Num_throwsTwoMThrows"),
-                                  set_prior("student_t(4,0,.8)",
-                                            class = "b", coef = "Num_throwsTwoMThrows"),
-                                  set_prior("student_t(4,0,.8)",
-                                            class = "Intercept")),
-                        cores = 1,
-                        chains = 1,
-                        iter = 10000,
-                        warmup = 5000,
-                        control = list(adapt_delta = .99, max_treedepth = 15),
-                        sample_prior = "only")
+A Bayesian Beta regression was carried out to investigate whether participants performed the task in a more optimal way when they were given the chance to attempt to throw at both targets. The predictors were the No. of throws and \Delta (Hoop separation). The predicted value was the normalised standing position with 0 being central and 1 being next to one of the hoops. 
 
+We first carry out a prior predictive check to confirm that our choice of priors are reasonable. 
+
+```{r Two_Throws_Priors_only_model, include = F, echo = F, cache = T}
+
+my_prior <- c(
+  set_prior("student_t(4,0,.8)", class = "b", coef = "norm_delta"),
+  set_prior("student_t(4,0,.8)", class = "b", coef = "norm_delta:Num_throwsTwoMThrows"),
+  set_prior("student_t(4,0,.8)", class = "b", coef = "Num_throwsTwoMThrows"),
+  set_prior("student_t(4,0,.8)", class = "Intercept"))
+
+Two_throw_priors <- brm(
+  abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
+  family = "beta",
+  data = model_data_pos,
+  prior = my_prior,
+  cores = 1,
+  chains = 1,
+  iter = 10000,
+  warmup = 5000,
+  control = list(adapt_delta = .99, max_treedepth = 15),
+  sample_prior = "only")
 
 # get draws 
 draws_df <- draw_post_delta(Two_throw_priors, model_data_pos)
 
 priors_plt <- draws_df$Draws_df %>% 
   mutate(prop = boot::inv.logit(estimate)) %>% 
-  ggplot(aes(prop, 
-             colour = Num_throws,
-             fill = Num_throws)) + 
-  see::scale_color_flat() + 
-  see::scale_fill_flat() +
-  geom_density(
-    kernel = "biweight",
-    alpha = .3
-  )+ 
-  facet_wrap(~Dist_type) + 
-  theme_bw()
+  ggplot(aes(prop,colour = Num_throws, fill = Num_throws)) + 
+    see::scale_color_flat() + 
+    see::scale_fill_flat() +
+    geom_density(kernel = "biweight", alpha = .3) + 
+    facet_wrap(~Dist_type) + 
+    theme_bw()
 ```
 
 ```{r PltTwoThrowPriors, include = T, echo = F, fig.asp=.45, fig.cap="_Posterior for the priors only model_"}
 priors_plt
 ```
 
+Net, we train the model on the data and plot the posterior distributions. 
+
 ```{r Two-throws modelling, include = F, echo = F, cache = T}
-Two_throw_m1 <- brm(abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
-                    family = "beta",
-                    data = model_data_pos,
-                    prior = c(set_prior("student_t(4,0,.8)",
-                                        class = "b",
-                                        coef = "norm_delta"),
-                              set_prior("student_t(4,0,.8)",
-                                        class = "b",
-                                        coef = "norm_delta:Num_throwsTwoMThrows"),
-                              set_prior("student_t(4,0,.8)",
-                                        class = "b", coef = "Num_throwsTwoMThrows"),
-                              set_prior("student_t(4,0,.8)",
-                                        class = "Intercept")),
-                    cores = 1,
-                    chains = 1,
-                    iter = 10000,
-                    warmup = 5000,
-                    control = list(adapt_delta = .99, max_treedepth = 15))
+
+Two_throw_m1 <- brm(
+  abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
+  family = "beta",
+  data = model_data_pos,
+  prior = my_prior, 
+  cores = 1,
+  chains = 1,
+  iter = 10000,
+  warmup = 5000,
+  control = list(adapt_delta = .99, max_treedepth = 15))
 
 # load("../Analyses/Experiment_2_Two_throw/modelling/model_outputs/m1_pos")
 draws <- draw_post_delta(Two_throw_m1, model_data_pos)
 
 ```
 
+```{r}
+
+summary(Two_throw_m1)
+
+```
+
+Does $\hat{R} = 1$? Do we have a good number of effective samples?
+
+If so, we can have a look at the model fit...
+
 ```{r PltTwoThrowEstimates, include = T, echo = F, fig.asp=.55, fig.cap="_The top plots show the Posterior distributions for the estimated mean standing position. The bottom plot shows the distribution of estimated difference between the two conditions for three difference distances_"}
+
 # example distributions 
 plt_examples <- draws$Plots[1][[1]][["data"]] %>% 
   mutate(Dist_Type = factor(Dist_type, c("Close", "Mid", "Far")),
@@ -744,7 +777,7 @@ P_close <- draws$Above_0[[2]] %>%
   filter(Dist_type == "Close")
 ```
 
-A Bayesian Beta regression was carried out to investigate whether participants performed the task in a more optimal way when they were given the chance to attempt to throw at both targets. The predictors were the No. of throws and \Delta (Hoop separation). The predicted value was the normalised standing position with 0 being central and 1 being next to one of the hoops. 
+
 
 The analysis suggested that there was an overall greater tendency for participants in the One-throw condition to stand further from the centre (mean of `r round(mu[1], digits = 3)`, 95% HPDI of |`r round(lower[1], digits = 3)` , `r round(upper[1], digits = 3)`|) than when they were in the Two-throw condition (mean of `r round(mu[2], digits = 3)`, 95% HPDI of |`r round(lower[2], digits = 3)` , `r round(upper[2], digits = 3)`|) with P(One-throw > Two-throw|data) = `r paste(round(draws$Above_0[[1]], digits = 3)*100, "%", sep = "")`. 
 
