@@ -185,7 +185,7 @@ plt_dists_wP <- df_part2 %>%
             aes(x_vals, y,
                 colour = increase)) + 
   see::scale_color_flat() + 
-  scale_x_continuous(expression(paste("Normalised ", Delta, sep = " "))) +
+  scale_x_continuous(expression(paste("Normalised ", Delta, sep = " ")), breaks = c(0, 0.5, 1)) +
   theme_bw() + 
   theme(strip.text.x = element_blank()) + 
   facet_wrap(~Participant, scales = "free")
