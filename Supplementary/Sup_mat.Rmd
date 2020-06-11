@@ -14,6 +14,10 @@ title: "Supplementary Material For Asymmetry paper"
 output: html_document
 ---
 
+```{r settings, include = F, echo = F}
+knitr::opts_chunk$set(fig.align = "center")
+```
+
 ```{r setup, include=T, message=F, warning=F, echo= F}
 # library 
 library(tidybayes)
@@ -33,7 +37,7 @@ Please see the accompanying source Rmd file for the code.
 sessionInfo()
 ```
 
-``` {r}
+``` {r, echo = F, include = F}
 options(mc.cores = parallel::detectCores())
 ```
 # Power Analysis
@@ -41,12 +45,6 @@ options(mc.cores = parallel::detectCores())
 Our power analysis made use of simulations and resampling approaches based on data that we previously collected. Resampling was carried out in order to establish if adding more participants to our sample sizes would have lead to a reduction in uncertainty around our estimates.
 
 ## Experiment 1: Two Hoop Sizes
-
-```{r loaddata, include = T, echo = F, fig.height = 3}
-# load("../power/Hoop_size/scratch/sampled_data")
-# load("../power/Hoop_size/scratch/df_part2")
-```
-
 We started by fitting a a beta distribution to each participant's date from the _Throwing Experiment_ in @clarke2015failure using the `fitdistrplus` package (as can be seen in Figure \@ref(fig:drawdistributions). In the original data, normalised standing position was coded $\phi \in [0,1]$ with $0$ indicating a central standing position, and $1$ indicating the participant stood by either of the two hoops. As we are _breaking the symmetry_ between the two targets in this new experiment, we will now treat standing position as $\phi \in (0, 1)$ with $0$ and $1$ representing the positions of the large and small hoop respectively. The central midpoint is now represented as $\phi = 0.5$.
 
 ```{r drawdistributions, include = T, echo = F, fig.height = 5, fig.cap="_These plots show the various distributions that were fit to each participant. These were then used to draw random samples from in order to simulate participants shifting towards one target._", fig.align = 'center'}
@@ -172,20 +170,21 @@ df_dists <- tibble(Participant = rep(unique(df_distributions$participant), each 
                    beta = rep(unique(df_distributions$beta), each = length(x))) %>% 
   mutate(increase = as.factor(increase)) %>% 
   group_by(Participant, increase, x_vals) %>% 
-  mutate(y = dbeta(x_vals, alpha, beta))
-  
+  mutate(y = dbeta(x_vals, alpha, beta)) %>% 
+  filter(increase %in% c(0, .05))
+
 
 # make plot 
 plt_dists_wP <- df_part2 %>%
   ggplot(aes(beta_pos)) + 
   geom_histogram(aes(y = ..density..),
                  binwidth = .1
-                 ) + 
+  ) + 
   geom_line(data = df_dists,
             aes(x_vals, y,
                 colour = increase)) + 
   see::scale_color_flat() + 
-  scale_x_continuous(expression(paste("Normalised ", Delta, sep = " "))) +
+  scale_x_continuous(expression(paste("Normalised ", Delta, sep = " ")), breaks = c(0, 0.5, 1)) +
   theme_bw() + 
   theme(strip.text.x = element_blank()) + 
   facet_wrap(~Participant, scales = "free")
@@ -282,7 +281,6 @@ To compare these datasets, placement positions and standing positions were put o
 # so we should just plot that? 
 
 # load data
-# load("../power/Money_and_two/scratch/df_sample")
 load("../power/Money_and_two/scratch/df_all")
 
 # make plot 
@@ -413,12 +411,9 @@ plt_hdi
 ## Experiment 3: Reward 
 The power analysis for this experiment followed that of the previous section. This was due to the similarity of the hypothesis; the goal was to test whether introducing an asymmetry in the reward structure would encourage participants to adopt a more optimal strategy.
 
-*What about the split in reward???*
-
 ## Experiment 4: Probability Matching
 ```{r load data, include = F, echo = F, message = F, warning = F}
 load("../power/Prob_match/scratch/df_resample")
-load("../power/Prob_match/scratch/df_sample")
 ```
 
 For this experiment, data from ($N$ = 12) @clarke2015failure, which acted as a substitute for the Symmetric condition, and an unpublished pilot study ($N$ = 11), which followed the same rules as the Bias condition in the main experiment, were resampled in order to invesigate how often participants would fixate one of the side boxes given it was more likely to contain the target for the Bias condition. For the Symmetric condition, we followed the same rule as the in the paper and classified the most likely box as the side box that participants fixated most often (Figure \@ref(fig:ProbOGData). The main interest for our purposes was the proportion of time participants fixated the most likely box.
@@ -558,7 +553,7 @@ In the analyses below, we use multi-level Bayesian beta regression to model the 
 
 ## Experiment 1: Hoop Size
 
-```{r, echo - FALSE}
+```{r load data and source function Hoop Size, echo - FALSE}
 # load model data 
 load("../Analyses/Experiment_3_Hoop_size/data/model_data")
 
@@ -567,14 +562,56 @@ source("extract_draws_functions/Hoop_size_draws.R")
 
 ```
 
+Add in facet plots 
+
+```{r HoopSizeFacets, include=T, echo=F}
+load("../Analyses/Experiment_3_Hoop_size/scratch/df_part2_norm")
+df_hoopsize <- norm_dat
+rm(norm_dat)
+
+# process data 
+df_hoopsize %>% 
+  group_by(participant) %>% 
+  mutate(temp = as.numeric(as.factor(hoop_pos)),
+         slab_measures = factor(temp, labels = c("~90%", "~50% - 1", "~50%", "~50% + 1", "~50% + 2", "~10%"))) %>% 
+  select(-temp) %>%
+  ungroup() %>% 
+  filter(abs(norm_dist) <= 1) %>% 
+  group_by(slab_measures) %>% 
+  mutate(overall_hoop_pos = mean(hoop_pos))-> df_hoopsize
+
+# make plot
+df_hoopsize %>% 
+  ggplot(aes(overall_hoop_pos, norm_dist)) + 
+  geom_jitter(alpha = .2,
+              width = .2,
+              height = .2) +
+  facet_wrap(~participant, ncol = 3) + 
+  geom_hline(yintercept = 0, 
+             linetype = "dashed") +
+  scale_y_continuous("", 
+                     breaks = c(-1, 0, 1),
+                     labels = c("Big Hoop", "Centre", "Small Hoop")) +
+  scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")")),
+                     expand = c(0.1,0.1),
+                     breaks = unique(df_hoopsize$overall_hoop_pos),
+                     labels = c("-1", "0", "+1", "+2", "F", "C")) +
+  theme_bw() + 
+  theme(strip.text.x = element_blank(),
+        panel.grid.minor = element_blank())
+
+```
+
+
+
 The data from this experiment were analysed using a Bayesian beta regression. The recorded data for standing positions were transformed to be between 0 and 1, with 0 representing the larger hoop and 1 representing the smaller hoop. Therefore, the central point would be 0.5, and meaning anything above this value would demonstrate a shift in participant’s bhaviour away from the mid-point and towards the small hoop. The model included normalised hoop delta as a predictor to see how participants changed position with an increasing distance. This was also entered as a random effect by participant. 
 
 
-### Prior Predictive Check
+### Prior Predictions
 
 First, we will check that our priors are sensible! (i.e., reasonably flat?)
 
-```{r run-model-hoop-size-priors, echo = F, include = F, cache = TRUE}
+```{r run-model-hoop-size-priors, echo = T, include = F, cache = TRUE}
 
 # run model
 Hoop_size_priors <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
@@ -593,7 +630,7 @@ Hoop_size_priors <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant)
                         sample_prior = "only")
 ```
 
-```{r HoopSizePriors, include = T, echo = F, warning = F,  fig.asp = .45, fig.cap="_Prior predictive Check for the Hoop Size experiment_"}
+```{r HoopSizePriors, include = T, echo = F, warning = F,  fig.asp = .45, fig.cap="_Prior predictions for the Hoop Size experiment_"}
 # need to make a dataset
 draws <- HS_draw_post(Hoop_size_priors, model_data)
 
@@ -604,7 +641,7 @@ plt_estimates
 
 ### Conditioning on the data
 
-```{r run-model-Hoop-size, include = F, echo = F, cache = TRUE}
+```{r run-model-Hoop-size, include = F, echo = T, cache = TRUE}
 
 # run model
 Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
@@ -651,11 +688,48 @@ load("../Analyses/Experiment_2_Two_throw/scratch/model_data_pos")
 source("extract_draws_functions/Two_throw_draws.R")
 ```
 
+Add in facet plot 
+
+``` {r TwoThrowFacets, include = T, echo = F}
+# process 
+df_TwoThrow <- model_data_pos %>% 
+  group_by(Participant) %>%
+  mutate(temp = as.numeric(as.factor(HoopDelta)),
+         slab_measures = factor(temp, labels = c("~90%", "~50% - 1", "~50%", "~50% + 1", "~50% + 2", "~10%"))) %>% 
+  select(-temp) %>% 
+  ungroup() %>% 
+  group_by(slab_measures) %>% 
+  mutate(overall_hoop_pos = mean(HoopDelta))
+
+# make plot 
+df_TwoThrow %>% 
+  ggplot(aes(overall_hoop_pos, abspos,
+             colour = Num_throws)) + 
+  geom_jitter(alpha = .2,
+              width = .2) + 
+  facet_wrap(~Participant, ncol = 6) + 
+  scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")")),
+                     breaks = unique(df_TwoThrow$overall_hoop_pos),
+                     labels = c("C", "+1","-1", "+2", "0", "F")) +
+  scale_y_continuous("",
+                     breaks = c(0,1),
+                     labels = c("Centre", "Side")) +
+  see::scale_color_flat() +
+  theme_bw() + 
+  guides(fill = guide_legend("No. Throws")) +
+  theme(strip.text.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.text.x = element_text(size = 8),
+        legend.position = "bottom")
+
+
+```
+
 A Bayesian Beta regression was carried out to investigate whether participants performed the task in a more optimal way when they were given the chance to attempt to throw at both targets. The predicted value was the Normalised standing position with 0 being central and 1 being next to one of the hoops. The predictors were the normalised distance of the hoops from the centre (norm_delta), the number of throws participants had (Num_throws), and the interactions between these two terms.
 
 We first carry out a prior predictive check to confirm that our choice of priors are reasonable. 
 
-```{r Two_Throws_Priors_only_model, include = F, echo = F, cache = T}
+```{r Two_Throws_Priors_only_model, include = F, echo = T, cache = T}
 
 my_prior <- c(
   set_prior("student_t(4,0,.8)", class = "b", coef = "norm_delta"),
@@ -676,7 +750,7 @@ Two_throw_priors <- brm(
   sample_prior = "only")
 ```
 
-```{r PltTwoThrowPriors, include = T, echo = F, fig.asp=.45, fig.cap="_Prior predictive Check for the Two Throw Experiment_"}
+```{r PltTwoThrowPriors, include = T, echo = F, fig.asp=.45, fig.cap="_Prior Predictions for the Two Throw Experiment_"}
 # get draws 
 draws_df <- draw_post_delta(Two_throw_priors, model_data_pos)
 
@@ -698,7 +772,7 @@ priors_plt
 
 Next, we train the model on the data and plot the posterior distributions. 
 
-```{r Two-throws modelling, include = F, echo = F, cache = T}
+```{r Two-throws modelling, include = F, echo = T, cache = T}
 
 Two_throw_m1 <- brm(
   abspos ~ norm_delta * Num_throws + (norm_delta * Num_throws|Participant),
@@ -793,8 +867,45 @@ load("../Analyses/Experiment_5_Unequal_Reward/scratch/data/model_data")
 source("extract_draws_functions/Reward_draws.R")
 ```
 
+Add in facets 
+
+``` {r RewardFacets, include = T, echo = F}
+df_Rewards <- model_data %>%
+  group_by(Participant) %>%
+  mutate(temp = as.numeric(as.factor(Norm_Delta)),
+         slab_measures = factor(temp, labels = c("90%", "75%", "25%", "10%"))) %>% 
+  select(-temp) %>% 
+  ungroup() %>% 
+  group_by(slab_measures) %>% 
+  mutate(overall_hoop_pos = mean(Norm_Delta))
+
+df_Rewards %>% 
+  ggplot(aes(overall_hoop_pos, Norm_Dist,
+             colour = Gamble_Type)) + 
+  geom_jitter(alpha = .3,
+              width = .05,
+              height = .05) +
+  facet_wrap(~Participant, ncol = 4) + 
+  scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")")),
+                     breaks = unique(df_Rewards$overall_hoop_pos),
+                     labels = unique(df_Rewards$slab_measures)) +
+  scale_y_continuous("",
+                     breaks = c(0,1),
+                     labels = c("Centre", "Side")) +
+  see::scale_color_flat() +
+  theme_bw() + 
+  theme(
+    strip.text.x = element_blank(),
+    legend.position = "bottom",
+    axis.text.x = element_text(size = 8),
+    panel.grid.minor.x = element_blank()
+  )
+
+
+```
+
 A Bayesian Beta Regression was carried out in order to investigate whether opting for an unequal reward structure in this task would facilitate the use of a more optimal strategy in the _Throwing Task_. The predictors in this model were whether the participant had opted for an _Equal_ or _Unequal_ (Gamble_Type), whether the hoops were _Close_ or _Far_ (dist_type), and the interaction between these. Additionally, random effects of participant were included for all predictors. The predicted value was the normalised standing position, with 0 representing the centre and 1 being next to one of the hoops.  
-```{r GamblingPriorsOnly, include = F, echo = F, warning = F, cache = T}
+```{r GamblingPriorsOnly, include = F, echo = T, warning = F, cache = T}
 Reward_priors <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type * Gamble_Type|Participant),
                      data = model_data,
                      family = "beta",
@@ -817,7 +928,7 @@ Reward_priors <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type * Gamble_Typ
 ```
 
 
-``` {r RewardPriorsPlt, include = T, echo = F, fig.asp = .45, fig.cap = "_Prior predictive Check for the Reward Study_"}
+``` {r RewardPriorsPlt, include = T, echo = F, fig.asp = .45, fig.cap = "_Prior Predictions for the Reward Study_"}
 draws_factor(Reward_priors) %>% 
   mutate(prop = boot::inv.logit(estimate)) %>% 
   ggplot(aes(prop,
@@ -836,7 +947,7 @@ draws_factor(Reward_priors) %>%
 
 As the prior predictive checks demonstrated that the model was able to retrieve the prior, and the priors were "sensible", the model was conditioned on the raw data from the experiment. 
 
-```{r RewardModel, include = F, echo = F, warning = F, cache = T}
+```{r RewardModel, include = F, echo = T, warning = F, cache = T}
 # run model 
 Reward_m1 <- brm(Norm_Dist ~ dist_type*Gamble_Type + (dist_type*Gamble_Type|Participant),
                  data = model_data,
@@ -909,21 +1020,21 @@ gridExtra::grid.arrange(plt_dist, plt_gamble, plt_inter)
 ```{r RewardHDI, include = F, echo = F}
 Rewards_hdi_Dist <- draws_df %>% 
   group_by(Dist_Type) %>% 
-    summarise(lower = hdi(prop)[,1],
-              mu = mean(prop),
-              upper = hdi(prop)[,2])
+  summarise(lower = hdi(prop)[,1],
+            mu = mean(prop),
+            upper = hdi(prop)[,2])
 
 Rewards_hdi_Gamble <- draws_df %>% 
   group_by(Gamble_Type) %>% 
-    summarise(lower = hdci(prop)[,1],
-              mu = mean(prop),
-              upper = hdci(prop)[,2])
-  
+  summarise(lower = hdci(prop)[,1],
+            mu = mean(prop),
+            upper = hdci(prop)[,2])
+
 Rewards_hdi_interaction <- draws_df %>% 
-    group_by(Gamble_Type, Dist_Type) %>% 
-    summarise(lower = hdi(prop)[,1],
-              mu = mean(prop),
-              upper = hdi(prop)[,2])
+  group_by(Gamble_Type, Dist_Type) %>% 
+  summarise(lower = hdi(prop)[,1],
+            mu = mean(prop),
+            upper = hdi(prop)[,2])
 
 ```
 
@@ -963,10 +1074,10 @@ Probability matching may be due in part to a misunderstanding of probability [@R
 
 ## Methods 
 
-### _Participants_
+### Participants
 16 Particiapnts (two Male) were recruited from the University of Aberdeen community with an average age of 22.75 (between 19 and 29). Each participant was reimbursed £10 for their time. 
 
-### _Procedure_
+### Procedure
 The experiment followed a similar procedure to the "_Detection Task_" from @clarke2015failure. In the first session, we measured visual acuity which lasted approximately 30 minutes. This was followed by a second session in which the participants performed the actual decision task which lasted approximately 40-50 minutes.
 
 The experiment took place in a darkened room on a desktop computer. An Eyelink 1000 (version 4.594)(SR Research ltd, Mississauga, Ontario, Canada) was used to record eye position at 1000Hz. In each session, a 5 point calibration was carried out with additional calibration and validation sequences prior to each block, and if the participants had broken fixation ten times cummulatively or for five trials in a row. The stimuli were displayed on a CRT monitor (resolution 1920 X 1080 pixels) using Matlab 7.9.0 (R2009b) with Psychtoolbox [@brainard1997psychophysics; @pelli1997videotoolbox] and EyelinkToolbox functions [@cornelissen2002eyelink]. A chin rest with forehead bar was used to ensure participants maintained a viewing distance of  $\approx$ 47cm.
@@ -1001,24 +1112,11 @@ Prior to each block, participants were told how likely each box was to contain t
 The optimal strategy is to ﬁxate whichever of the three boxes maximises expected accuracy. We refer to a participant’s expected accuracy if they had followed the optimal strategy, as “optimal accuracy”.  Using the psychometric curves ﬁt to each participant’s Session 1 data, we can calculate how likely a given person is to detect the target at various distances. This was then used to predict how accurate that same person would be if they had ﬁxated one of the side boxes, or the centre box, by using their average accuracy for a given distance from the left and right box ($Bl$ and $Br$ respectively) in Session 1. The ﬁxation choice that gave the greatest expected accuracy was then selectedastheoptimaldecisionfortherespectiveboxseparation. Asprobabilitywasalsoafactor in this experiment, this had to be accounted for by multiplying the chance of detecting the target in either box by the probability that the box would contain the target ($Pl$ and $Pr$). The formula for expected accuracy is therefore: $(Bl \times Pl) + (Br \times Pr)$. Expected accuracy given optimal ﬁxations differs between the Symmetric and Biased conditions. For example, in the Symmetric condition, participants could expect a 55% success rate if they ﬁxated the optimal location when the targets were far apart. This value comes from assuming they would be $\approx$ 100% accurate for the ﬁxated box, and at chance level for the non-ﬁxated box (10%). This gives us $(1 \times 0.5) + (0.1 \times 0.5) = 55%$. To get the lower limit for the Bias condition, we simply change the chance for each box to contain the target (additionally, we assume that the participant would ﬁxate the most likely box). This gives us $(1 \times 0.8) + (0.1 \times 0.2) = 82%$. This same formula can be used to calculate expected accuracy had the participant ﬁxated the central box. In this case, $Bl = Br$, and so would simply be put into the formula using the appropriate values for $P$, as demonstrated above. 
 
 ### Analysis
-
 All analysis for this experiment follow the same procedures as described in previous sections. 
 
-## Results 
-
-```{r Probability, include = F, echo = F}
-# Load in everything from the modelling
-load("../Analyses/Experiment_4_Prob/modelling/BRMS/model_output/bm_fix_like_dt")
-load("../Analyses/Experiment_4_Prob/modelling/BRMS/model_output/bm_fix_like_dt_draws")
-draws <- fix_like_post$draws_df %>% 
-  mutate(prop = boot::inv.logit(estimate)) %>% 
-  select(-estimate)
-```
-
-
+## Results
 ```{r ProbProp, include = T, echo = F, fig.asp=.45, fig.cap="_These boxplots show the proportion of the time that participants fixated the centre (left panel), most-likely (central panel) and least-likely (right panel) box. In the _Bias_ condition, 'most likely' was the box with and 80% probability of containing the target. In the _Symmetric_ condition, 'most-likely' was whichever side box a given participant had fixated the most. The Close and Far distinction is baseed on when participants should swith from fixating the central box to the side box. Note that for some participants, expected performance differences between the Centre and Side strategies for the closest separation was negligible. However, all participants should have fixated the Side boxes in the Far condition, where the performance advantage of doing so was substantial._"}
 
-#knitr::include_graphics('../Figures/Experiment_4_Prob/boxes_prop_CML.png')
 plt_prop_fix <- readPNG("../Figures/Experiment_4_Prob/boxes_prop_CML.png")
 grid.raster(plt_prop_fix)
 
@@ -1035,8 +1133,118 @@ We can also look at how the choice of where to look inﬂuenced participants’ 
 
 
 
-### Modelling 
+### Modelling
+#### Prior Predictive checks
+```{r Prob load data, include = F, echo = F}
+# load data
+load("../Analyses/Experiment_4_Prob/modelling/BRMS/model_data/df_model")
+
+# load function
+source("extract_draws_functions/Prob_draws.R")
+
+n_iter <- 2000
+n_warmup <- n_iter/2
+```
+
+``` {r Setting Priors, include = F, echo = T}
+# setting priors
+Rewards_priors <- c(set_prior("student_t(3, 0, .5)", class = "b"),
+                    set_prior("student_t(3, 0, .5)", class = "b", coef = "bias_typeSymmetric"),
+                    set_prior("student_t(3, 0, .5)", class = "b", coef = "bias_typeSymmetric:dist_typeFar"),
+                    set_prior("student_t(3, 0, .5)", class = "b", coef = "dist_typeFar"),
+                    set_prior("student_t(3,0,1)", class = "Intercept"))
+```
+
+```{r ProbPriors, include = F, echo = T, cache = T}
+ProbPriors_model <- brm(Ml_fix ~ (bias_type + dist_type)^2 + (dist_type * bias_type|participant),
+                        data = df_model,
+                        family = "bernoulli",
+                        prior = Rewards_priors,
+                        chains = 1,
+                        iter =   n_iter,
+                        warmup = n_warmup,
+                        sample_prior = "only")
+```
+
+
+```{r ProbPriorsPlt, include = T, echo = F}
+ProbPriordraws <- Prob_draws(ProbPriors_model)
+
+plt_ProbPrior_interaction <- ProbPriordraws$plt_estimates + 
+  scale_x_continuous(expression(paste("Normalised ", Delta))) + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() +
+  theme_bw() + 
+  guides(fill = guide_legend("Bias Type"),
+         colour = guide_legend("Bias Type"))
+
+prior_draws <- ProbPriordraws$draws_df %>%
+  mutate(prop = boot::inv.logit(estimate)) %>%
+  select(-estimate) 
+
+plt_ProbPrior_meDist <- prior_draws %>%
+  ggplot(aes(prop,
+             colour = Dist_type,
+             fill = Dist_type)) + 
+  geom_density(alpha = .3) + 
+  theme_bw() +  
+  theme(axis.title.x = element_blank()) +
+  labs(fill = "Distance Type",
+       colour = "Distance Type") +
+  #       x = "Proportion of Fixations to Most Likely Side") +
+  see::scale_color_flat() + 
+  see::scale_fill_flat() + 
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1))
+
+plt_ProbPrior_meBias <- prior_draws %>%
+  ggplot(aes(prop,
+             colour = Bias_type,
+             fill = Bias_type)) + 
+  geom_density(alpha = .3) + 
+  theme_bw() + 
+  theme(axis.title.x = element_blank()) +
+  labs(fill = "Bias Type",
+       colour = "Bias Type") +
+  #       "Proportion of Fixations to Most Likely Side") +
+  see::scale_color_flat() + 
+  see::scale_fill_flat() + 
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1))
+
+gridExtra::grid.arrange(plt_ProbPrior_meDist, plt_ProbPrior_meBias, plt_ProbPrior_interaction)
+
+```
+
+
+```{r ProbModel, include = F, echo = T, cache = T}
+ProbModel <- brm(Ml_fix ~ (bias_type + dist_type)^2 + (dist_type * bias_type|participant),
+                 data = df_model,
+                 family = "bernoulli",
+                 prior = Rewards_priors,
+                 chains = 1,
+                 iter = n_iter,
+                 warmup = n_warmup)
+```
+
+
+```{r ProbModelPlts, include = T, echo = F}
+Probdraws <- Prob_draws(ProbModel)
+
+plt_ProbPost <- Probdraws$plt_estimates + 
+  scale_x_continuous(expression(paste("Normalised ", Delta))) + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() +
+  theme_bw() + 
+  guides(fill = guide_legend("Bias Type"),
+         colour = guide_legend("Bias Type"))
+```
+
+
 ```{r Get Values, include = F, echo = F}
+# get draws
+draws <- Probdraws$draws_df %>%
+  mutate(prop = boot::inv.logit(estimate)) %>%
+  select(-estimate)
+
 # HDI_values 
 HDI_Bias <- draws %>%
   group_by(Bias_type) %>%
@@ -1128,16 +1336,8 @@ plt_me_Dist <- draws %>%
   see::scale_fill_flat() + 
   scale_x_continuous(labels = scales::percent_format(accuracy = 1))
 
-plt_interaction <- fix_like_post$plt_estimates +
-  theme_bw() + 
-  see::scale_color_flat() + 
-  see::scale_fill_flat() +
-  labs(x = "Proportion of Fixations to Most Likely Side",
-       colour = "Bias Type",
-       fill = "Bias Type") +
-  scale_x_continuous(labels = scales::percent_format(accuracy = 1))
 
-gridExtra::grid.arrange(plt_me_Dist, plt_me_Bias, plt_interaction)
+gridExtra::grid.arrange(plt_me_Dist, plt_me_Bias, plt_ProbPost)
 ```
 
 

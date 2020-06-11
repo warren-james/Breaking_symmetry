@@ -133,6 +133,9 @@ df_model <- df_part2_fixed %>%
   mutate(Ml_fix = ifelse(st_box == "most likely", 1, 0),
          S_fix = ifelse(st_box != "centre", 1, 0)) 
 
+# save
+save(df_model, file = "modelling/BRMS/model_data/df_model")
+
 #### analysis ####
 #### Frequentist ####
 #### Fixation to Ml side ####
