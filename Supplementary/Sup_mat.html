@@ -614,13 +614,22 @@ Figure 3.3: <em>Facet plots for each participant in the Two Throw experiment</em
 </div>
 <p>A Bayesian Beta regression was carried out to investigate whether participants performed the task in a more optimal way when they were given the chance to attempt to throw at both targets. The predicted value was the Normalised standing position with 0 being central and 1 being next to one of the hoops. The predictors were the normalised distance of the hoops from the centre (norm_delta), the number of throws participants had (Num_throws), and the interactions between these two terms.</p>
 <p>We first carry out a prior predictive check to confirm that our choice of priors are reasonable.</p>
-<pre><code>## Compiling the C++ model</code></pre>
-<pre><code>## Start sampling</code></pre>
+<pre class="r"><code>Two_throw_priors &lt;- brm(
+  abspos ~ 0 + norm_delta * Num_throws + (0 + norm_delta * Num_throws|Participant),
+  family = &quot;beta&quot;,
+  data = model_data_pos,
+  prior = TT_prior,
+  cores = 1,
+  chains = 1,
+  iter = TT_iter,
+  warmup = TT_iter/2,
+  control = TT_control,
+  sample_prior = &quot;only&quot;)</code></pre>
 <pre><code>## 
 ## SAMPLING FOR MODEL &#39;beta brms-model&#39; NOW (CHAIN 1).
 ## 
-## Gradient evaluation took 0.003 seconds
-## 1000 transitions using 10 leapfrog steps per transition would take 30 seconds.
+## Gradient evaluation took 0.004 seconds
+## 1000 transitions using 10 leapfrog steps per transition would take 40 seconds.
 ## Adjust your expectations accordingly!
 ## 
 ## 
@@ -637,20 +646,25 @@ Figure 3.3: <em>Facet plots for each participant in the Two Throw experiment</em
 ## Iteration: 9000 / 10000 [ 90%]  (Sampling)
 ## Iteration: 10000 / 10000 [100%]  (Sampling)
 ## 
-##  Elapsed Time: 1244.85 seconds (Warm-up)
-##                1188.56 seconds (Sampling)
-##                2433.4 seconds (Total)</code></pre>
-<pre><code>## Warning: There were 46 divergent transitions after warmup. Increasing adapt_delta above 0.99 may help. See
-## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
-<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+##  Elapsed Time: 1227.56 seconds (Warm-up)
+##                1144.12 seconds (Sampling)
+##                2371.68 seconds (Total)</code></pre>
 <p>Next, we train the model on the data and plot the posterior distributions.</p>
-<pre><code>## Compiling the C++ model</code></pre>
-<pre><code>## Start sampling</code></pre>
+<pre class="r"><code>Two_throw_m1 &lt;- brm(
+  abspos ~ 0 + norm_delta * Num_throws + (0 + norm_delta * Num_throws|Participant),
+  family = &quot;beta&quot;,
+  data = model_data_pos,
+  prior = TT_prior,
+  cores = 1,
+  chains = 1,
+  iter = TT_iter,
+  warmup = TT_iter/2,
+  control = TT_control,)</code></pre>
 <pre><code>## 
 ## SAMPLING FOR MODEL &#39;beta brms-model&#39; NOW (CHAIN 1).
 ## 
-## Gradient evaluation took 0.003 seconds
-## 1000 transitions using 10 leapfrog steps per transition would take 30 seconds.
+## Gradient evaluation took 0 seconds
+## 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
 ## Adjust your expectations accordingly!
 ## 
 ## 
@@ -667,9 +681,9 @@ Figure 3.3: <em>Facet plots for each participant in the Two Throw experiment</em
 ## Iteration: 9000 / 10000 [ 90%]  (Sampling)
 ## Iteration: 10000 / 10000 [100%]  (Sampling)
 ## 
-##  Elapsed Time: 2718.16 seconds (Warm-up)
-##                3419.77 seconds (Sampling)
-##                6137.93 seconds (Total)</code></pre>
+##  Elapsed Time: 2634.32 seconds (Warm-up)
+##                3327.61 seconds (Sampling)
+##                5961.93 seconds (Total)</code></pre>
 <pre><code>##                             Estimate Est.Error   l-95% CI   u-95% CI
 ## norm_delta                0.08320523 0.3652196 -0.6615193  0.7834590
 ## Num_throwsOne            -1.33767685 0.3321214 -1.9683436 -0.6537564

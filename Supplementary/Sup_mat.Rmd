@@ -772,7 +772,7 @@ TT_control = list(adapt_delta = .99, max_treedepth = 15)
 
 ```
 
-```{r Two_Throws_Priors_only_model, include = T, echo = F, cache = T}
+```{r Two_Throws_Priors_only_model, include = T, echo = T, message = F, warning = F, cache = TRUE}
 Two_throw_priors <- brm(
   abspos ~ 0 + norm_delta * Num_throws + (0 + norm_delta * Num_throws|Participant),
   family = "beta",
@@ -808,7 +808,7 @@ priors_plt <- draws_df$Draws_df %>%
 
 Next, we train the model on the data and plot the posterior distributions. 
 
-```{r Two-throws modelling, include = T, echo = F, cache = T}
+```{r Two-throws modelling, include = T, echo = T, message = F, warning = F, cache = T}
 
 Two_throw_m1 <- brm(
   abspos ~ 0 + norm_delta * Num_throws + (0 + norm_delta * Num_throws|Participant),
