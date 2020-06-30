@@ -630,7 +630,7 @@ HS_prior <- c(set_prior("student_t(3, 0, 1)",
 
 The models themselves looked as follows: 
 
-```{r run-model-hoop-size-priors, echo = T, include = T, message = F, warning = F, cache = TRUE}
+```{r run-model-hoop-size-priors, echo = T, include = T, message = F, warning = F, results = "hide", cache = TRUE}
 # run model
 Hoop_size_priors <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
                         data = model_data,
@@ -657,7 +657,7 @@ plt_prior_hoopsize <- draws$plt_estimates +
 ```
 
 
-```{r run-model-Hoop-size, include = T, echo = T, message = F, warning = F, cache = TRUE}
+```{r run-model-Hoop-size, include = T, echo = T, message = F, warning = F, results = "hide", cache = TRUE}
 # run model
 Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
                     data = model_data,
@@ -772,7 +772,7 @@ TT_control = list(adapt_delta = .99, max_treedepth = 15)
 
 ```
 
-```{r Two_Throws_Priors_only_model, include = T, echo = T, message = F, warning = F, cache = TRUE}
+```{r Two_Throws_Priors_only_model, include = T, echo = T, message = F, warning = F, results = "hide", cache = TRUE}
 Two_throw_priors <- brm(
   abspos ~ 0 + norm_delta * Num_throws + (0 + norm_delta * Num_throws|Participant),
   family = "beta",
@@ -808,7 +808,7 @@ priors_plt <- draws_df$Draws_df %>%
 
 Next, we train the model on the data and plot the posterior distributions. 
 
-```{r Two-throws modelling, include = T, echo = T, message = F, warning = F, cache = T}
+```{r Two-throws modelling, include = T, echo = T, message = F, warning = F, results = "hide", cache = TRUE}
 
 Two_throw_m1 <- brm(
   abspos ~ 0 + norm_delta * Num_throws + (0 + norm_delta * Num_throws|Participant),
@@ -944,23 +944,28 @@ df_Rewards %>%
     panel.grid.minor.x = element_blank()
   )
 
+model_data <- model_data %>% 
+  mutate(close_equal = ifelse(dist_type == "close" & Gamble_Type == "Equal", 1, 0),
+         close_unequal = ifelse(dist_type == "close" & Gamble_Type == "Unequal", 1, 0),
+         far_equal = ifelse(dist_type == "far" & Gamble_Type == "Equal", 1, 0),
+         far_unequal = ifelse(dist_type == "far" & Gamble_Type == "Unequal", 1, 0))
 
 ```
 
 A Bayesian Beta Regression was carried out in order to investigate whether opting for an unequal reward structure in this task would facilitate the use of a more optimal strategy in the _Throwing Task_. The predictors in this model were whether the participant had opted for an _Equal_ or _Unequal_ (Gamble_Type), whether the hoops were _Close_ or _Far_ (dist_type), and the interaction between these. Additionally, random effects of participant were included for all predictors. The predicted value was the normalised standing position, with 0 representing the centre and 1 being next to one of the hoops.  
-```{r RewardsParameters, echo = F, include = F}
-R_prior <- c(set_prior("student_t(3,0,.5)",
-                       class = "b",
-                       coef = "dist_typefar"),
-             set_prior("student_t(3,0,.5)",
-                       class = "b",
-                       coef = "dist_typefar:Gamble_TypeUnequal"),
-             set_prior("student_t(3,0,.5)",
-                       class = "b",
-                       coef = "Gamble_TypeUnequal"),
-             set_prior("student_t(3,0,.5)",
-                       class = "b",
-                       coef = "dist_typeclose"))
+```{r RewardsParameters, echo = F, include = T}
+R_prior <- c(set_prior("student_t(3,0,1.25)",
+                           class = "b",
+                           coef = "close_equal"),
+                 set_prior("student_t(3,0,1.25)",
+                           class = "b",
+                           coef = "far_equal"),
+                 set_prior("student_t(3,0,1.25)",
+                           class = "b",
+                           coef = "close_unequal"),
+                 set_prior("student_t(3,0,1.25)",
+                           class = "b",
+                           coef = "far_unequal"))
 
 R_iter = 10000
 R_control = list(adapt_delta = .99, max_treedepth = 15)
@@ -969,9 +974,10 @@ R_control = list(adapt_delta = .99, max_treedepth = 15)
 ```
 
 
-```{r GamblingPriorsOnly, include = F, echo = T, warning = F, cache = T}
+```{r GamblingPriorsOnly, include = T, echo = T, message = F, warning = F, results = "hide", cache = TRUE}
 Reward_priors <- brm(
-  Norm_Dist ~ 0 + dist_type * Gamble_Type + (dist_type * Gamble_Type | Participant),
+  Norm_Dist ~ 0 + close_equal + close_unequal + far_equal + far_unequal +
+    (0 + close_equal + close_unequal + far_equal + far_unequal|Participant),
   data = model_data,
   family = "beta",
   prior = R_prior,
@@ -1000,12 +1006,13 @@ draws_factor(Reward_priors) %>%
   theme_bw()
 ```
 
-As the prior predictive checks demonstrated that the model was able to retrieve the prior, and the priors were "sensible", the model was conditioned on the raw data from the experiment. 
+As the prior predictive checks demonstrated that the model was able to retrieve the prior, and the priors were suitably flat, the model was conditioned on the raw data from the experiment. 
 
-```{r RewardModel, include = F, echo = T, warning = F, cache = T}
+```{r RewardModel, include = T, echo = T, message = F, warning = F, results = "hide", cache = TRUE}
 # run model 
 Reward_m1 <- brm(
-  Norm_Dist ~ 0 + dist_type * Gamble_Type + (dist_type * Gamble_Type | Participant),
+  Norm_Dist ~ 0 + close_equal + close_unequal + far_equal + far_unequal +
+    (0 + close_equal + close_unequal + far_equal + far_unequal|Participant),
   data = model_data,
   family = "beta",
   prior = R_prior,
@@ -1013,6 +1020,12 @@ Reward_m1 <- brm(
   iter = R_iter,
   warmup = R_iter/2,
   control = R_control)
+
+```
+
+```{r, echo = F, include = T}
+
+summary(Reward_m1)$fixed
 
 ```
 

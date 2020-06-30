@@ -1,14 +1,14 @@
 # Rewards draws 
 draws_factor <- function(model){
   draws_df <- model %>% 
-    spread_draws(b_dist_typeclose,
-                 b_dist_typefar,
-                 b_Gamble_TypeUnequal,
-                 `b_dist_typefar:Gamble_TypeUnequal`) %>% 
-    mutate(GambleType_Equal.Disttype_Close = b_dist_typeclose,
-           GambleType_Unequal.Disttype_Close = b_Gamble_TypeUnequal + b_dist_typeclose,
-           GambleType_Equal.Disttype_Far =  b_dist_typefar,
-           GambleType_Unequal.Disttype_Far = b_dist_typefar + `b_dist_typefar:Gamble_TypeUnequal`) %>% 
+    spread_draws(b_close_equal,
+                 b_close_unequal,
+                 b_far_equal,
+                 b_far_unequal) %>% 
+    mutate(GambleType_Equal.Disttype_Close = b_close_equal,
+           GambleType_Unequal.Disttype_Close = b_close_unequal,
+           GambleType_Equal.Disttype_Far =  b_far_equal,
+           GambleType_Unequal.Disttype_Far = b_far_unequal) %>% 
     select(.iteration,
            GambleType_Equal.Disttype_Close,
            GambleType_Unequal.Disttype_Close,
