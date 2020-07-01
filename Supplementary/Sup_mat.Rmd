@@ -1029,23 +1029,25 @@ summary(Reward_m1)$fixed
 
 ```
 
-```{r PltRewardestimates, echo = F, inlude = T, warning = F, fig.asp=.75, fig.cap="_Posterior distributions for the Reward Study_"}
+```{r setup_PltRewardestimates, echo = F, include = F, warning = F}
 # get draws 
 draws_df <- draws_factor(Reward_m1) %>% 
   mutate(prop = boot::inv.logit(estimate))
 
 # make separate plots for main effects and interactions 
-plt_dist <- draws_df %>% 
-  ggplot(aes(prop, 
+plt_dist <- draws_df %>%
+  ggplot(aes(prop,
              colour = Dist_Type,
-             fill = Dist_Type)) + 
-  geom_density(alpha = .3) + 
-  see::scale_color_flat() + 
-  see::scale_fill_flat() + 
+             fill = Dist_Type)) +
+  geom_density(alpha = .3) +
+  # see::scale_color_material() +
+  # see::scale_fill_material() +
+  scale_colour_viridis_d() + 
+  scale_fill_viridis_d() +
   theme_bw() +
   guides(colour = guide_legend(title = "Distance Type"),
          fill = guide_legend(title = "Distance Type")) +
-  scale_x_continuous(expression(paste("Normalised ", Delta)))
+  scale_x_continuous("")
 
 plt_gamble <- draws_df %>% 
   ggplot(aes(prop, 
@@ -1057,7 +1059,7 @@ plt_gamble <- draws_df %>%
   theme_bw() +
   guides(colour = guide_legend(title = "Gamble Type"),
          fill = guide_legend(title = "Gamble Type")) +
-  scale_x_continuous(expression(paste("Normalised ", Delta)))
+  scale_x_continuous("")
 
 plt_inter <- draws_df %>%
   ggplot(aes(prop, 
@@ -1069,11 +1071,19 @@ plt_inter <- draws_df %>%
   theme_bw() +
   guides(colour = guide_legend(title = "Gamble Type"),
          fill = guide_legend(title = "Gamble Type")) +
-  scale_x_continuous("Normalised Position") + 
+  scale_x_continuous(expression(paste("Normalised ", Delta))) + 
   facet_wrap(~Dist_Type)
 
-gridExtra::grid.arrange(plt_dist, plt_gamble, plt_inter)
+# get common guide 
+Reward_legend <- g_legend(plt_inter)
 
+bottom <- grid.arrange(arrangeGrob(plt_gamble + theme(legend.position = "none"), plt_inter + theme(legend.position = "none")), 
+             Reward_legend, widths=c(4.5, 1))
+
+```
+
+```{r PltRewardestimates, echo = F, include = T, warning = F, fig.asp=.75, fig.cap="_Posterior distributions for the Reward Study_"}
+gridExtra::grid.arrange(plt_dist, bottom, heights = c(2, 4))
 ```
 
 ```{r RewardHDI, include = F, echo = F}
@@ -1217,7 +1227,7 @@ Rewards_priors <- c(set_prior("student_t(3, 0, .5)", class = "b"),
                     set_prior("student_t(3,0,1)", class = "Intercept"))
 ```
 
-```{r ProbPriors, include = F, echo = T, cache = T}
+```{r ProbPriors, include = T, echo = T, message = F, warning = F, results = "hide", cache = TRUE}
 ProbPriors_model <- brm(Ml_fix ~ (bias_type + dist_type)^2 + (dist_type * bias_type|participant),
                         data = df_model,
                         family = "bernoulli",
@@ -1229,11 +1239,11 @@ ProbPriors_model <- brm(Ml_fix ~ (bias_type + dist_type)^2 + (dist_type * bias_t
 ```
 
 
-```{r ProbPriorsPlt, include = T, echo = F}
+```{r setupProbPriorsPlt, include = F, echo = F}
 ProbPriordraws <- Prob_draws(ProbPriors_model)
 
 plt_ProbPrior_interaction <- ProbPriordraws$plt_estimates + 
-  scale_x_continuous(expression(paste("Normalised ", Delta))) + 
+  scale_x_continuous("Probability of fixating the Most likely side") +
   see::scale_color_flat() + 
   see::scale_fill_flat() +
   theme_bw() + 
@@ -1253,9 +1263,9 @@ plt_ProbPrior_meDist <- prior_draws %>%
   theme(axis.title.x = element_blank()) +
   labs(fill = "Distance Type",
        colour = "Distance Type") +
-  #       x = "Proportion of Fixations to Most Likely Side") +
-  see::scale_color_material() + 
-  see::scale_fill_material() + 
+  #       x = "Proportion of Fixations to Most Likely Side") + 
+  scale_colour_viridis_d() + 
+  scale_fill_viridis_d() +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1))
 
 plt_ProbPrior_meBias <- prior_draws %>%
@@ -1272,12 +1282,19 @@ plt_ProbPrior_meBias <- prior_draws %>%
   see::scale_fill_flat() + 
   scale_x_continuous(labels = scales::percent_format(accuracy = 1))
 
-gridExtra::grid.arrange(plt_ProbPrior_meDist, plt_ProbPrior_meBias, plt_ProbPrior_interaction)
+# get common guide 
+ProbPrior_legend <- g_legend(plt_ProbPrior_interaction)
+
+bottom <- grid.arrange(arrangeGrob(plt_ProbPrior_meBias + theme(legend.position = "none"), plt_ProbPrior_interaction + theme(legend.position = "none")), 
+             ProbPrior_legend, widths=c(4.5, 1))
 
 ```
 
+```{r ProbPriorsPlt, echo = F, fig.cap="_Prior Predictive checks for the Probability matching experiment_"}
+gridExtra::grid.arrange(plt_ProbPrior_meDist, bottom, heights = c(2, 4))
+```
 
-```{r ProbModel, include = F, echo = T, cache = T}
+```{r ProbModel, include = T, echo = T, message = F, warning = F, results = "hide", cache = TRUE}
 ProbModel <- brm(Ml_fix ~ (bias_type + dist_type)^2 + (dist_type * bias_type|participant),
                  data = df_model,
                  family = "bernoulli",
@@ -1287,17 +1304,15 @@ ProbModel <- brm(Ml_fix ~ (bias_type + dist_type)^2 + (dist_type * bias_type|par
                  warmup = n_warmup)
 ```
 
+```{r, echo = F, include = T}
 
-```{r ProbModelPlts, include = T, echo = F}
+summary(ProbModel)$fixed
+
+```
+
+```{r getdraws, include = F, echo = F}
 Probdraws <- Prob_draws(ProbModel)
 
-plt_ProbPost <- Probdraws$plt_estimates + 
-  scale_x_continuous(expression(paste("Normalised ", Delta))) + 
-  see::scale_color_flat() + 
-  see::scale_fill_flat() +
-  theme_bw() + 
-  guides(fill = guide_legend("Bias Type"),
-         colour = guide_legend("Bias Type"))
 ```
 
 
@@ -1367,8 +1382,16 @@ Diff_Interaction_compbias <- Diff_Bias %>%
 
 The results of this model suggest that our participants were sensitive to the probability information (see above figure). In the Biased condition, the average participant fixated the most likely target `r paste(round(HDI_Bias[1,3], digits = 3)*100, "%", sep = "")` of the time (95% HDPI of |`r paste(round(HDI_Bias[1,2], digits = 3)*100, "%", sep = "")`, `r paste(round(HDI_Bias[1,4], digits = 3)*100, "%", sep = "")`|), compared to `r paste(round(HDI_Bias[2,3], digits = 3)*100, "%", sep = "")` (95% HPDI of |`r paste(round(HDI_Bias[2,2], digits = 3)*100, "%", sep = "")`,`r paste(round(HDI_Bias[2,4], digits = 3)*100, "%", sep = "")`|) in the symmetric condition. The width of these intervals reflects a high degree of uncertainty in fixed effects, due to the range of behaviours exhibited by participants. None-the-less, the HPDI on the difference between these two conditions, |`r round(D_bias_lower, digits = 3)*100`%, `r round(D_bias_upper, digits = 3)*100`%| is largely positive and we can be reasonably confident (P(difference > 0 | data ) =  `r round(p_bias_bigger, digits = 3)*100`%) that the most-likely target is fixated more frequently in the biased condition. The distance between the square targets did not appear to have any consistent effect in the Symmetric condition, however there was a small decrease in fixations towards the “most likely” box when the boxes were far apart in the bias condition (dropping from `r round(HDI_interaction[1,4], digits = 3)*100`%, 95% HPDI of |`r round(HDI_interaction[1,3], digits = 3)*100`%,`r round(HDI_interaction[1,5], digits = 3)*100`%| to `r round(HDI_interaction[2,4], digits = 3)*100`%, 95% HPDI of |`r round(HDI_interaction[2,3], digits = 3)`%,`r round(HDI_interaction[2,5], digits = 3)*100`%|). As such, the difference between the conditions were much more pronounced in the close condition (P(Bias > Symmetric|data) = `r round(Diff_Interaction_compbias[1,2], digits = 3)*100`%) than in the far condition (P(Bias > Symmetric|data) = `r round(Diff_Interaction_compbias[2,2], digits = 3)*100`%). The width of these intervals reflects the range of performance that was exhibited by participants. However, this does show that participants generally made us of this probability information in order to decide where to fixate. 
 
-Note: Do we want the stuff about side fixations in here?
-```{r ProbModelOutputs, include = T, echo = F, fig.cap = "_Posterior predictions for the probability matching experiment_"}
+**Note: Do we want the stuff about side fixations in here? As in; were people more likely to fixate the side vs. centre in the bias condition?**
+```{r setupProbModelOutputs, include = F, echo = F}
+plt_ProbPost <- Probdraws$plt_estimates + 
+  scale_x_continuous("Probability of fixating the Most likely side") + 
+  see::scale_color_flat() + 
+  see::scale_fill_flat() +
+  theme_bw() + 
+  guides(fill = guide_legend("Bias Type"),
+         colour = guide_legend("Bias Type"))
+
 # Proportion fixations to most likely side 
 plt_me_Bias <- draws %>% 
   ggplot(aes(prop,
@@ -1394,15 +1417,22 @@ plt_me_Dist <- draws %>%
   labs(fill = "Distance Type",
        colour = "Distance Type") +
   #       x = "Proportion of Fixations to Most Likely Side") +
-  see::scale_color_flat() + 
-  see::scale_fill_flat() + 
+  scale_colour_viridis_d() + 
+  scale_fill_viridis_d() + 
   scale_x_continuous(labels = scales::percent_format(accuracy = 1))
 
+ProbPost_legend <- g_legend(plt_ProbPost)
 
-gridExtra::grid.arrange(plt_me_Dist, plt_me_Bias, plt_ProbPost)
+bottom <- grid.arrange(arrangeGrob(plt_me_Bias + theme(legend.position = "none"), plt_ProbPost + theme(legend.position = "none")), 
+             ProbPost_legend, widths=c(4.5, 1))
+# gridExtra::grid.arrange(plt_me_Dist, plt_me_Bias, plt_ProbPost)
 ```
 
+```{r ProbModelOutputs, include = T, echo = F, fig.cap = "_Posterior predictions for the probability matching experiment_"}
+gridExtra::grid.arrange(plt_me_Dist, bottom,  ncol = 1, heights = c(2,4))
+```
 
 ## Discussion 
+The results of this study suggest that participants were in fact sensitive to the difference in probability of each side containing the target and responded by fixating this location more often when there was a bias compared to the Symmetric conditions. However, the presence of a bias did not lead participants to utilising a more optimal strategy. It would appear that the introduction of a bias for one target distracted participants from discovering the optimal strategy. Instead, participants appeared to focus primarily on the probability aspect of the task. 
 
 # Bibliography
