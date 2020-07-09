@@ -573,7 +573,7 @@ source("extract_draws_functions/Hoop_size_draws.R")
 
 Figure \@ref(fig:HoopSizeFacets) shows the data for each or the participants. Each plot shows the standing position on every trial for each of the standardised distances the participants were tested at. The dots are set to be somewhat translucent so darker regions demonstrate the participant stood in this location more often. Anything above the dashed line demonstrates the participant shifting towards the smaller hoop, while below represents the participant opting to be closer to the big hoop.
 
-```{r HoopSizeFacets, include=T, echo=F, fig.width = 10, fig.height = 10, fig.cap = "_Facet plots for the Hoop Size experiment_"}
+```{r HoopSizeFacets, include=T, echo=F, fig.width = 10, fig.height = 10, fig.cap = "_Each facet of this plot shows were each participant stood on each trial. The x-axis shows the different distances that participants were tested at with 0 being the point at which they were closest 50% from the centre. The y-axis shows the normalised standing position between the Big Hoop and the Small Hoop. _"}
 load("../Analyses/Experiment_3_Hoop_size/scratch/df_part2_norm")
 df_hoopsize <- norm_dat
 rm(norm_dat)
@@ -721,7 +721,7 @@ source("extract_draws_functions/Two_throw_draws_noint.R")
 
 Figure \@ref(fig:TwoThrowFacets) shows the individual data for each of the participants in this experiment. Each plot shows where the participants stood on each trial for each of the distances they were tested at with the different conditions being colour coded. 
 
-``` {r TwoThrowFacets, include = T, echo = F, fig.width = 10, fig.cap = "_Facet plots for each participant in the Two Throw experiment_"}
+``` {r TwoThrowFacets, include = T, echo = F, fig.width = 10, fig.cap = "_Each facet of this plot shows the stnading position on each trial and condition for each participant. The x-axis shows the different distances that participants were tested at with 0 being the point at which they were closest 50% from the centre. The y-axis shows the normalised standing position (between the centre point and one of the two side hoops)._"}
 # process 
 df_TwoThrow <- model_data_pos %>% 
   group_by(Participant) %>%
@@ -852,10 +852,18 @@ plt_examples <- draws$Plots[1][[1]][["data"]] %>%
   theme(legend.position = "bottom")
 
 # plt_difference 
-plt_difference <- draws$Plots[3][[1]] + 
+plt_difference <- draws$Plots[3][[1]][["data"]] %>%
+  mutate(Dist_type = as.factor(Dist_type)) %>%
+  mutate(Dist_type = factor(Dist_type, c("Close", "Mid", "Far"))) %>% 
+  ggplot(aes(diff,
+             colour = Dist_type,
+             fill = Dist_type)) + 
+  geom_density(alpha = .3) + 
   theme_bw() + 
-  see::scale_color_flat() + 
-  see::scale_fill_flat() + 
+  # see::scale_color_flat() + 
+  # see::scale_fill_flat() + 
+  scale_fill_viridis_d() + 
+  scale_colour_viridis_d() +
   scale_x_continuous("Difference: One throw - Two throw") +
   guides(fill = guide_legend(title = "Distance"),
          colour = guide_legend(title = "Distance"))
@@ -864,12 +872,12 @@ plt_difference <- draws$Plots[3][[1]] +
 # gridExtra::grid.arrange(plt_examples, plt_difference)
 ```
 
-```{r TwoThrowPlts, include = T, echo = F, fig.asp = .65, fig.cap = "_The left hand plots show the Prior preditcions for the Two Throw experiment. The right hand plots show the Posterior predictions for the Two Throw expeirment._"}
+```{r TwoThrowPlts, include = T, echo = F, fig.asp = .65, fig.cap = "_The panel shows the Prior preditcions for the Two Throw experiment. The middle panel shows the Posterior predictions for the Two Throw expeirment. The bottom panel shows the difference between One and Two throw conditions across the same distances shown in the other panels_"}
 # get legend 
 TwoThrowLegend <- g_legend(priors_plt)
 
 grid.arrange(arrangeGrob(priors_plt + theme(legend.position = "none"), plt_examples + theme(legend.position = "none")),
-                     TwoThrowLegend, heights=c(10, 1))
+                     TwoThrowLegend, plt_difference, heights=c(10, 1, 5))
 
 
 ```
@@ -899,7 +907,7 @@ P_close <- draws$Above_0[[2]] %>%
 
 The analysis suggested that there was an overall greater tendency for participants in the One-throw condition to stand further from the centre (mean of `r round(mu[1], digits = 3)`, 95% HPDI of |`r round(lower[1], digits = 3)` , `r round(upper[1], digits = 3)`|) than when they were in the Two-throw condition (mean of `r round(mu[2], digits = 3)`, 95% HPDI of |`r round(lower[2], digits = 3)` , `r round(upper[2], digits = 3)`|) with P(One-throw > Two-throw|data) = `r paste(round(draws$Above_0[[1]], digits = 3)*100, "%", sep = "")`. 
 
-This effect was the strongest for the closest separation which reflects the larger amount of variation in standing position with distance in the Two-throw condition (Figure \@ref(fig:TwoThrowPlts). In general, when in the One-throw condition, participants stood further from the centre (mean of `r round(mu_close[1], digits = 3)`, 95% HPDI of |`r round(lower_close[1], digits = 3)` , `r round(upper_close[1], digits = 3)`|) than in the the Two-throw condition (mean of `r round(mu_close[1], digits = 3)`, 95% HPDI of |`r round(lower_close[1], digits = 3)` , `r round(upper_close[1], digits = 3)`|) with P(One-throw > Two_throw|data) = `r paste(P_close$above0*100, "%", sep = "")`. 
+This effect was the strongest for the closest separation which reflects the larger amount of variation in standing position with distance in the Two-throw condition (Figure \@ref(fig:TwoThrowPlts). In general, when in the One-throw condition, participants stood further from the centre (mean of `r round(mu_close[1], digits = 3)`, 95% HPDI of |`r round(lower_close[1], digits = 3)` , `r round(upper_close[1], digits = 3)`|) than in the the Two-throw condition (mean of `r round(mu_close[1], digits = 3)`, 95% HPDI of |`r round(lower_close[1], digits = 3)` , `r round(upper_close[1], digits = 3)`|) with P(One-throw > Two_throw|data) = `r paste(P_close$above0*100, "%", sep = "")`. However, as can be seen in \@ref(fig:TwoThrowPlts), the difference is generally small which and consitent across all distances. This means that when participants were given the opportunity to throw to both hoops (i.e., in the Two throw condition), they were still suboptimal in their performance.
 
 
 ## Experiment 3: Reward
@@ -912,7 +920,7 @@ source("extract_draws_functions/Reward_draws_noint.R")
 Figure \@ref(fig:RewardFacets) shows the individual data for each of the participants in this experiment. Each plot shows where the participants stood on each trial for each of the distances at which they were tested with the different conditions being colour coded. 
 
 
-``` {r RewardFacets, include = T, echo = F, fig.asp = .75, fig.cap = "_Facet plots for the Rewards experiment_"}
+``` {r RewardFacets, include = T, echo = F, fig.asp = .75, fig.cap = "_Each facet in this plot shows the decision on a single trial about where to stand and how the participant had opted to split the reward. The x-axis corresponds to the participants chance of success had they stood at the centre with the y-axis showing the normalised standing potision._"}
 df_Rewards <- model_data %>%
   group_by(Participant) %>%
   mutate(temp = as.numeric(as.factor(Norm_Delta)),
@@ -1006,6 +1014,8 @@ draws_factor(Reward_priors) %>%
   theme_bw()
 ```
 
+The priors for this model were set to be roughly flat and uniformative to reflect the uncertainty around the outcomes of this experiment. Until this experiment, we had not run a version of this task in which the different targets could have different value associtated with them. 
+
 As the prior predictive checks demonstrated that the model was able to retrieve the prior, and the priors were suitably flat, the model was conditioned on the raw data from the experiment. 
 
 ```{r RewardModel, include = T, echo = T, message = F, warning = F, results = "hide", cache = TRUE}
@@ -1077,13 +1087,14 @@ plt_inter <- draws_df %>%
 # get common guide 
 Reward_legend <- g_legend(plt_inter)
 
-bottom <- grid.arrange(arrangeGrob(plt_gamble + theme(legend.position = "none"), plt_inter + theme(legend.position = "none")), 
-             Reward_legend, widths=c(4.5, 1))
+bottom <- grid.arrange(arrangeGrob(plt_gamble + theme(legend.position = "none"), plt_inter + theme(legend.position = "none")),
+            Reward_legend, widths=c(4.5, 1))
 
 ```
 
-```{r PltRewardestimates, echo = F, include = T, warning = F, fig.asp=.75, fig.cap="_Posterior distributions for the Reward Study_"}
-gridExtra::grid.arrange(plt_dist, bottom, heights = c(2, 4))
+```{r PltRewardestimates, echo = F, include = T, warning = F, fig.asp=.45, fig.cap="_This plot shows the posterior distribution of standing positions for the Reward study_"}
+# gridExtra::grid.arrange(plt_dist, bottom, heights = c(2, 4))
+plt_inter
 ```
 
 ```{r RewardHDI, include = F, echo = F}
