@@ -626,6 +626,8 @@ HS_prior <- c(set_prior("student_t(3, 0, 1)",
                         class = "b"),
               set_prior("student_t(3,0,1)",
                         class = "Intercept"))
+HS_iter <- 5000
+HS_control <- list(adapt_delta = .95, max_treedepth = 15)
 ```
 
 The models themselves looked as follows: 
@@ -638,9 +640,9 @@ Hoop_size_priors <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant)
                         prior = HS_prior,
                         cores = 2,
                         chains = 2,
-                        iter = 5000,
-                        warmup = 2500,
-                        control = list(adapt_delta = .95, max_treedepth = 15),
+                        iter = HS_iter,
+                        warmup = HS_iter/2,
+                        control = HS_control,
                         sample_prior = "only")
 ```
 
@@ -665,9 +667,9 @@ Hoop_size_m1 <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant),
                     prior = HS_prior,
                     cores = 2,
                     chains = 2,
-                    iter = 5000,
-                    warmup = 2500,
-                    control = list(adapt_delta = .95, max_treedepth = 15))
+                    iter = HS_iter,
+                    warmup = HS_iter/2,
+                    control = HS_control)
 
 ```
 
@@ -687,7 +689,8 @@ HDI_all <- draws$draws_HDI[[2]]
 
 ```{r PltHoopSizeEstimates, include = F, echo = F, fig.asp=.45, fig.cap="_Posterior predictions for the mean standing position._"}
 plt_post_hoopsize <- draws$plt_estimates + 
-  scale_x_continuous(expression(paste("Normalised ", Delta)), 
+  scale_x_continuous(expression(paste("Normalised ", Delta)),
+                     limits = c(0,1),
                      breaks = c(0,.5,1),
                      labels = c("Big Hoop", "Centre", "Small Hoop")) + 
   theme(legend.position = "bottom")
@@ -796,13 +799,15 @@ priors_plt <- draws_df$Draws_df %>%
   ggplot(aes(prop,colour = Num_throws, fill = Num_throws)) + 
   see::scale_color_flat() + 
   see::scale_fill_flat() +
-  scale_x_continuous(expression(paste("Normalised ", Delta))) +
+  scale_x_continuous(expression(paste("Normalised ", Delta)),
+                     limits = c(-.1,1.1),
+                     breaks = seq(0,1,.25)) +
   geom_density(kernel = "biweight", alpha = .3) + 
   facet_wrap(~Dist_type) + 
   theme_bw() + 
   guides(fill = guide_legend(title = "No. Throws"),
          colour = guide_legend(title = "No. Throws")) +
-  theme(legend.position = "bottom")
+  theme(legend.position = "right")
 
 ```
 
@@ -845,11 +850,13 @@ plt_examples <- draws$Plots[1][[1]][["data"]] %>%
   see::scale_fill_flat() + 
   facet_wrap(~Dist_Type) + 
   theme_bw() + 
-  scale_x_continuous(expression(paste("Normalised ", Delta))) + 
+  scale_x_continuous(expression(paste("Normalised ", Delta)),
+                     limits = c(-.1,1.1),
+                     breaks = seq(0,1,.25)) + 
   coord_cartesian(expand = F) + 
   guides(fill = guide_legend(title = "No. Throws"),
          colour = guide_legend(title = "No. Throws")) +
-  theme(legend.position = "bottom")
+  theme(legend.position = "right")
 
 # plt_difference 
 plt_difference <- draws$Plots[3][[1]][["data"]] %>%
@@ -860,6 +867,8 @@ plt_difference <- draws$Plots[3][[1]][["data"]] %>%
              fill = Dist_type)) + 
   geom_density(alpha = .3) + 
   theme_bw() + 
+  geom_vline(xintercept = 0,
+             linetype = "dashed") +
   # see::scale_color_flat() + 
   # see::scale_fill_flat() + 
   scale_fill_viridis_d() + 
@@ -872,14 +881,18 @@ plt_difference <- draws$Plots[3][[1]][["data"]] %>%
 # gridExtra::grid.arrange(plt_examples, plt_difference)
 ```
 
-```{r TwoThrowPlts, include = T, echo = F, fig.asp = .65, fig.cap = "_The panel shows the Prior preditcions for the Two Throw experiment. The middle panel shows the Posterior predictions for the Two Throw expeirment. The bottom panel shows the difference between One and Two throw conditions across the same distances shown in the other panels_"}
+```{r TwoThrowPlts, include = T, echo = F, fig.asp = .45, fig.cap = "_The top panel shows the Prior preditcions for the Two Throw experiment. The bottom panel shows the Posterior predictions for the Two Throw expeirment._"}
 # get legend 
 TwoThrowLegend <- g_legend(priors_plt)
 
 grid.arrange(arrangeGrob(priors_plt + theme(legend.position = "none"), plt_examples + theme(legend.position = "none")),
-                     TwoThrowLegend, plt_difference, heights=c(10, 1, 5))
+             TwoThrowLegend, ncol = 2, widths=c(6, 1))
 
 
+```
+
+```{r TwoThrowDifference, include = T, echo = F, fig.asp = .45, fig.cap = "_This figure shows the difference in the estimates for the Two Throw experiment. This is the diffrence between the red and blue distributions see in the Figure `@ref(fig:TwoThrowPlts)` with a bigger number representing the One Throw condition have a larger mean than the Two Throw condition._"}
+plt_difference
 ```
 
 ```{r Sort HDI, include = F, echo = F}
@@ -963,17 +976,17 @@ model_data <- model_data %>%
 A Bayesian Beta Regression was carried out in order to investigate whether opting for an unequal reward structure in this task would facilitate the use of a more optimal strategy in the _Throwing Task_. The predictors in this model were whether the participant had opted for an _Equal_ or _Unequal_ (Gamble_Type), whether the hoops were _Close_ or _Far_ (dist_type), and the interaction between these. Additionally, random effects of participant were included for all predictors. The predicted value was the normalised standing position, with 0 representing the centre and 1 being next to one of the hoops.  
 ```{r RewardsParameters, echo = F, include = T}
 R_prior <- c(set_prior("student_t(3,0,1.25)",
-                           class = "b",
-                           coef = "close_equal"),
-                 set_prior("student_t(3,0,1.25)",
-                           class = "b",
-                           coef = "far_equal"),
-                 set_prior("student_t(3,0,1.25)",
-                           class = "b",
-                           coef = "close_unequal"),
-                 set_prior("student_t(3,0,1.25)",
-                           class = "b",
-                           coef = "far_unequal"))
+                       class = "b",
+                       coef = "close_equal"),
+             set_prior("student_t(3,0,1.25)",
+                       class = "b",
+                       coef = "far_equal"),
+             set_prior("student_t(3,0,1.25)",
+                       class = "b",
+                       coef = "close_unequal"),
+             set_prior("student_t(3,0,1.25)",
+                       class = "b",
+                       coef = "far_unequal"))
 
 R_iter = 10000
 R_control = list(adapt_delta = .99, max_treedepth = 15)
@@ -997,8 +1010,8 @@ Reward_priors <- brm(
 ```
 
 
-``` {r RewardPriorsPlt, include = T, echo = F, fig.asp = .45, fig.cap = "_Prior Predictions for the Reward Study_"}
-draws_factor(Reward_priors) %>% 
+``` {r RewardPriorsPlt, include = F, echo = F}
+plt_RewardPriors <- draws_factor(Reward_priors) %>% 
   mutate(prop = boot::inv.logit(estimate)) %>% 
   ggplot(aes(prop,
              colour = Gamble_Type,
@@ -1006,15 +1019,18 @@ draws_factor(Reward_priors) %>%
   see::scale_color_flat() + 
   see::scale_fill_flat() +
   geom_density(alpha = .3,
-               kernel = "biweight") +
-  scale_x_continuous(expression(paste("Normalised ", Delta))) +
+               kernel = "biweight",
+               bw = .1) +
+  scale_x_continuous(expression(paste("Normalised ", Delta)),
+                     limits = c(-.1, 1.1),
+                     breaks = seq(0,1,.25)) +
   guides(colour = guide_legend(title = "Gamble Type"),
          fill = guide_legend(title = "Gamble Type")) +
   facet_wrap(~Dist_Type) + 
   theme_bw()
 ```
 
-The priors for this model were set to be roughly flat and uniformative to reflect the uncertainty around the outcomes of this experiment. Until this experiment, we had not run a version of this task in which the different targets could have different value associtated with them. 
+The priors in for this model were set so as to reduce the likelihood of extreme values (i.e., close to 0% or 100%). Until this experiment, we had not run a version of this task in which the different targets could have different value associtated with them. 
 
 As the prior predictive checks demonstrated that the model was able to retrieve the prior, and the priors were suitably flat, the model was conditioned on the raw data from the experiment. 
 
@@ -1081,20 +1097,22 @@ plt_inter <- draws_df %>%
   theme_bw() +
   guides(colour = guide_legend(title = "Gamble Type"),
          fill = guide_legend(title = "Gamble Type")) +
-  scale_x_continuous(expression(paste("Normalised ", Delta))) + 
+  scale_x_continuous(expression(paste("Normalised ", Delta)),
+                     limits = c(-.1, 1.1),
+                     breaks = seq(0,1,.25)) + 
   facet_wrap(~Dist_Type)
 
 # get common guide 
 Reward_legend <- g_legend(plt_inter)
 
 bottom <- grid.arrange(arrangeGrob(plt_gamble + theme(legend.position = "none"), plt_inter + theme(legend.position = "none")),
-            Reward_legend, widths=c(4.5, 1))
+                       Reward_legend, widths=c(4.5, 1))
 
 ```
 
 ```{r PltRewardestimates, echo = F, include = T, warning = F, fig.asp=.45, fig.cap="_This plot shows the posterior distribution of standing positions for the Reward study_"}
-# gridExtra::grid.arrange(plt_dist, bottom, heights = c(2, 4))
-plt_inter
+grid.arrange(arrangeGrob(plt_RewardPriors + theme(legend.position = "none"), plt_inter + theme(legend.position = "none")), Reward_legend, ncol = 2, widths = c(6,1))
+#plt_inter
 ```
 
 ```{r RewardHDI, include = F, echo = F}
@@ -1297,7 +1315,7 @@ plt_ProbPrior_meBias <- prior_draws %>%
 ProbPrior_legend <- g_legend(plt_ProbPrior_interaction)
 
 bottom <- grid.arrange(arrangeGrob(plt_ProbPrior_meBias + theme(legend.position = "none"), plt_ProbPrior_interaction + theme(legend.position = "none")), 
-             ProbPrior_legend, widths=c(4.5, 1))
+                       ProbPrior_legend, widths=c(4.5, 1))
 
 ```
 
@@ -1435,7 +1453,7 @@ plt_me_Dist <- draws %>%
 ProbPost_legend <- g_legend(plt_ProbPost)
 
 bottom <- grid.arrange(arrangeGrob(plt_me_Bias + theme(legend.position = "none"), plt_ProbPost + theme(legend.position = "none")), 
-             ProbPost_legend, widths=c(4.5, 1))
+                       ProbPost_legend, widths=c(4.5, 1))
 # gridExtra::grid.arrange(plt_me_Dist, plt_me_Bias, plt_ProbPost)
 ```
 
