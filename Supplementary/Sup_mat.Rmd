@@ -26,6 +26,7 @@ library(brms)
 library(png)
 library(grid)
 library(gridExtra)
+library(psyphy)
 
 # functions 
 # function to extract a legend that is shared accross plots
@@ -51,10 +52,11 @@ options(mc.cores = parallel::detectCores())
 ```
 # Power Analysis
 
-Our power analysis made use of simulations and resampling approaches based on data that we previously collected. Resampling was carried out in order to establish if adding more participants to our sample sizes would have lead to a reduction in uncertainty around our estimates.
+Our power analysis made use of simulations and resampling approaches based on data that we previously collected. Resampling was carried out in order to establish if adding more participants to our sample sizes would have lead to a reduction in uncertainty around our estimates. The experiments were all interested in the extent to which a distribution of standing position shifted with the introduction of a new factor. As such, one power analysis was carried out to determine what sort of sample size would be sufficient to detect a small shift in the mean of this distribution.
 
-## Experiment 1: Two Hoop Sizes
-We started by fitting a a beta distribution to each participant's date from the _Throwing Experiment_ in @clarke2015failure using the `fitdistrplus` package (as can be seen in Figure \@ref(fig:drawdistributions). In the original data, normalised standing position was coded $\phi \in [0,1]$ with $0$ indicating a central standing position, and $1$ indicating the participant stood by either of the two hoops. As we are _breaking the symmetry_ between the two targets in this new experiment, we will now treat standing position as $\phi \in (0, 1)$ with $0$ and $1$ representing the positions of the large and small hoop respectively. The central midpoint is now represented as $\phi = 0.5$.
+We started by fitting a a beta distribution to each participant's data from the _Throwing Experiment_ in @clarke2015failure using the `fitdistrplus` package (as can be seen in Figure \@ref(fig:drawdistributions). In the original data, normalised standing position was coded $\phi \in [0,1]$ with $0$ indicating a central standing position, and $1$ indicating the participant stood by either of the two hoops. As we are _breaking the symmetry_ between the two targets in this new experiment, we will now treat standing position as $\phi \in (0, 1)$ with $0$ and $1$ representing the positions of the large and small hoop respectively. The central midpoint is now represented as $\phi = 0.5$. 
+
+This is directly linked to the idea behind the Hoop Size experiment in which we aimed to observe whether participants would shift towards one side when presented with hoops of different sizes. However, this can be applied to the other experiments in that they are also looking at how the distribution shifts given a new factor in the experiment. 
 
 ```{r drawdistributions, include = T, echo = F, fig.height = 5, fig.cap="_These plots show the various distributions that were fit to each participant. These were then used to draw random samples from in order to simulate participants shifting towards one target._", fig.align = 'center'}
 # load("../power/Hoop_size/scratch/sampled_data")
@@ -201,6 +203,7 @@ plt_dists_wP
 ```
 
 The fit with the empirical data is reasonable, although we under-estimate the frequency of standing positions $\phi\approx0.5$. In this case 0.5 is considered the central point with 0 and 1 representing the left and right hoop respectively. We assumed that by introducing a difference in size between the two hoops that this distribution would shift towards the smaller hoop so as to balance their chances of success. We assumed that the difference in hoop size would cause particiapnts to stand slightly closer to the small hoop, in this case the shift in mean would be +0.05. 
+
 ```{r Hoop Size resampling, include = T, echo = F, cache = T}
 
 # setup loop
@@ -277,148 +280,6 @@ df_sample %>%
 
 ```
 
-## Experiment 2: Two Throws
-
-Our hypothesis for this experiment was that our intervention would push participants towards being more optimal. For the power analysis, we will sample data from two unpublished versions of the split-resource decision problem. For the _One Throw_ (control) condition, we will use data from a (as yet unpublished) replication of the @clarke2015failure _Throwing Task_ for $N=40$ participants. As with the original study, participants were generally sub-optimal and did not vary their strategy with $\Delta$. 
-
-The second dataset is comprised of 60 participants who took part in a computerised version of this task. The task involved participants deciding where to place a virtual firetruck when there were two buildings which both had an equal chance of becoming the target for that trial. In this task, participants would decide where to place the firetruck and it would drive towards the target building. The speed at which the truck travelled was drawn from a uniform distribution of speeds within a specified range. This meant that the chance of success decrease linearly with distance from the target. This meant that the performance of the truck was very similar to participatns taking part in the _Throwing Task_, and thus the experiments were comparable. However, participants in this version of the task were much closer to using the optimal strategy than had been observed in previous versions of this task. Therefore, these data were used as a comparison for what to expect when participants were better able to use the optimal strategy. 
-
-To compare these datasets, placement positions and standing positions were put on the same scale (0 being the centre and 1 being stood/placed next to the target). Only data for the easiest (smallest separation of targets) and hard (furthest separation of targets) conditions were considered as these points offered more comparable base performance levels. See Figure \@ref(fig:firetruck-data) for details.
-
-```{r firetruck-data, include = T, fig.height = 3, echo = F, fig.align = 'center', fig.cap="_boxplots for the empirical data being sampled from._"}
-# so we're interested in the difference between the closest and furthest... 
-# so we should just plot that? 
-
-# load data
-load("../power/Money_and_two/scratch/df_all")
-
-# make plot 
-plt_data <- df_all %>%
-  filter(standard_lab %in% c("10%","90%")) %>%
-  group_by(participant, condition, standard_lab) %>% 
-  summarise(norm_pos = mean(norm_pos)) %>%
-  ggplot(aes(standard_lab, norm_pos,
-             colour = condition,
-             fill = condition)) + 
-  geom_boxplot(alpha = .3) + 
-  geom_point(alpha = .3, position = position_jitterdodge(.1)) + 
-  see::scale_color_flat() + 
-  see::scale_fill_flat() + 
-  theme_bw() +
-  scale_y_continuous("Normalised Placement") +
-  theme(axis.title.x = element_blank()) + 
-  guides(colour = guide_legend(title = "Condition"),
-         fill = guide_legend(title = "Condition"))
-
-plt_data_diff <- plt_data[["data"]] %>%
-  ungroup() %>% 
-  spread(standard_lab, norm_pos) %>% 
-  mutate(diff = `90%` - `10%`) %>% 
-  ggplot(aes(condition, diff,
-             colour = condition, 
-             fill = condition)) + 
-  geom_boxplot(alpha = .3) + 
-  geom_point(alpha = .3, position = position_jitterdodge(.1))
-
-plt_data
-```
-
-To perform our power analysis we sampled these datasets 5000 times for a range of participants ($N = 2...28$). To do this, N participants were chosen at random (with replacement) from each condition (i.e. the _Throwing_ or _Avatar_ "conditions"), then 60 data points were sampled from each of these participants (with replacement) for the closest ("90%") and furthest separations ("10%").  
-
-``` {r two-throw power, include = F, echo = F, cache = T}
-# setup loop parameters
-n_iter <- 5000
-n_subs <- seq(2, 28, 2) 
-n_trials <- c(12, 60)
-dists <- c("90%", "10%")
-
-# setup data 
-n <- n_iter * length(n_subs) * length(n_trials) * length(dists)
-
-df_sample <- data.table::data.table(iter = rep(0, n),
-                                    n_subs = rep(0, n),
-                                    n_trials = rep(0, n),
-                                    dist_type = rep("", n),
-                                    baseline = rep(0, n),
-                                    comparison = rep(0, n))
-# 
-# # TODO make this loop quicker by using data.table()
-# # split dataset for ease of access...
-df_Av <- df_all %>%
-  filter(condition == "Avatar")
-df_Th <- df_all %>%
-  filter(condition == "Throwing")
-
-# start counter
-count <- 0
-# loop through
-for(ii in 1:n_iter){
-  # loop distances
-  for(dist in dists){
-    base_ss <- df_Th %>%
-      filter(standard_lab == dist)
-    comp_ss <- df_Av %>%
-      filter(standard_lab == dist)
-    for(trials in n_trials){
-      for(subs in n_subs){
-        # get random subjects
-        base_subs <- sample(df_Th$participant, subs, replace = T)
-        comp_subs <- sample(df_Av$participant, subs, replace = T)
-        
-        # loop through subjects
-        base_sample <- c()
-        comp_sample <- c()
-        for(sub in 1:subs){
-          base_temp <- base_ss %>%
-            filter(participant == base_subs[sub])
-          comp_temp <- comp_ss %>%
-            filter(participant == comp_subs[sub])
-          base_sample <- c(base_sample,
-                           sample(base_temp$norm_pos, trials, replace = T))
-          comp_sample <- c(comp_sample,
-                           sample(comp_temp$norm_pos, trials, replace = T))
-          if(sub == subs){
-            count <- count + 1
-            # input into table
-            df_sample[count, iter := ii]
-            df_sample[count, n_subs := subs]
-            df_sample[count, n_trials := trials]
-            df_sample[count, dist_type := dist]
-            df_sample[count, baseline := mean(base_sample)]
-            df_sample[count, comparison := mean(comp_sample)]
-          }
-        }
-      }
-    }
-  }
-}
-
-```
-
-```{r exp2-power, include = T, fig.height = 3, echo = F, fig.align = 'center', fig.cap="_plots show the 95% HDI for the difference in the close (90%) and far (10%) separations_"}
-# plot samples in terms of difference? 
-plt_hdi <- df_sample %>% 
-  filter(n_trials != 12,
-         n_subs != 2) %>%
-  mutate(diff = baseline - comparison) %>% 
-  group_by(n_subs, dist_type) %>% 
-  summarise(mu = mean(diff),
-            upper = hdi(diff)[2],
-            lower = hdi(diff)[1]) %>% 
-  ggplot(aes(n_subs, mu)) + 
-  geom_line() + 
-  geom_ribbon(aes(ymin = lower, ymax = upper),
-              alpha = .3) + 
-  facet_wrap(~dist_type) + 
-  theme_bw() + 
-  scale_x_continuous("Sample Size") + 
-  scale_y_continuous("Difference: Athletes - Avatar")
-
-plt_hdi
-```
-
-## Experiment 3: Reward 
-The power analysis for this experiment followed that of the previous section. This was due to the similarity of the hypothesis; the goal was to test whether introducing an asymmetry in the reward structure would encourage participants to adopt a more optimal strategy.
 
 ## Experiment 4: Probability Matching
 ```{r load data, include = F, echo = F, message = F, warning = F}
@@ -569,8 +430,28 @@ load("../Analyses/Experiment_3_Hoop_size/data/model_data")
 # get function for extracting draws 
 source("extract_draws_functions/Hoop_size_draws.R")
 
+load("../Analyses/Experiment_3_Hoop_size/scratch/beanbagdat")
 ```
 
+```{r HoopSizeSession1, include = T, echo = F, warning = F, fig.asp = .75, fig.cap = "_Each facet shows how a participant's accuracy dropped as a function of distance for both hoop sizes that were used in the experiment. The x-axis has been normalised so that 1 represents the furthest distance tested._"}
+beanbagdat %>% 
+  mutate(delta = slab/max(slab),
+         hoop_size = factor(hoop_size, labels = c("Large", "Small"))) %>% 
+  ggplot(aes(delta, acc, colour = hoop_size)) + 
+  geom_point() + 
+  geom_smooth(method = "glm", 
+              method.args = list(family = "binomial"),
+              se = F,
+              fullrange = T) + 
+  facet_wrap(~participant, ncol = 7) + 
+  theme_bw() + 
+  scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")", sep = "")),
+                     breaks = seq(0,1,.5)) + 
+  scale_y_continuous("Accuracy", labels = scales::percent_format(accuracy = 1)) + 
+  guides(colour = guide_legend("Hoop Size")) +
+  theme(strip.text.x = element_blank())
+
+```
 Figure \@ref(fig:HoopSizeFacets) shows the data for each or the participants. Each plot shows the standing position on every trial for each of the standardised distances the participants were tested at. The dots are set to be somewhat translucent so darker regions demonstrate the participant stood in this location more often. Anything above the dashed line demonstrates the participant shifting towards the smaller hoop, while below represents the participant opting to be closer to the big hoop.
 
 ```{r HoopSizeFacets, include=T, echo=F, fig.width = 10, fig.height = 10, fig.cap = "_Each facet of this plot shows were each participant stood on each trial. The x-axis shows the different distances that participants were tested at with 0 being the point at which they were closest 50% from the centre. The y-axis shows the normalised standing position between the Big Hoop and the Small Hoop. _"}
@@ -630,9 +511,9 @@ HS_iter <- 5000
 HS_control <- list(adapt_delta = .95, max_treedepth = 15)
 ```
 
-The models themselves looked as follows: 
+The models themselves looked as follows with the prior predictive checks having the additional "sample_prior" argument set to "_only_": 
 
-```{r run-model-hoop-size-priors, echo = T, include = T, message = F, warning = F, results = "hide", cache = TRUE}
+```{r run-model-hoop-size-priors, echo = F, include = F, message = F, warning = F, results = "hide", cache = TRUE}
 # run model
 Hoop_size_priors <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant), 
                         data = model_data,
@@ -719,9 +600,26 @@ load("../Analyses/Experiment_2_Two_throw/scratch/model_data_pos")
 model_data_pos <- model_data_pos %>% 
   mutate(Num_throws = ifelse(Num_throws == "One-Throw", "One", "Two"))
 
+load("../Analyses/Experiment_2_Two_throw/scratch/df_part1")
+
 source("extract_draws_functions/Two_throw_draws_noint.R")
 ```
 
+```{r TwoThrowSession1, include = 1, echo = 1, warning = F, fig.asp = .75, fig.cap = "_Each facet shows how a participant's accuracy dropped as a function of distance. The x-axis has been normalised so 1 represents the furthest range tested._"}
+df_part1 %>% 
+  mutate(delta = slab/max(slab)) %>% 
+  ggplot(aes(delta, acc)) + 
+  geom_point() + 
+  geom_smooth(method = "glm",
+              method.args = list(family = "binomial"),
+              se = F) + 
+  scale_y_continuous("Accuracy", labels = scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")", sep = ""))) +
+  facet_wrap(~participant, ncol = 6) + 
+  theme_bw() + 
+  theme(strip.text.x = element_blank())
+
+```
 Figure \@ref(fig:TwoThrowFacets) shows the individual data for each of the participants in this experiment. Each plot shows where the participants stood on each trial for each of the distances they were tested at with the different conditions being colour coded. 
 
 ``` {r TwoThrowFacets, include = T, echo = F, fig.width = 10, fig.cap = "_Each facet of this plot shows the stnading position on each trial and condition for each participant. The x-axis shows the different distances that participants were tested at with 0 being the point at which they were closest 50% from the centre. The y-axis shows the normalised standing position (between the centre point and one of the two side hoops)._"}
@@ -761,7 +659,8 @@ df_TwoThrow %>%
 
 A Bayesian Beta regression was carried out to investigate whether participants performed the task in a more optimal way when they were given the chance to attempt to throw at both targets. The predicted value was the Normalised standing position with 0 being central and 1 being next to one of the hoops. The predictors were the normalised distance of the hoops from the centre (norm_delta), the number of throws participants had (Num_throws), and the interactions between these two terms.
 
-We first carry out a prior predictive check to confirm that our choice of priors are reasonable. 
+### Modelling 
+We first carry out a prior predictive check to confirm that our choice of priors are reasonable. The model was specified as follows with the prior predictive checks having the additional "sample_prior" argument set to "_only_".
 
 ```{r TwoThrowsParameters, include = F, echo = F}
 TT_prior <- c(
@@ -775,7 +674,7 @@ TT_control = list(adapt_delta = .99, max_treedepth = 15)
 
 ```
 
-```{r Two_Throws_Priors_only_model, include = T, echo = T, message = F, warning = F, results = "hide", cache = TRUE}
+```{r Two_Throws_Priors_only_model, include = F, echo = F, message = F, warning = F, results = "hide", cache = TRUE}
 Two_throw_priors <- brm(
   abspos ~ 0 + norm_delta * Num_throws + (0 + norm_delta * Num_throws|Participant),
   family = "beta",
@@ -928,8 +827,26 @@ This effect was the strongest for the closest separation which reflects the larg
 load("../Analyses/Experiment_5_Unequal_Reward/scratch/data/model_data")
 
 source("extract_draws_functions/Reward_draws_noint.R")
+
+load("../Analyses/Experiment_5_Unequal_Reward/scratch/data/df_part1")
 ```
 
+``` {r RewardsSession1, include = T, echo = F, warning = F, fig.asp = .75, fig.cap = "_Each facet shows how accuracy changed over distance for each pariticipant. The x-axis has been normalised with 1 being the furthest_"}
+df_part1 %>% 
+  mutate(Delta = Slab/max(Slab)) %>%
+  ggplot(aes(Delta, Accuracy)) + 
+  geom_point() + 
+  geom_smooth(method = "glm",
+              method.args = list(family = "binomial"),
+              se = F,
+              colour = "black") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) + 
+  scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")", sep = ""))) + 
+  theme_bw() +
+  theme(strip.text.x = element_blank()) +
+  facet_wrap(~Participant)
+
+```
 Figure \@ref(fig:RewardFacets) shows the individual data for each of the participants in this experiment. Each plot shows where the participants stood on each trial for each of the distances at which they were tested with the different conditions being colour coded. 
 
 
@@ -974,6 +891,15 @@ model_data <- model_data %>%
 ```
 
 A Bayesian Beta Regression was carried out in order to investigate whether opting for an unequal reward structure in this task would facilitate the use of a more optimal strategy in the _Throwing Task_. The predictors in this model were whether the participant had opted for an _Equal_ or _Unequal_ (Gamble_Type), whether the hoops were _Close_ or _Far_ (dist_type), and the interaction between these. Additionally, random effects of participant were included for all predictors. The predicted value was the normalised standing position, with 0 representing the centre and 1 being next to one of the hoops.  
+
+### Modelling
+
+
+The priors in for this model were set so as to reduce the likelihood of extreme values (i.e., close to 0% or 100%). Until this experiment, we had not run a version of this task in which the different targets could have different value associtated with them. 
+
+As the prior predictive checks demonstrated that the model was able to retrieve the prior, and the priors were suitably flat, the model was conditioned on the raw data from the experiment. The model looked as followswith the prior predictive checks having the additional "sample_prior" argument set to "_only_": 
+
+
 ```{r RewardsParameters, echo = F, include = T}
 R_prior <- c(set_prior("student_t(3,0,1.25)",
                        class = "b",
@@ -995,7 +921,7 @@ R_control = list(adapt_delta = .99, max_treedepth = 15)
 ```
 
 
-```{r GamblingPriorsOnly, include = T, echo = T, message = F, warning = F, results = "hide", cache = TRUE}
+```{r GamblingPriorsOnly, include = F, echo = F, message = F, warning = F, results = "hide", cache = TRUE}
 Reward_priors <- brm(
   Norm_Dist ~ 0 + close_equal + close_unequal + far_equal + far_unequal +
     (0 + close_equal + close_unequal + far_equal + far_unequal|Participant),
@@ -1029,10 +955,6 @@ plt_RewardPriors <- draws_factor(Reward_priors) %>%
   facet_wrap(~Dist_Type) + 
   theme_bw()
 ```
-
-The priors in for this model were set so as to reduce the likelihood of extreme values (i.e., close to 0% or 100%). Until this experiment, we had not run a version of this task in which the different targets could have different value associtated with them. 
-
-As the prior predictive checks demonstrated that the model was able to retrieve the prior, and the priors were suitably flat, the model was conditioned on the raw data from the experiment. 
 
 ```{r RewardModel, include = T, echo = T, message = F, warning = F, results = "hide", cache = TRUE}
 # run model 
@@ -1181,7 +1103,7 @@ Probability matching may be due in part to a misunderstanding of probability [@R
 ### Procedure
 The experiment followed a similar procedure to the "_Detection Task_" from @clarke2015failure. In the first session, we measured visual acuity which lasted approximately 30 minutes. This was followed by a second session in which the participants performed the actual decision task which lasted approximately 40-50 minutes.
 
-The experiment took place in a darkened room on a desktop computer. An Eyelink 1000 (version 4.594)(SR Research ltd, Mississauga, Ontario, Canada) was used to record eye position at 1000Hz. In each session, a 5 point calibration was carried out with additional calibration and validation sequences prior to each block, and if the participants had broken fixation ten times cummulatively or for five trials in a row. The stimuli were displayed on a CRT monitor (resolution 1920 X 1080 pixels) using Matlab 7.9.0 (R2009b) with Psychtoolbox [@brainard1997psychophysics; @pelli1997videotoolbox] and EyelinkToolbox functions [@cornelissen2002eyelink]. A chin rest with forehead bar was used to ensure participants maintained a viewing distance of  $\approx$ 47cm.
+The experiment took place in a darkened room on a desktop computer. An Eyelink 1000 (version 4.594)(SR Research ltd, Mississauga, Ontario, Canada) was used to record eye position at 1000Hz. In each session, a 5 point calibration was carried out with additional calibration and validation sequences prior to each block, and if the participants had broken fixation ten times cummulatively or for five trials in a row. The stimuli were displayed on a CRT monitor (resolution 1920 $X$ 1080 pixels) using Matlab 7.9.0 (R2009b) with Psychtoolbox [@brainard1997psychophysics; @pelli1997videotoolbox] and EyelinkToolbox functions [@cornelissen2002eyelink]. A chin rest with forehead bar was used to ensure participants maintained a viewing distance of  $\approx$ 47cm.
 
 In the first session, participants were instructed to remain ﬁxated at the center and identify a letterthatwouldappearinoneoftwoboxes. Atthestartofeachtrial,participantsﬁxatedacentral black cross on a grayscale background and pressed the spacebar. The cross was ﬂanked by two boxes which were a lighter shade of grey and occupied 1◦ of visual angle. After a stable ﬁxation had been maintained for 700ms, the target would appear in one of the two boxes for 500ms. The target was a white letter, 0.4&deg; of visual angle, drawn using the Sloan font as these letters are generally of equal recognisability at different viewing angles[@sloan1952comparison]. Ten letters were used and one was selected randomly on each trial to be the target letter. Participants were then presented with a screen prompting them to report which letter was presented by clicking on the corresponding character. An illustration of each trial in Session 1 can be seen in Figure \@ref(fig:ProbSession1).
 
@@ -1192,7 +1114,7 @@ grid.raster(plt_fig1)
 
 ```
 
-The boxes were presented on either side of the ﬁxation cross at several different eccentricities (3&deg;,4.3&deg;,5.8&deg;,7.5&deg;,9.3&deg;,11.1&deg;,12.5&deg;,& 13.7&deg;). Each eccentricity was repeated 12 times in a row before moving on to another eccentricity (the order of these sets of 12 eccentricities was random),for a total of 96 trials in a block.
+The boxes were presented on either side of the ﬁxation cross at several different eccentricities (3.1&deg;,4.3&deg;,5.8&deg;,7.5&deg;,9.3&deg;,11.1&deg;,12.5&deg;,& 13.7&deg;). Each eccentricity was repeated 12 times in a row before moving on to another eccentricity (the order of these sets of 12 eccentricities was random),for a total of 96 trials in a block.
 
 After each block, participants were offered a break before recalibrating and moving onto the next block. Participants completed four of these blocks. The data from this ﬁrst session were used to tailor the separations that would be used for the second session. A “switch-point” was calculated for each participant based on their Session 1 performance. This was then used as an anchor point from which to calculate the other separations to be used in Session 2. The switch-point for each participant was the separation at which the participant was 68.5% accurate. The accuracy level of 68.5% is the mid-point between 55% and 82%; these two values are the points at which participants should switch from ﬁxating the central box to the side box in the Symmetric and Bias conditions, respectively(see below for more details).
 
@@ -1232,7 +1154,36 @@ grid.raster(plt_prop_expAcc)
 
 We can also look at how the choice of where to look inﬂuenced participants’ accuracy. We use the target detection models from Session 1 to calculate the expected accuracy given either (i) an optimal, (ii) counter-optimal, or (iii) the observed strategy. This measure eliminates the variance present in the actual accuracy data due to the random location of the target and participant’s guessing the correct answer by chance. These data are summarised in Figure \@ref(fig:ProbExpAcc). We can see that in the symmetric condition, with the exception of one individual, our participants behaved in a way that gave rise to expected accuracies much closer to the counter-optimal strategy than optimal. Expected accuracy was higher in the biased condition, with four participants reaching optimal performance, with the rest ending up somewhere between the optimal and counter-optimal. 
 
+### Session 1 Accuracy 
+```{r probSession1, include = T, echo = F, warning = F, fig.asp = .75, fig.cap = "_This figure shows the rate at which participants correctly identified the target letter presented within a box placed some distance from the centre with the lines showing a logistic regression on these data._"}
+# load in part 1 data 
+load("../Analyses/Experiment_4_Prob/scratch/new_data/Part_1_data_nar")
 
+# function 
+get_VisDegs <- function(separation,distance){
+  ((2*atan2(separation,(2*distance)))*180)/pi
+}
+
+# Any constants 
+Screen_dist <- 53
+ppcm <- 1920/54.4
+
+df %>% 
+  mutate(degs = round(get_VisDegs(separation/ppcm, Screen_dist), digits = 1)) %>%
+  group_by(participant, separation) %>% 
+  mutate(acc = mean(accuracy)) %>% 
+  ggplot(aes(degs, accuracy)) + 
+  geom_smooth(method = "glm",
+              method.args = list(family = binomial(mafc.logit(10))),
+              se = F,
+              colour = "black") +
+  geom_point(aes(x = degs, y = acc)) + 
+  theme_bw() +
+  theme(strip.text.x = element_blank()) + 
+  scale_y_continuous("Accuracy", labels = scales::percent_format(accuracy = 1)) +
+  scale_x_continuous(expression(paste("Visual Degrees (", degree, ")", sep = ""))) + 
+  facet_wrap(~participant)
+```
 
 ### Modelling
 #### Prior Predictive checks
