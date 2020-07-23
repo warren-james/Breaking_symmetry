@@ -380,11 +380,17 @@ df_exp_acc <- df_part2 %>%
   group_by(slab_measures) %>% 
   mutate(Best = pmax(side_unequal_goodChoice, side_unequal_badChoice, side_equal, centre),
          Worst = pmin(side_unequal_goodChoice, side_unequal_badChoice, side_equal, centre),
+         Worst_label = ifelse(Worst == side_unequal_badChoice, "unequal_bad", 
+                              ifelse(Worst == side_equal, "Equal_side", "centre")),
          ymin_Best = min(Best),
          ymax_Best = max(Best),
          ymin_Worst = min(Worst),
          ymax_Worst = max(Worst)) 
 
+# check which type was selected the most 
+df_exp_acc %>% 
+  group_by(slab_measures, Worst_label) %>% 
+  summarise(n = n())
 # make plot
 plt_ribbon <- df_exp_acc %>% 
   ungroup() %>% 
