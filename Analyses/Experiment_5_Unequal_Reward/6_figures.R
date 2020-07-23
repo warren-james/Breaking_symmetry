@@ -323,7 +323,7 @@ plt_line_choices <- df_part2 %>%
             alpha = .5) + 
   theme_bw() + 
   scale_x_discrete(expression(paste("Hoop Delta (", Delta, ")", sep = ""))) +
-  scale_y_discrete("") +
+  scale_y_discrete("No. Equal choices") +
   see::scale_color_flat() + 
   theme(
     legend.position = "none",
