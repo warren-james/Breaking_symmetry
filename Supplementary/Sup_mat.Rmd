@@ -281,142 +281,6 @@ df_sample %>%
 ```
 
 
-## Experiment 4: Probability Matching
-```{r load data, include = F, echo = F, message = F, warning = F}
-load("../power/Prob_match/scratch/df_resample")
-```
-
-For this experiment, data from ($N$ = 12) @clarke2015failure, which acted as a substitute for the Symmetric condition, and an unpublished pilot study ($N$ = 11), which followed the same rules as the Bias condition in the main experiment, were resampled in order to invesigate how often participants would fixate one of the side boxes given it was more likely to contain the target for the Bias condition. For the Symmetric condition, we followed the same rule as the in the paper and classified the most likely box as the side box that participants fixated most often (Figure \@ref(fig:ProbOGData). The main interest for our purposes was the proportion of time participants fixated the most likely box.
-
-```{r ProbOGData, include=T, echo=F, fig.asp=.45, fig.cap="_Boxplots to show the proportion of trials in which the participants fixated the each box by Condition and Distance type_"}
-plt_data <- df_resample %>%  
-  ungroup() %>% 
-  group_by(Participant, Condition, Dist_type) %>% 
-  mutate(centre = ifelse(box_type == "Centre", 1, 0),
-         ML = ifelse(box_type == "Most", 1, 0),
-         LL = ifelse(box_type == "Least", 1, 0),
-         n = n()) %>%
-  summarise(centre = mean(centre),
-            ML = mean(ML),
-            LL = mean(LL)) %>% 
-  gather(centre:LL,
-         key = "prop_type",
-         value = "proportion") %>%
-  mutate(prop_type = factor(prop_type, c("centre", "ML", "LL"),
-                            labels = c("Centre", "Most Likely", "Least Likely"))) %>% 
-  ggplot(aes(Dist_type, proportion,
-             fill = Condition,
-             colour = Condition)) + 
-  geom_boxplot(alpha = .3) + 
-  geom_point(alpha = .3, position = position_jitterdodge(.1)) +
-  facet_wrap(~prop_type) +
-  see::scale_color_flat() +
-  see::scale_fill_flat() +
-  theme_bw() +
-  scale_x_discrete("Distance Type") +
-  theme(axis.title.y = element_blank())
-plt_data
-```
-
-The data were coded so that a fixation was classified as either being to the Most likely box or not. We then resampled (with replacement) these data by selecting a random $N$ participants from each condition (ranging from 2 to 20) then sampling 300 trials from these participants from the different datasets. This was done 5000 times to estimate the expected difference between the Symmetric and Bias conditions in terms of proportion of fixations to the Most likely side and the associated certainty around these values.
-
-As can be seen in the figure below, the uncertainty surrounding the estimate for the difference between the groups appears to plateau somewhere around 15 participants. The shaded region represents a 95% Highest Density Interval (HDI) for the disribution of differences simulated through resampling. As such, the sample size of 18 in the main experiment appears to be ample in order to detect this difference and increasing the sample size above this value does not add more to the certainty, as can be seen in Figure \@ref(fig:ProbPowerPlots). 
-
-``` {r prob matching power, include = F, echo = F, cache = T}
-load("../power/Prob_match/scratch/df_resample")
-
-# sampling
-n_trials <- 300 # seq(100, 450, 50)
-n_subs <- seq(2, 20, 1)
-n_iter <- 5000
-conditions <- unique(df_resample$Condition)
-
-# setup data.table 
-n <- length(n_subs) * length(conditions) * n_iter
-df_sample <- data.table::data.table(iter = rep(0, n),
-                                    n_sub = rep(0, n),
-                                    n_trials = rep(0, n),
-                                    Condition = rep("", n),
-                                    Most = rep(0, n))
-
-# run loop
-counter <- 0
-for(ii in 1:n_iter){
-  # loop conditions
-  for(cond in conditions){
-    ss_cond <- df_resample %>%
-      filter(Condition == cond)
-    
-    # loop n trials
-    for(trials in n_trials){
-      # loop n subjects
-      for(sub in n_subs){
-        # get random participants
-        subj <- sample(ss_cond$Participant, sub, replace = T)
-        
-        # get data
-        ss_sub <- ss_cond %>%
-          filter(Participant %in% subj)
-        
-        # set this for a stopping point
-        # final_sub <- tail(unique(ss_sub$Participant), n = 1)
-        
-        # initialise vector
-        samp <- c()
-        
-        # loop through participants
-        count <- 0
-        for(unique_sub in subj){
-          count <- count + 1
-          # who are we sampling from?
-          sampling <- ss_sub %>%
-            filter(Participant == unique_sub)
-          
-          # sample random trials
-          samp <- c(samp, sample(sampling$Most, trials, replace = T))
-          
-          # check if we're adding this to the data frame
-          if(count == length(subj)){
-            counter <- counter + 1
-            df_sample[counter, iter := ii]
-            df_sample[counter, n_sub := sub]
-            df_sample[counter, n_trials := trials]
-            df_sample[counter, Condition := cond]
-            df_sample[counter, Most := mean(samp)]
-          }
-        }
-      }
-    }
-  }
-}
-
-
-
-```
-
-```{r ProbPowerPlots, include = T, echo = F, fig.asp=.45, fig.cap="_Plot to show how the 95% HDI of the estimated difference in fixations to the most likely box changed with an increase in participants_"}
-# maybe just the hdi stuff?
-# do I want to rerun the sim with dist type added in?
-plt_resampling <- df_sample %>% 
-  spread(Condition, 
-         Most) %>% 
-  mutate(diff = Bias - Symmetric) %>% 
-  group_by(n_sub) %>% 
-  summarise(mu = mean(diff),
-            lower = hdi(diff)[1],
-            upper = hdi(diff)[2]) %>% 
-  ggplot(aes(n_sub, mu)) + 
-  geom_line() + 
-  geom_ribbon(aes(ymin = lower,
-                  ymax = upper),
-              alpha = .3) +
-  theme_bw() + 
-  scale_x_continuous("Sample Size") + 
-  scale_y_continuous("Differenc in fixations to more \n likely side (Bias - Symmetric)")
-
-plt_resampling
-```
-
 # Additional Analyses
 
 In the analyses below, we use multi-level Bayesian beta regression to model the change in standing position $\phi$ when we 1) use unequal hoop sizes, 2) remove the need to chose between hoops, and 3) provide unequal rewards. 
@@ -1096,6 +960,143 @@ Probability matching may be due in part to a misunderstanding of probability [@R
 
 
 ## Methods 
+
+### Power Analysis
+```{r load data, include = F, echo = F, message = F, warning = F}
+load("../power/Prob_match/scratch/df_resample")
+```
+
+For this experiment, data from ($N$ = 12) @clarke2015failure, which acted as a substitute for the Symmetric condition, and an unpublished pilot study ($N$ = 11), which followed the same rules as the Bias condition in the main experiment, were resampled in order to invesigate how often participants would fixate one of the side boxes given it was more likely to contain the target for the Bias condition. For the Symmetric condition, we followed the same rule as the in the paper and classified the most likely box as the side box that participants fixated most often (Figure \@ref(fig:ProbOGData). The main interest for our purposes was the proportion of time participants fixated the most likely box.
+
+```{r ProbOGData, include=T, echo=F, fig.asp=.45, fig.cap="_Boxplots to show the proportion of trials in which the participants fixated the each box by Condition and Distance type_"}
+plt_data <- df_resample %>%  
+  ungroup() %>% 
+  group_by(Participant, Condition, Dist_type) %>% 
+  mutate(centre = ifelse(box_type == "Centre", 1, 0),
+         ML = ifelse(box_type == "Most", 1, 0),
+         LL = ifelse(box_type == "Least", 1, 0),
+         n = n()) %>%
+  summarise(centre = mean(centre),
+            ML = mean(ML),
+            LL = mean(LL)) %>% 
+  gather(centre:LL,
+         key = "prop_type",
+         value = "proportion") %>%
+  mutate(prop_type = factor(prop_type, c("centre", "ML", "LL"),
+                            labels = c("Centre", "Most Likely", "Least Likely"))) %>% 
+  ggplot(aes(Dist_type, proportion,
+             fill = Condition,
+             colour = Condition)) + 
+  geom_boxplot(alpha = .3) + 
+  geom_point(alpha = .3, position = position_jitterdodge(.1)) +
+  facet_wrap(~prop_type) +
+  see::scale_color_flat() +
+  see::scale_fill_flat() +
+  theme_bw() +
+  scale_x_discrete("Distance Type") +
+  theme(axis.title.y = element_blank())
+plt_data
+```
+
+The data were coded so that a fixation was classified as either being to the Most likely box or not. We then resampled (with replacement) these data by selecting a random $N$ participants from each condition (ranging from 2 to 20) then sampling 300 trials from these participants from the different datasets. This was done 5000 times to estimate the expected difference between the Symmetric and Bias conditions in terms of proportion of fixations to the Most likely side and the associated certainty around these values.
+
+As can be seen in the figure below, the uncertainty surrounding the estimate for the difference between the groups appears to plateau somewhere around 15 participants. The shaded region represents a 95% Highest Density Interval (HDI) for the disribution of differences simulated through resampling. As such, the sample size of 18 in the main experiment appears to be ample in order to detect this difference and increasing the sample size above this value does not add more to the certainty, as can be seen in Figure \@ref(fig:ProbPowerPlots). 
+
+``` {r prob matching power, include = F, echo = F, cache = T}
+load("../power/Prob_match/scratch/df_resample")
+
+# sampling
+n_trials <- 300 # seq(100, 450, 50)
+n_subs <- seq(2, 20, 1)
+n_iter <- 5000
+conditions <- unique(df_resample$Condition)
+
+# setup data.table 
+n <- length(n_subs) * length(conditions) * n_iter
+df_sample <- data.table::data.table(iter = rep(0, n),
+                                    n_sub = rep(0, n),
+                                    n_trials = rep(0, n),
+                                    Condition = rep("", n),
+                                    Most = rep(0, n))
+
+# run loop
+counter <- 0
+for(ii in 1:n_iter){
+  # loop conditions
+  for(cond in conditions){
+    ss_cond <- df_resample %>%
+      filter(Condition == cond)
+    
+    # loop n trials
+    for(trials in n_trials){
+      # loop n subjects
+      for(sub in n_subs){
+        # get random participants
+        subj <- sample(ss_cond$Participant, sub, replace = T)
+        
+        # get data
+        ss_sub <- ss_cond %>%
+          filter(Participant %in% subj)
+        
+        # set this for a stopping point
+        # final_sub <- tail(unique(ss_sub$Participant), n = 1)
+        
+        # initialise vector
+        samp <- c()
+        
+        # loop through participants
+        count <- 0
+        for(unique_sub in subj){
+          count <- count + 1
+          # who are we sampling from?
+          sampling <- ss_sub %>%
+            filter(Participant == unique_sub)
+          
+          # sample random trials
+          samp <- c(samp, sample(sampling$Most, trials, replace = T))
+          
+          # check if we're adding this to the data frame
+          if(count == length(subj)){
+            counter <- counter + 1
+            df_sample[counter, iter := ii]
+            df_sample[counter, n_sub := sub]
+            df_sample[counter, n_trials := trials]
+            df_sample[counter, Condition := cond]
+            df_sample[counter, Most := mean(samp)]
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+```
+
+```{r ProbPowerPlots, include = T, echo = F, fig.asp=.45, fig.cap="_Plot to show how the 95% HDI of the estimated difference in fixations to the most likely box changed with an increase in participants_"}
+# maybe just the hdi stuff?
+# do I want to rerun the sim with dist type added in?
+plt_resampling <- df_sample %>% 
+  spread(Condition, 
+         Most) %>% 
+  mutate(diff = Bias - Symmetric) %>% 
+  group_by(n_sub) %>% 
+  summarise(mu = mean(diff),
+            lower = hdi(diff)[1],
+            upper = hdi(diff)[2]) %>% 
+  ggplot(aes(n_sub, mu)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = lower,
+                  ymax = upper),
+              alpha = .3) +
+  theme_bw() + 
+  scale_x_continuous("Sample Size") + 
+  scale_y_continuous("Differenc in fixations to more \n likely side (Bias - Symmetric)")
+
+plt_resampling
+```
+
 
 ### Participants
 16 Particiapnts (two Male) were recruited from the University of Aberdeen community with an average age of 22.75 (between 19 and 29). Each participant was reimbursed £10 for their time. 

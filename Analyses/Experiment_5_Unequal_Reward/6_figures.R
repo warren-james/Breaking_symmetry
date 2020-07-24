@@ -19,15 +19,33 @@ model_data <- model_data %>%
   group_by(Participant) %>% 
   mutate(slab_measures = as.numeric(as.factor(Norm_Delta)),
          slab_measures = factor(slab_measures,
-                                labels = c("90% (Close)", "75%", "25%", "10% (Far)")))  
+                                labels = c("C", "75%", "25%", "F")))  
 
 df_part2 <- df_part2 %>% 
   group_by(Participant) %>% 
   mutate(Norm_Delta = HoopDelta/max(HoopDelta),
          slab_measures = as.numeric(as.factor(Norm_Delta)),
          slab_measures = factor(slab_measures,
-                                labels = c("90% (Close)", "75%", "25%", "10% (Far)")),
-         dist_type = ifelse(slab_measures %in% c("90% (Close)", "75%"), "close", "far"))
+                                labels = c("C", "75%", "25%", "F")),
+         dist_type = ifelse(slab_measures %in% c("C", "75%"), "close", "far"))
+
+#### Make plots ####
+#### Position ####
+#### Density plot ####
+# density plot
+model_data <- model_data %>% 
+  group_by(Participant) %>% 
+  mutate(slab_measures = as.numeric(as.factor(Norm_Delta)),
+         slab_measures = factor(slab_measures,
+                                labels = c("C", "75%", "25%", "F")))  
+
+df_part2 <- df_part2 %>% 
+  group_by(Participant) %>% 
+  mutate(Norm_Delta = HoopDelta/max(HoopDelta),
+         slab_measures = as.numeric(as.factor(Norm_Delta)),
+         slab_measures = factor(slab_measures,
+                                labels = c("C", "75%", "25%", "F")),
+         dist_type = ifelse(slab_measures %in% c("C", "75%"), "close", "far"))
 
 #### Make plots ####
 #### Position ####
@@ -197,6 +215,7 @@ ggsave(plt_save,
        height = 2.5,
        width = 5.6)
 
+
 #### new idea ####
 # more bar plots but broken down by "out of 3"
 df_part2 %>% 
@@ -224,7 +243,7 @@ df_part2 %>%
   summarise(n = n()) %>% 
   ungroup() %>%
   mutate(slab_measures = factor(slab_measures,
-                                c("90% (Close)", "75%", "25%", "10% (Far)"))) %>%
+                                c("C", "75%", "25%", "F"))) %>%
   ggplot(aes(out_of_3, n,
              colour = slab_measures, 
              fill = slab_measures)) + 
@@ -271,7 +290,7 @@ plt_ridges <- df_part2 %>%
   # summarise(n = n()) %>%
   ungroup() %>%
   mutate(slab_measures = factor(slab_measures,
-                                c("90% (Close)", "75%", "25%", "10% (Far)"))) %>% 
+                                c("C", "75%", "25%", "F"))) %>% 
   ggplot(aes(out_of_3, slab_measures,
              # height = n,
              group = slab_measures,
@@ -313,7 +332,7 @@ plt_line_choices <- df_part2 %>%
   # summarise(n = n()) %>%
   ungroup() %>% 
   mutate(slab_measures = factor(slab_measures,
-                                c("90% (Close)", "75%", "25%", "10% (Far)"))) %>% 
+                                c("C", "75%", "25%", "F"))) %>% 
   ggplot(aes(slab_measures, out_of_3,
              colour = Participant)) + 
   # geom_jitter(alpha = .3) + 
@@ -414,7 +433,7 @@ plt_ribbon <- df_exp_acc %>%
   scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")", sep = "")),
                      limits = c(.7, 4.3),
                      breaks = seq(1,4,1),
-                     labels = c("90% (Close)", "75%", "25%", "10% (Far)")) + 
+                     labels = c("C", "75%", "25%", "F")) + 
   scale_colour_brewer(palette = "Dark2") +
   scale_fill_brewer(palette = "Dark2") +
   theme_bw() + 
@@ -432,7 +451,6 @@ plt_save <- cowplot::plot_grid(plt_bar, plt_line_choices, plt_box, plt_ribbon, l
 ggsave(plt_save, file = paste(save_route, "four_panel.png", sep = ""),
        height = 5*.8,
        width = 5.6*.8)
-
 
 # to satisfy curiosity about the best strategy 
 # all looks good
