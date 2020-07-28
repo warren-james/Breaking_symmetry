@@ -4,6 +4,7 @@ output:
   bookdown::pdf_document2:
     #theme: journal
     toc: true
+    keep_tex: false
 bibliography: ["Literature.bib"]
 biblio-style: "apalike"
 link-citations: true
@@ -14,11 +15,9 @@ title: "Supplementary Material For Asymmetry paper"
 output: html_document
 ---
 
-```{r settings, include = F, echo = F}
-knitr::opts_chunk$set(fig.align = "center")
-```
 
 ```{r setup, include=T, message=F, warning=F, echo= F}
+knitr::opts_chunk$set(fig.align = "center")
 # library 
 library(tidybayes)
 library(tidyverse)
@@ -58,7 +57,7 @@ We started by fitting a a beta distribution to each participant's data from the 
 
 This is directly linked to the idea behind the Hoop Size experiment in which we aimed to observe whether participants would shift towards one side when presented with hoops of different sizes. However, this can be applied to the other experiments in that they are also looking at how the distribution shifts given a new factor in the experiment. 
 
-```{r drawdistributions, include = T, echo = F, fig.height = 5, fig.cap="_These plots show the various distributions that were fit to each participant. These were then used to draw random samples from in order to simulate participants shifting towards one target._", fig.align = 'center'}
+```{r drawdistributions, include = T, echo = F, fig.height = 5, fig.cap="These plots show the various distributions that were fit to each participant. These were then used to draw random samples from in order to simulate participants shifting towards one target."}
 # load("../power/Hoop_size/scratch/sampled_data")
 load("../power/Hoop_size/scratch/df_part2")
 
@@ -260,7 +259,7 @@ for(ii in 1:n_iter){
 
 We can now these use distributions to simulate experiments with $N = 3\ldots 24$ participants and 72 trials. Figure \@ref(fig:HDIHoopSize) shows the uncertainty surrounding the mean estimate for the smallest difference tested (5\%). After 15 participants, the uncertainty surrounding the estimate appears to plateau which demonstrates that the sample size of 21 was sufficient to detect an effect of this size. 
 
-```{r HDIHoopSize, include = T, echo = F, fig.align = 'center', fig.height = 3, fig.cap="_This figure shows how the 95% HDI around the mean difference for the smallest difference simulated (5%) changed with a larger sample size_"}
+```{r HDIHoopSize, include = T, echo = F, warning = F, fig.height = 3, fig.cap="This figure shows how the 95\\% HDI around the mean difference for the smallest difference simulated (5\\%) changed with a larger sample size"}
 
 df_sample %>% 
   filter(increase == 0.05) %>% 
@@ -297,7 +296,7 @@ source("extract_draws_functions/Hoop_size_draws.R")
 load("../Analyses/Experiment_3_Hoop_size/scratch/beanbagdat")
 ```
 
-```{r HoopSizeSession1, include = T, echo = F, warning = F, fig.asp = .75, fig.cap = "_Each facet shows how a participant's accuracy dropped as a function of distance for both hoop sizes that were used in the experiment. The x-axis has been normalised so that 1 represents the furthest distance tested._"}
+```{r HoopSizeSession1, echo = F, warning = F, fig.asp = .75, fig.cap = "Each facet shows how a participant's accuracy dropped as a function of distance for both hoop sizes that were used in the experiment. The x-axis has been normalised so that 1 represents the furthest distance tested."}
 beanbagdat %>% 
   mutate(delta = slab/max(slab),
          hoop_size = factor(hoop_size, labels = c("Large", "Small"))) %>% 
@@ -318,7 +317,7 @@ beanbagdat %>%
 ```
 Figure \@ref(fig:HoopSizeFacets) shows the data for each or the participants. Each plot shows the standing position on every trial for each of the standardised distances the participants were tested at. The dots are set to be somewhat translucent so darker regions demonstrate the participant stood in this location more often. Anything above the dashed line demonstrates the participant shifting towards the smaller hoop, while below represents the participant opting to be closer to the big hoop.
 
-```{r HoopSizeFacets, include=T, echo=F, fig.width = 10, fig.height = 10, fig.cap = "_Each facet of this plot shows were each participant stood on each trial. The x-axis shows the different distances that participants were tested at with 0 being the point at which they were closest 50% from the centre. The y-axis shows the normalised standing position between the Big Hoop and the Small Hoop. _"}
+```{r HoopSizeFacets, include=T, echo=F, fig.width = 10, fig.height = 10, fig.cap = "Each facet of this plot shows were each participant stood on each trial. The x-axis shows the different distances that participants were tested at with 0 being the point at which they were closest 50\\% from the centre. The y-axis shows the normalised standing position between the Big Hoop and the Small Hoop."}
 load("../Analyses/Experiment_3_Hoop_size/scratch/df_part2_norm")
 df_hoopsize <- norm_dat
 rm(norm_dat)
@@ -391,7 +390,7 @@ Hoop_size_priors <- brm(norm_dist2 ~ norm_hoop_pos + (norm_hoop_pos|participant)
                         sample_prior = "only")
 ```
 
-```{r HoopSizePriors, include = F, echo = F, warning = F,  fig.asp = .45, fig.cap="_Prior predictions for the Hoop Size experiment_"}
+```{r HoopSizePriors, include = F, echo = F, warning = F,  fig.asp = .45, fig.cap="Prior predictions for the Hoop Size experiment"}
 # need to make a dataset
 draws <- HS_draw_post(Hoop_size_priors, model_data)
 
@@ -432,7 +431,7 @@ HDI_all <- draws$draws_HDI[[2]]
 ```
 
 
-```{r PltHoopSizeEstimates, include = F, echo = F, fig.asp=.45, fig.cap="_Posterior predictions for the mean standing position._"}
+```{r PltHoopSizeEstimates, include = F, echo = F, fig.asp=.45, fig.cap="Posterior predictions for the mean standing position."}
 plt_post_hoopsize <- draws$plt_estimates + 
   scale_x_continuous(expression(paste("Normalised ", Delta)),
                      limits = c(0,1),
@@ -448,7 +447,7 @@ summary(Hoop_size_m1)$fixed
 
 The model results confirmed that participants in general had a bias towards standing closer to the small hoop (mean of `r round(HDI_all$mean, digits = 3)`, 95% HDPI of |`r round(HDI_all$lower, digits = 3)`, `r round(HDI_all$upper, digits = 3)`|). We can be reasonably confident about this results as the p(x > 0.5|data) = `r paste(round(p_above_5$above0_5, digits = 3)*100, "%", sep = "")`. This can be seen in the posterior in the right hand plot of Figure \@ref(fig:PltHoopSize). Also, note that distance did not appear to have an effect on position (i.e., participants were generally biased slightly towards the smaller hoop).
 
-``` {r PltHoopSize, include = T, echo = F, fig.asp = .45, fig.cap="_Figure on the left shows the Prior predictions. The figure on the right shows the Posterior predictions once the model had been conditioned on the data_"}
+``` {r PltHoopSize, include = T, echo = F, fig.asp = .45, fig.cap="Figure on the left shows the Prior predictions. The figure on the right shows the Posterior predictions once the model had been conditioned on the data"}
 # get legend 
 HoopSizeLegend <- g_legend(plt_prior_hoopsize)
 
@@ -469,7 +468,7 @@ load("../Analyses/Experiment_2_Two_throw/scratch/df_part1")
 source("extract_draws_functions/Two_throw_draws_noint.R")
 ```
 
-```{r TwoThrowSession1, include = 1, echo = 1, warning = F, fig.asp = .75, fig.cap = "_Each facet shows how a participant's accuracy dropped as a function of distance. The x-axis has been normalised so 1 represents the furthest range tested._"}
+```{r TwoThrowSession1, include = 1, echo = 1, warning = F, fig.asp = .75, fig.cap = "Each facet shows how a participant's accuracy dropped as a function of distance. The x-axis has been normalised so 1 represents the furthest range tested."}
 df_part1 %>% 
   mutate(delta = slab/max(slab)) %>% 
   ggplot(aes(delta, acc)) + 
@@ -486,7 +485,7 @@ df_part1 %>%
 ```
 Figure \@ref(fig:TwoThrowFacets) shows the individual data for each of the participants in this experiment. Each plot shows where the participants stood on each trial for each of the distances they were tested at with the different conditions being colour coded. 
 
-``` {r TwoThrowFacets, include = T, echo = F, fig.width = 10, fig.cap = "_Each facet of this plot shows the stnading position on each trial and condition for each participant. The x-axis shows the different distances that participants were tested at with 0 being the point at which they were closest 50% from the centre. The y-axis shows the normalised standing position (between the centre point and one of the two side hoops)._"}
+``` {r TwoThrowFacets, include = T, echo = F, fig.width = 10, fig.cap = "Each facet of this plot shows the stnading position on each trial and condition for each participant. The x-axis shows the different distances that participants were tested at with 0 being the point at which they were closest 50\\% from the centre. The y-axis shows the normalised standing position (between the centre point and one of the two side hoops)."}
 # process 
 df_TwoThrow <- model_data_pos %>% 
   group_by(Participant) %>%
@@ -644,7 +643,7 @@ plt_difference <- draws$Plots[3][[1]][["data"]] %>%
 # gridExtra::grid.arrange(plt_examples, plt_difference)
 ```
 
-```{r TwoThrowPlts, include = T, echo = F, fig.asp = .45, fig.cap = "_The top panel shows the Prior preditcions for the Two Throw experiment. The bottom panel shows the Posterior predictions for the Two Throw expeirment._"}
+```{r TwoThrowPlts, include = T, echo = F, fig.asp = .45, fig.cap = "The top panel shows the Prior preditcions for the Two Throw experiment. The bottom panel shows the Posterior predictions for the Two Throw expeirment."}
 # get legend 
 TwoThrowLegend <- g_legend(priors_plt)
 
@@ -654,7 +653,7 @@ grid.arrange(arrangeGrob(priors_plt + theme(legend.position = "none"), plt_examp
 
 ```
 
-```{r TwoThrowDifference, include = T, echo = F, fig.asp = .45, fig.cap = "_This figure shows the difference in the estimates for the Two Throw experiment. This is the diffrence between the red and blue distributions see in the Figure `@ref(fig:TwoThrowPlts)` with a bigger number representing the One Throw condition have a larger mean than the Two Throw condition._"}
+```{r TwoThrowDifference, include = T, echo = F, fig.asp = .45, fig.cap = "This figure shows the difference in the estimates for the Two Throw experiment. This is the diffrence between the red and blue distributions see in the Figure `@ref(fig:TwoThrowPlts)` with a bigger number representing the One Throw condition have a larger mean than the Two Throw condition."}
 plt_difference
 ```
 
@@ -695,7 +694,7 @@ source("extract_draws_functions/Reward_draws_noint.R")
 load("../Analyses/Experiment_5_Unequal_Reward/scratch/data/df_part1")
 ```
 
-``` {r RewardsSession1, include = T, echo = F, warning = F, fig.asp = .75, fig.cap = "_Each facet shows how accuracy changed over distance for each pariticipant. The x-axis has been normalised with 1 being the furthest_"}
+``` {r RewardsSession1, include = T, echo = F, warning = F, fig.asp = .75, fig.cap = "Each facet shows how accuracy changed over distance for each pariticipant. The x-axis has been normalised with 1 being the furthest"}
 df_part1 %>% 
   mutate(Delta = Slab/max(Slab)) %>%
   ggplot(aes(Delta, Accuracy)) + 
@@ -714,7 +713,7 @@ df_part1 %>%
 Figure \@ref(fig:RewardFacets) shows the individual data for each of the participants in this experiment. Each plot shows where the participants stood on each trial for each of the distances at which they were tested with the different conditions being colour coded. 
 
 
-``` {r RewardFacets, include = T, echo = F, fig.asp = .75, fig.cap = "_Each facet in this plot shows the decision on a single trial about where to stand and how the participant had opted to split the reward. The x-axis corresponds to the participants chance of success had they stood at the centre with the y-axis showing the normalised standing potision._"}
+``` {r RewardFacets, include = T, echo = F, fig.asp = .75, fig.cap = "Each facet in this plot shows the decision on a single trial about where to stand and how the participant had opted to split the reward. The x-axis corresponds to the participants chance of success had they stood at the centre with the y-axis showing the normalised standing potision."}
 df_Rewards <- model_data %>%
   group_by(Participant) %>%
   mutate(temp = as.numeric(as.factor(Norm_Delta)),
@@ -896,7 +895,7 @@ bottom <- grid.arrange(arrangeGrob(plt_gamble + theme(legend.position = "none"),
 
 ```
 
-```{r PltRewardestimates, echo = F, include = T, warning = F, fig.asp=.45, fig.cap="_This plot shows the posterior distribution of standing positions for the Reward study_"}
+```{r PltRewardestimates, echo = F, include = T, warning = F, fig.asp=.45, fig.cap="This plot shows the posterior distribution of standing positions for the Reward study"}
 grid.arrange(arrangeGrob(plt_RewardPriors + theme(legend.position = "none"), plt_inter + theme(legend.position = "none")), Reward_legend, ncol = 2, widths = c(6,1))
 #plt_inter
 ```
@@ -968,7 +967,7 @@ load("../power/Prob_match/scratch/df_resample")
 
 For this experiment, data from ($N$ = 12) @clarke2015failure, which acted as a substitute for the Symmetric condition, and an unpublished pilot study ($N$ = 11), which followed the same rules as the Bias condition in the main experiment, were resampled in order to investigate how often participants would fixate one of the side boxes given it was more likely to contain the target for the Bias condition. For the Symmetric condition, we followed the same rule as the in the paper and classified the most likely box as the side box that participants fixated most often (Figure \@ref(fig:ProbOGData). The main interest for our purposes was the proportion of time participants fixated the most likely box.
 
-```{r ProbOGData, include=T, echo=F, fig.asp=.45, fig.cap="_Boxplots to show the proportion of trials in which the participants fixated the each box by Condition and Distance type_"}
+```{r ProbOGData, include=T, echo=F, fig.asp=.45, fig.cap="Boxplots to show the proportion of trials in which the participants fixated the each box by Condition and Distance type"}
 plt_data <- df_resample %>%  
   ungroup() %>% 
   group_by(Participant, Condition, Dist_type) %>% 
@@ -1074,7 +1073,7 @@ for(ii in 1:n_iter){
 
 ```
 
-```{r ProbPowerPlots, include = T, echo = F, fig.asp=.45, fig.cap="_Plot to show how the 95% HDI of the estimated difference in fixations to the most likely box changed with an increase in participants_"}
+```{r ProbPowerPlots, include = T, echo = F, fig.asp=.45, fig.cap="Plot to show how the 95\\% HDI of the estimated difference in fixations to the most likely box changed with an increase in participants"}
 # maybe just the hdi stuff?
 # do I want to rerun the sim with dist type added in?
 plt_resampling <- df_sample %>% 
@@ -1108,10 +1107,10 @@ The experiment took place in a darkened room on a desktop computer. An Eyelink 1
 
 In the first session, participants were instructed to remain fixated at the center and identify a letter that would appear in one of two boxes. At the start of each trial,participants fixated a central black cross on a grayscale background and pressed the spacebar. The cross was flanked by two boxes which were a lighter shade of grey and occupied 1◦ of visual angle. After a stable fixation had been maintained for 700ms, the target would appear in one of the two boxes for 500ms. The target was a white letter, 0.4&deg; of visual angle, drawn using the Sloan font as these letters are generally of equal recognisability at different viewing angles[@sloan1952comparison]. Ten letters were used and one was selected randomly on each trial to be the target letter. Participants were then presented with a screen prompting them to report which letter was presented by clicking on the corresponding character. An illustration of each trial in Session 1 can be seen in Figure \@ref(fig:ProbSession1).
 
-```{r ProbSession1, include=T, echo=F, fig.asp=.45, fig.cap="_The sequence for every trial in Session 1_"}
+```{r ProbPart1, include=T, echo=F, fig.asp=.45, fig.cap="The sequence for every trial in Session 1"}
 
-plt_fig1 <- readPNG("../Figures/Experiment_4_Prob/Part1_Trial.png")
-grid.raster(plt_fig1)
+plt_session1Prob <- readPNG("../Figures/Experiment_4_Prob/Part2_Trial.png")
+grid.raster(plt_session1Prob)
 
 ```
 
@@ -1120,7 +1119,7 @@ The boxes were presented on either side of the fixation cross at several differe
 After each block, participants were offered a break before recalibrating and moving onto the next block. Participants completed four of these blocks. The data from this first session were used to tailor the separations that would be used for the second session. A “switch-point” was calculated for each participant based on their Session 1 performance. This was then used as an anchor point from which to calculate the other separations to be used in Session 2. The switch-point for each participant was the separation at which the participant was 68.5% accurate. The accuracy level of 68.5% is the mid-point between 55% and 82%; these two values are the points at which participants should switch from fixating the central box to the side box in the Symmetric and Bias conditions, respectively(see below for more details).
 
 
-```{r ProbSession2, include=T, echo=F, fig.asp=.45, fig.cap="_The sequence for every trial in Session 2_"}
+```{r ProbSession2, include=T, echo=F, fig.asp=.45, fig.cap="The sequence for every trial in Session 2"}
 
 plt_fig2 <- readPNG("../Figures/Experiment_4_Prob/Part2_Trial.png")
 grid.raster(plt_fig2)
@@ -1139,7 +1138,7 @@ The optimal strategy is to fixate whichever of the three boxes maximises expecte
 All analysis for this experiment follow the same procedures as described in previous sections. 
 
 ## Results
-```{r ProbProp, include = T, echo = F, fig.asp=.45, fig.cap="_These boxplots show the proportion of the time that participants fixated the centre (left panel), most-likely (central panel) and least-likely (right panel) box. In the _Bias_ condition, 'most likely' was the box with and 80% probability of containing the target. In the _Symmetric_ condition, 'most-likely' was whichever side box a given participant had fixated the most. The Close and Far distinction is baseed on when participants should swith from fixating the central box to the side box. Note that for some participants, expected performance differences between the Centre and Side strategies for the closest separation was negligible. However, all participants should have fixated the Side boxes in the Far condition, where the performance advantage of doing so was substantial._"}
+```{r ProbProp, include = T, echo = F, fig.asp=.45, fig.cap="These boxplots show the proportion of the time that participants fixated the centre (left panel), most-likely (central panel) and least-likely (right panel) box. In the Bias condition, most likely was the box with and 80\\% probability of containing the target. In the Symmetric condition, most-likely was whichever side box a given participant had fixated the most. The Close and Far distinction is baseed on when participants should swith from fixating the central box to the side box. Note that for some participants, expected performance differences between the Centre and Side strategies for the closest separation was negligible. However, all participants should have fixated the Side boxes in the Far condition, where the performance advantage of doing so was substantial."}
 
 plt_prop_fix <- readPNG("../Figures/Experiment_4_Prob/boxes_prop_CML.png")
 grid.raster(plt_prop_fix)
@@ -1148,7 +1147,7 @@ grid.raster(plt_prop_fix)
 
 The choices made by participants on where to look are summarized in Figure \@ref(fig:ProbProp). The optimal strategy in this situation is to fixate the central box when the two sides boxes are near (i.e., when their distance from centre, $\Delta$, is closer than each participant’s switch point). When they are far (i.e. delta is greater than the switch point), a participant behaving optimally should fixate either of the side boxes when in the symmetric condition, and the most-likely box when in the biased condition. The first panel of Figure \@ref(fig:ProbProp) clearly shows that our participants did not follow this strategy.  However, while adding a bias to the location of the target did not help participants to behave optimally, we can see that it did have an effect on their behavior, as they were much less likely to fixate the central box. Furthermore, when fixating one of the two side squares, they fixated the square that was most likely to contain the target (Figure \@ref(fig:ProbProp), central and right panel) almost all the time
 
-```{r ProbExpAcc, include = T, echo = F, fig.asp = .45, fig.cap = "_These show the expected accuracy for each participant (black lines) plotted against $\\Delta$. The different shaded regions show the minimum (orange) and maximum (green) expected accuracy rates for all participants. $\\Delta$ is the separations at which each participant was tested rescaled to be between 0 and 1_"}
+```{r ProbExpAcc, include = T, echo = F, fig.asp = .45, fig.cap = "These show the expected accuracy for each participant (black lines) plotted against $\\Delta$. The different shaded regions show the minimum (orange) and maximum (green) expected accuracy rates for all participants. $\\Delta$ is the separations at which each participant was tested rescaled to be between 0 and 1"}
 plt_prop_expAcc <- readPNG("../Figures/Experiment_4_Prob/region_performance.png")
 grid.raster(plt_prop_expAcc)
 ```
@@ -1156,7 +1155,7 @@ grid.raster(plt_prop_expAcc)
 We can also look at how the choice of where to look influenced participants’ accuracy. We use the target detection models from Session 1 to calculate the expected accuracy given either (i) an optimal, (ii) counter-optimal, or (iii) the observed strategy. This measure eliminates the variance present in the actual accuracy data due to the random location of the target and participant’s guessing the correct answer by chance. These data are summarised in Figure \@ref(fig:ProbExpAcc). We can see that in the symmetric condition, with the exception of one individual, our participants behaved in a way that gave rise to expected accuracies much closer to the counter-optimal strategy than optimal. Expected accuracy was higher in the biased condition, with four participants reaching optimal performance, with the rest ending up somewhere between the optimal and counter-optimal. 
 
 ### Session 1 Accuracy 
-```{r probSession1, include = T, echo = F, warning = F, fig.asp = .75, fig.cap = "_This figure shows the rate at which participants correctly identified the target letter presented within a box placed some distance from the centre with the lines showing a logistic regression on these data._"}
+```{r probSession1, include = T, echo = F, warning = F, fig.asp = .75, fig.cap = "This figure shows the rate at which participants correctly identified the target letter presented within a box placed some distance from the centre with the lines showing a logistic regression on these data."}
 # load in part 1 data 
 load("../Analyses/Experiment_4_Prob/scratch/new_data/Part_1_data_nar")
 
@@ -1208,7 +1207,7 @@ Rewards_priors <- c(set_prior("student_t(3, 0, .5)", class = "b"),
                     set_prior("student_t(3,0,1)", class = "Intercept"))
 ```
 
-```{r ProbPriors, include = T, echo = T, message = F, warning = F, results = "hide", cache = TRUE}
+```{r ProbPriors, include = F, echo = F, message = F, warning = F, results = "hide", cache = TRUE}
 ProbPriors_model <- brm(Ml_fix ~ (bias_type + dist_type)^2 + (dist_type * bias_type|participant),
                         data = df_model,
                         family = "bernoulli",
@@ -1271,7 +1270,7 @@ bottom <- grid.arrange(arrangeGrob(plt_ProbPrior_meBias + theme(legend.position 
 
 ```
 
-```{r ProbPriorsPlt, echo = F, fig.cap="_Prior Predictive checks for the Probability matching experiment_"}
+```{r ProbPriorsPlt, echo = F, fig.cap="Prior Predictive checks for the Probability matching experiment"}
 gridExtra::grid.arrange(plt_ProbPrior_meDist, bottom, heights = c(2, 4))
 ```
 
@@ -1408,11 +1407,13 @@ bottom <- grid.arrange(arrangeGrob(plt_me_Bias + theme(legend.position = "none")
 # gridExtra::grid.arrange(plt_me_Dist, plt_me_Bias, plt_ProbPost)
 ```
 
-```{r ProbModelOutputs, include = T, echo = F, fig.cap = "_Posterior predictions for the probability matching experiment_"}
+```{r ProbModelOutputs, include = T, echo = F, fig.cap = "Posterior predictions for the probability matching experiment"}
 gridExtra::grid.arrange(plt_me_Dist, bottom,  ncol = 1, heights = c(2,4))
 ```
 
 ## Discussion 
 The results of this study suggest that participants were in fact sensitive to the difference in probability of each side containing the target and responded by fixating this location more often when there was a bias compared to the Symmetric conditions. However, the presence of a bias did not lead participants to utilising a more optimal strategy. It would appear that the introduction of a bias for one target distracted participants from discovering the optimal strategy. Instead, participants appeared to focus primarily on the probability aspect of the task. 
+
+\newpage
 
 # Bibliography
