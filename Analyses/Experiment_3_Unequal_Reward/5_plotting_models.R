@@ -93,7 +93,7 @@ plt$labels$fill <- "Split"
 plt
 
 # save this plot 
-ggsave("../../Figures/Experiment_5_Unequal_Reward/Model_output.png",
+ggsave("../../Figures/Experiment_3_Unequal_Reward/Model_output.png",
        height = 12,
        width = 18,
        units = "cm")

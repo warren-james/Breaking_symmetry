@@ -60,7 +60,7 @@ grid.arrange(plt_prop_gamble_types,plt_standing_pos, ncol = 2)
 plt_together <- arrangeGrob(plt_prop_gamble_types, plt_standing_pos, ncol = 2)
 
 # save this 
-ggsave(file = "../../Figures/Experiment_5_Unequal_Reward/prop_and_position.png", plt_together)
+ggsave(file = "../../Figures/Experiment_3_Unequal_Reward/prop_and_position.png", plt_together)
 
 #### combine the above plots together somehow... 
 # sort data first 
@@ -185,7 +185,7 @@ plt_trials$labels$y <- "Normalised Standing Position"
 plt_trials
 
 # save 
-ggsave(file = "../../Figures/Experiment_5_Unequal_Reward/Plot_each_trial.png")
+ggsave(file = "../../Figures/Experiment_3_Unequal_Reward/Plot_each_trial.png")
 
 #### Proportion over distance ####
 # need to standardise the distances... 
@@ -213,7 +213,7 @@ plt_dist_prop$labels$y <- ""
 plt_dist_prop
 
 # save 
-ggsave(file = "../../Figures/Experiment_5_Unequal_Reward/Prop_gambles_dist.png")
+ggsave(file = "../../Figures/Experiment_3_Unequal_Reward/Prop_gambles_dist.png")
 
 
 #### Did participants stand closer to the more valuable option? ####

@@ -8,7 +8,7 @@ library(tidyverse)
 load("scratch/df_part2_norm")
 
 #### constants #### 
-save_route <- c("../../Figures/Experiment_3_Hoop_size/")
+save_route <- c("../../Figures/Experiment_1_Hoop_size/")
 #### functions ####
 mu <- function(a, b){
   a/(a + b)

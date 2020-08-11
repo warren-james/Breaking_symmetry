@@ -288,12 +288,12 @@ In the analyses below, we use multi-level Bayesian beta regression to model the 
 
 ```{r load data and source function Hoop Size, echo = F, include = F}
 # load model data 
-load("../Analyses/Experiment_3_Hoop_size/data/model_data")
+load("../Analyses/Experiment_1_Hoop_size/data/model_data")
 
 # get function for extracting draws 
 source("extract_draws_functions/Hoop_size_draws.R")
 
-load("../Analyses/Experiment_3_Hoop_size/scratch/beanbagdat")
+load("../Analyses/Experiment_1_Hoop_size/scratch/beanbagdat")
 ```
 
 ```{r HoopSizeSession1, echo = F, warning = F, fig.asp = .75, fig.cap = "Each facet shows how a participant's accuracy dropped as a function of distance for both hoop sizes that were used in the experiment. The x-axis has been normalised so that 1 represents the furthest distance tested."}
@@ -318,7 +318,7 @@ beanbagdat %>%
 Figure \@ref(fig:HoopSizeFacets) shows the data for each or the participants. Each plot shows the standing position on every trial for each of the standardised distances the participants were tested at. The dots are set to be somewhat translucent so darker regions demonstrate the participant stood in this location more often. Anything above the dashed line demonstrates the participant shifting towards the smaller hoop, while below represents the participant opting to be closer to the big hoop.
 
 ```{r HoopSizeFacets, include=T, echo=F, fig.width = 10, fig.height = 10, fig.cap = "Each facet of this plot shows were each participant stood on each trial. The x-axis shows the different distances that participants were tested at with 0 being the point at which they were closest 50\\% from the centre. The y-axis shows the normalised standing position between the Big Hoop and the Small Hoop."}
-load("../Analyses/Experiment_3_Hoop_size/scratch/df_part2_norm")
+load("../Analyses/Experiment_1_Hoop_size/scratch/df_part2_norm")
 df_hoopsize <- norm_dat
 rm(norm_dat)
 
@@ -687,11 +687,11 @@ This effect was the strongest for the closest separation which reflects the larg
 
 ## Experiment 3: Reward
 ``` {r RewardLoadData, include = F, echo = F, warning = F}
-load("../Analyses/Experiment_5_Unequal_Reward/scratch/data/model_data")
+load("../Analyses/Experiment_3_Unequal_Reward/scratch/data/model_data")
 
 source("extract_draws_functions/Reward_draws_noint.R")
 
-load("../Analyses/Experiment_5_Unequal_Reward/scratch/data/df_part1")
+load("../Analyses/Experiment_3_Unequal_Reward/scratch/data/df_part1")
 ```
 
 ``` {r RewardsSession1, include = T, echo = F, warning = F, fig.asp = .75, fig.cap = "Each facet shows how accuracy changed over distance for each pariticipant. The x-axis has been normalised with 1 being the furthest"}
@@ -1109,7 +1109,7 @@ In the first session, participants were instructed to remain fixated at the cent
 
 ```{r ProbPart1, include=T, echo=F, fig.asp=.45, fig.cap="The sequence for every trial in Session 1"}
 
-plt_session1Prob <- readPNG("../Figures/Experiment_4_Prob/Part2_Trial.png")
+plt_session1Prob <- readPNG("../Figures/Experiment_sup_Prob/Part2_Trial.png")
 grid.raster(plt_session1Prob)
 
 ```
@@ -1121,7 +1121,7 @@ After each block, participants were offered a break before recalibrating and mov
 
 ```{r ProbSession2, include=T, echo=F, fig.asp=.45, fig.cap="The sequence for every trial in Session 2"}
 
-plt_fig2 <- readPNG("../Figures/Experiment_4_Prob/Part2_Trial.png")
+plt_fig2 <- readPNG("../Figures/Experiment_sup_Prob/Part2_Trial.png")
 grid.raster(plt_fig2)
 
 ```
@@ -1140,7 +1140,7 @@ All analysis for this experiment follow the same procedures as described in prev
 ## Results
 ```{r ProbProp, include = T, echo = F, fig.asp=.45, fig.cap="These boxplots show the proportion of the time that participants fixated the centre (left panel), most-likely (central panel) and least-likely (right panel) box. In the Bias condition, most likely was the box with and 80\\% probability of containing the target. In the Symmetric condition, most-likely was whichever side box a given participant had fixated the most. The Close and Far distinction is baseed on when participants should swith from fixating the central box to the side box. Note that for some participants, expected performance differences between the Centre and Side strategies for the closest separation was negligible. However, all participants should have fixated the Side boxes in the Far condition, where the performance advantage of doing so was substantial."}
 
-plt_prop_fix <- readPNG("../Figures/Experiment_4_Prob/boxes_prop_CML.png")
+plt_prop_fix <- readPNG("../Figures/Experiment_sup_Prob/boxes_prop_CML.png")
 grid.raster(plt_prop_fix)
 
 ```
@@ -1148,7 +1148,7 @@ grid.raster(plt_prop_fix)
 The choices made by participants on where to look are summarized in Figure \@ref(fig:ProbProp). The optimal strategy in this situation is to fixate the central box when the two sides boxes are near (i.e., when their distance from centre, $\Delta$, is closer than each participant’s switch point). When they are far (i.e. delta is greater than the switch point), a participant behaving optimally should fixate either of the side boxes when in the symmetric condition, and the most-likely box when in the biased condition. The first panel of Figure \@ref(fig:ProbProp) clearly shows that our participants did not follow this strategy.  However, while adding a bias to the location of the target did not help participants to behave optimally, we can see that it did have an effect on their behavior, as they were much less likely to fixate the central box. Furthermore, when fixating one of the two side squares, they fixated the square that was most likely to contain the target (Figure \@ref(fig:ProbProp), central and right panel) almost all the time
 
 ```{r ProbExpAcc, include = T, echo = F, fig.asp = .45, fig.cap = "These show the expected accuracy for each participant (black lines) plotted against $\\Delta$. The different shaded regions show the minimum (orange) and maximum (green) expected accuracy rates for all participants. $\\Delta$ is the separations at which each participant was tested rescaled to be between 0 and 1"}
-plt_prop_expAcc <- readPNG("../Figures/Experiment_4_Prob/region_performance.png")
+plt_prop_expAcc <- readPNG("../Figures/Experiment_sup_Prob/region_performance.png")
 grid.raster(plt_prop_expAcc)
 ```
 
@@ -1157,7 +1157,7 @@ We can also look at how the choice of where to look influenced participants’ a
 ### Session 1 Accuracy 
 ```{r probSession1, include = T, echo = F, warning = F, fig.asp = .75, fig.cap = "This figure shows the rate at which participants correctly identified the target letter presented within a box placed some distance from the centre with the lines showing a logistic regression on these data."}
 # load in part 1 data 
-load("../Analyses/Experiment_4_Prob/scratch/new_data/Part_1_data_nar")
+load("../Analyses/Experiment_sup_Prob/scratch/new_data/Part_1_data_nar")
 
 # function 
 get_VisDegs <- function(separation,distance){
@@ -1189,7 +1189,7 @@ df %>%
 #### Prior Predictive checks
 ```{r Prob load data, include = F, echo = F}
 # load data
-load("../Analyses/Experiment_4_Prob/modelling/BRMS/model_data/df_model")
+load("../Analyses/Experiment_sup_Prob/modelling/BRMS/model_data/df_model")
 
 # load function
 source("extract_draws_functions/Prob_draws.R")

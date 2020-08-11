@@ -97,7 +97,7 @@ plt_fix <- df_part2_fixed %>%
 plt_fix 
 
 # save this 
-ggsave("../../Figures/Experiment_4_Prob/boxes_prop_CML.png",
+ggsave("../../Figures/Experiment_sup_Prob/boxes_prop_CML.png",
        width = 5.6,
        height = 2.5)
 
@@ -411,7 +411,7 @@ plt_lines_region <- df_regions %>%
 plt_lines_region  
 
 # # save 
-ggsave("../../Figures/Experiment_4_Prob/region_performance.png",
+ggsave("../../Figures/Experiment_sup_Prob/region_performance.png",
        width = 5.6,
        heigh = 3)
 

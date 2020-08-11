@@ -8,7 +8,7 @@ library(tidyverse)
 load("scratch/data/model_data")
 load("scratch/data/df_part2")
 #### Constants ####
-save_route <- "../../Figures/Experiment_5_Unequal_Reward/"
+save_route <- "../../Figures/Experiment_3_Unequal_Reward/"
 plt_space <- .5
 #### Functions ####
 
