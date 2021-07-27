@@ -427,7 +427,7 @@ plt_ribbon <- df_exp_acc %>%
                   ymax = ymax_Best,
                   fill = "green"),
               alpha = .3) +
-  scale_y_continuous("Expected Earnigs per trial",
+  scale_y_continuous("Expected Earnings per trial",
                      breaks = seq(0,20,5),
                      labels = c("0p", "5p", "10p", "15p", "20p")) + 
   scale_x_continuous(expression(paste("Hoop Delta (", Delta, ")", sep = "")),
