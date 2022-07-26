@@ -33,72 +33,60 @@ dat$participant <- as.factor(dat$participant)
 dat <- dat[ , !(names(dat) %in% "experimenter")]
 
 # make all colour values the same 
-# sort red
-dat$colour[dat$colour == "Red"] <- "R"
-
-# sort yellow
-dat$colour[dat$colour == "y"] <- "Y"
-dat$colour[dat$colour == " Y"] <- "Y"
-dat$colour[dat$colour == "Y "] <- "Y"
-dat$colour[dat$colour == "Y  "] <- "Y"
-dat$colour[dat$colour == "Y   "] <- "Y"
-dat$colour[dat$colour == "Yellow"] <- "Y"
-dat$colour[dat$colour == "Yellow "] <- "Y"
-dat$colour[dat$colour == "yellow"] <- "Y"
-
-# sort blue 
-dat$colour[dat$colour == "Blue"] <- "B"
-dat$colour[dat$colour == "Blue "] <- "B"
-
+dat$colour[grepl("r", tolower(dat$colour))] <- "R"
+dat$colour[grepl("y", tolower(dat$colour))] <- "Y"
+dat$colour[grepl("b", tolower(dat$colour))] <- "B"
 
 # unique order now B Y R 
 
 # remove unused levels 
-dat$colour <- factor(dat$colour)
-
-# reorder levels
-dat$colour <- factor(dat$colour,
-                     levels(dat$colour)[c(1,3,2)])
-
+dat$colour <- factor(dat$colour, levels = c("B", "Y", "R"))
 
 # add in hoop_position 
-for (row in 1:nrow(dat))
-{
-  dat$hoop_pos[row] = dat[row,as.character(dat$colour[row])]
-}
-
-# tidy 
-rm(row) 
+dat$hoop_pos <- sapply(1:nrow(dat), function(i){
+  case_when(dat$colour[i] == "R" ~ dat$R[i], 
+            dat$colour[i] == "B" ~ dat$B[i],
+            TRUE ~ dat$Y[i])
+})
 
 # create columns to fill
 dat$small_pos <- 0 
 dat$large_pos <- 0 
 
-
+# TODO: Double check this is the right way round... if it's north then the target is negative?
+dat$small_pos <- sapply(
+  dat$colour, function(i){
+    Nsize <- case_when(dat$colour[i] == "R" ~ dat$R_N_Size[i],
+                       dat$colour[i] == "B" ~ dat$B_N_Size[i],
+                       TRUE ~ dat$Y_N_Size[i])
+    ifelse(Nsize == "large", dat$hoop_pos[i], -dat$hoop_pos[i])
+  }
+)
+dat$large_pos <- dat$small_pos * -1
 
 #### input small hoop pos ####
 # rownames used so it doesn't loop over the first 15 rows...
 
-for(i in levels(dat$participant)){
-  a <- 10
-  for(x in levels(dat$colour)){
-    for(z in rownames(dat[dat$colour == x & dat$participant == i,])){
-      q <- as.numeric(z)
-      if(unique(dat[q,a]) == "large"){
-        dat$small_pos[q] <- dat$hoop_pos[q]*-1
-      } else { 
-        dat$small_pos[q] <-  dat$hoop_pos[q]
-      }
-    }
-    a <- a + 1
-  }
-}
-
-# tidy
-rm(a,i,q,x,z)
-
-# add in large pos 
-dat$large_pos <- dat$small_pos*-1
+# for(i in levels(dat$participant)){
+#   a <- 10
+#   for(x in levels(dat$colour)){
+#     for(z in rownames(dat[dat$colour == x & dat$participant == i,])){
+#       q <- as.numeric(z)
+#       if(unique(dat[q,a]) == "large"){
+#         dat$small_pos[q] <- dat$hoop_pos[q]*-1
+#       } else {
+#         dat$small_pos[q] <-  dat$hoop_pos[q]
+#       }
+#     }
+#     a <- a + 1
+#   }
+# }
+# 
+# # tidy
+# rm(a,i,q,x,z)
+# 
+# # add in large pos
+# dat$large_pos <- dat$small_pos*-1
 
 # save
 save(dat, file = "scratch/df_part2_raw")
@@ -116,7 +104,17 @@ load("temp/slabs_to_test")
 # Can do this based on position data; probably separate it out...
 norm_dat <- dat
 
+# add in target size 
+norm_dat$TargetSide = sapply(1:nrow(norm_dat), function(i){
+  ifelse(norm_dat$direction[i] == "South",
+         max(norm_dat$small_pos[i], norm_dat$large_pos[i]),
+         min(norm_dat$small_pos[i], norm_dat$large_pos[i]))
+})
+norm_dat$TargetSize = ifelse(norm_dat$TargetSide == norm_dat$large_pos, "Large", "Small")
+
+# Fix this up to be more sensible...
 # can probably loop through it?
+# this loop makes it so that all large hoops are north, and all small hoop are south
 for(i in levels(norm_dat$participant)){
   for(z in rownames(norm_dat[norm_dat$large_pos > 0 & norm_dat$participant == i,])){
     q <- as.numeric(z)
@@ -128,6 +126,9 @@ for(i in levels(norm_dat$participant)){
 
 # tidy 
 rm(i, q, z)
+
+# So, now the for subject position represents negative being closer to the large hoop
+# and positive being closer to the small hoop
 
 # apply the normalising distance function
 norm_dat$norm_dist <- norm_dist(norm_dat$subject_position, norm_dat$hoop_pos)
@@ -148,8 +149,7 @@ switch_slab <- data.frame(participant = character(),
 # set distances to be estimated
 dist_seq <- seq(0,38,0.5)
 
-for(x in unique(beanbagdat$participant))
-{
+for(x in unique(beanbagdat$participant)){
   for(i in unique(beanbagdat$hoop_size))
   {
     ss = beanbagdat[beanbagdat$participant==x & beanbagdat$hoop_size==i,]
@@ -267,7 +267,8 @@ norm_dat <- norm_dat[,c("participant",
                         "large_pos",
                         "norm_dist",
                         "switchSlab",
-                        "shift")]
+                        "shift", 
+                        "TargetSize")]
 # tidy 
 rm(temp_avg, temp_avg_small, temp_small)
 
@@ -391,7 +392,7 @@ prop_sides$stpos_type[prop_sides$prop_sizes == "1"] <- "Small Hoop"
 
 prop_sides$metres <- prop_sides$hoop_pos*Hoop_size
 
-prop_sides$participant <- as.numeric(prop_sides$participant)
+# prop_sides$participant <- as.numeric(prop_sides$participant)
 
 #### Make the proportion plot ####
 prop_plt <- ggplot(data = prop_sides, 

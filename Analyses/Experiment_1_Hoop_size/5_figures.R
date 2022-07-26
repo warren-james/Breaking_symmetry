@@ -106,7 +106,7 @@ plt_ridges <- norm_dat %>%
 plt_ridges
 
 # save
-ggsave(plt_ridges, file =paste(save_route, "ridges_plt.png", sep = ""),
+ggsave(plt_ridges, file =paste(save_route, "ridges_plt_new.png", sep = ""),
        height = 3.5,
        width = 5.6)
 

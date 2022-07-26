@@ -109,7 +109,11 @@ rm(Accuracy, Position)
 # This will probably be used for the plots...
 # Accuracy
 load("temp/Long_format/Act_acc_long")
+Act_acc <- Act_acc %>% 
+  ungroup()
 load("temp/Long_format/Opt_acc_long")
+Opt_acc <- Opt_acc %>% 
+  ungroup()
 
 # set colnames
 names <- c("participant",
@@ -132,7 +136,11 @@ rm(Act_acc, Opt_acc)
 
 # Optimal
 load("temp/Long_format/Act_Pos_long")
+Act_pos <- Act_pos %>% 
+  ungroup()
 load("temp/Long_format/Opt_Pos_long")
+Opt_pos <- Opt_pos %>% 
+  ungroup()
 
 # set colnames
 names <- c("participant",
