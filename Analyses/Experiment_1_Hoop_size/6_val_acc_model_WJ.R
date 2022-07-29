@@ -24,10 +24,6 @@ beanbagdat$p = predict(m, type="response")
 
 load("scratch/df_part2_norm") 
 
-# TODO: 
-# Need to fix this to make the plot make sense... 
-# at the moment, I'm a bit confused about what we're doing... 
-# Need to add something in the norm dat to say what size target we're aiming for on each trial
 df_part2 <- norm_dat %>% 
   as_tibble() %>%
   mutate(
@@ -35,17 +31,6 @@ df_part2 <- norm_dat %>%
     slab = case_when(TargetSize == "Large" ~ abs(subject_position - large_pos), 
                              TRUE ~ abs(subject_position - small_pos))
   ) %>% 
-  # mutate(
-  #   northSize = case_when(
-  #     colour == "B" ~ as.character(B_N_Size),
-  #     colour == "Y" ~ as.character(Y_N_Size),
-  #     colour == "R" ~ as.character(R_N_Size)
-  #   ), 
-  #   southSize = ifelse(northSize == "small", "large", "small"), 
-  #   hoop_size = ifelse(direction == "South", southSize, northSize), 
-  #   hoop_pos = ifelse(hoop_size == "small", small_pos, large_pos), 
-  #   slab = abs(subject_position - hoop_pos)
-  # ) %>% 
   group_by(participant, slab, hoop_size) %>% 
   summarise(acc = mean(accuracy),
             n = n())
@@ -55,6 +40,7 @@ df_preds <- expand_grid(participant = unique(df_part2$participant),
                         hoop_size = c("small", "large"),
                         off_set = log((1-0.01)/0.01))
 df_preds$p <- predict(m, type = "response", newdata = df_preds)
+df_preds$resp <- predict(m, newdata = df_preds)
 
 df_part2 %>% 
   ggplot(aes(slab, acc,
@@ -67,3 +53,19 @@ df_part2 %>%
   # scale_alpha(range = c(.1, 1)) +
   facet_wrap(~participant) +
   theme_bw()
+
+# NB: Below isn't really needed, but I've left it in just in case you want to look at it
+# from: http://r-statistics.co/Logistic-Regression-With-R.html
+library(InformationValue)
+predicted <- plogis(predict(m, norm_dat %>% 
+                              as_tibble() %>%
+                              mutate(
+                                off_set = log((1-0.01)/0.01),
+                                hoop_size = tolower(TargetSize),
+                                slab = case_when(TargetSize == "Large" ~ abs(subject_position - large_pos),
+                                                 TRUE ~ abs(subject_position - small_pos))
+                              ) %>%
+                              select(participant, off_set, hoop_size, slab, accuracy)))
+optCut <- optimalCutoff(norm_dat$accuracy, predicted)[1]
+misClassError(norm_dat$accuracy, predicted, optCut)
+# Lower values are better 

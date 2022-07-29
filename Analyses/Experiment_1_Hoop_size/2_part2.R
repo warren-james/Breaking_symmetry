@@ -53,14 +53,12 @@ dat$hoop_pos <- sapply(1:nrow(dat), function(i){
 dat$small_pos <- 0 
 dat$large_pos <- 0 
 
-# TODO: Double check this is the right way round... if it's north then the target is negative?
-# Need to double check with Amelia to see if she knows... 
 dat$small_pos <- sapply(
   1:nrow(dat), function(i){
     Nsize <- case_when(dat$colour[i] == "R" ~ dat$R_N_Size[i],
                        dat$colour[i] == "B" ~ dat$B_N_Size[i],
                        TRUE ~ dat$Y_N_Size[i])
-    ifelse(Nsize == "large", dat$hoop_pos[i], -dat$hoop_pos[i])
+    ifelse(Nsize == "large", -dat$hoop_pos[i], dat$hoop_pos[i])
   }
 )
 dat$large_pos <- dat$small_pos * -1
