@@ -33,7 +33,8 @@ df_part2 <- norm_dat %>%
   ) %>% 
   group_by(participant, slab, hoop_size) %>% 
   summarise(acc = mean(accuracy),
-            n = n())
+            n = n()) %>% 
+  mutate(off_set = log((1-0.01)/0.01))
 
 df_preds <- expand_grid(participant = unique(df_part2$participant),
                         slab = unique(df_part2$slab),
@@ -49,7 +50,12 @@ df_part2 %>%
     # aes(alpha = log(n))
     ) + 
   geom_line(data = df_preds, 
-            aes(slab, p)) +
+            aes(slab, p)) + 
+  # geom_smooth(method = "glm",
+  #             method.args = list(family = "binomial"),
+  #             se = FALSE, 
+  #             linetype = "longdash",
+  #             fullrange = T) +
   # scale_alpha(range = c(.1, 1)) +
   facet_wrap(~participant) +
   theme_bw()
@@ -69,3 +75,20 @@ predicted <- plogis(predict(m, norm_dat %>%
 optCut <- optimalCutoff(norm_dat$accuracy, predicted)[1]
 misClassError(norm_dat$accuracy, predicted, optCut)
 # Lower values are better 
+
+
+# now fit model to session 2 data and see what they look like 
+m2 = glm(data = df_part2, acc ~ slab:hoop_size:participant, binomial, offset = off_set)
+predicted2 <- plogis(predict(m2, norm_dat %>% 
+                               as_tibble() %>%
+                               mutate(
+                                 off_set = log((1-0.01)/0.01),
+                                 hoop_size = tolower(TargetSize),
+                                 slab = case_when(TargetSize == "Large" ~ abs(subject_position - large_pos),
+                                                  TRUE ~ abs(subject_position - small_pos))
+                               ) %>%
+                               select(participant, off_set, hoop_size, slab, accuracy)))
+optCut2 <- optimalCutoff(norm_dat$accuracy, predicted2)[1]
+misClassError(norm_dat$accuracy, predicted2, optCut2)
+plotROC(norm_dat$accuracy, predicted2)
+plotROC(norm_dat$accuracy, predicted)
